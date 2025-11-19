@@ -25,4 +25,33 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Face swap jobs table
+ * Tracks all face swap operations with their status and file references
+ */
+export const faceSwapJobs = mysqlTable("faceSwapJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  
+  // File references (S3 keys)
+  sourceImageKey: varchar("sourceImageKey", { length: 512 }).notNull(),
+  targetMediaKey: varchar("targetMediaKey", { length: 512 }).notNull(),
+  resultMediaKey: varchar("resultMediaKey", { length: 512 }),
+  
+  // File URLs
+  sourceImageUrl: text("sourceImageUrl").notNull(),
+  targetMediaUrl: text("targetMediaUrl").notNull(),
+  resultMediaUrl: text("resultMediaUrl"),
+  
+  // Metadata
+  targetMediaType: mysqlEnum("targetMediaType", ["image", "video"]).notNull(),
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type FaceSwapJob = typeof faceSwapJobs.$inferSelect;
+export type InsertFaceSwapJob = typeof faceSwapJobs.$inferInsert;

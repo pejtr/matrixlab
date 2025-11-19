@@ -1,33 +1,115 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
-import { Streamdown } from 'streamdown';
+import { useLocation } from "wouter";
+import { Sparkles, Video, Image as ImageIcon, History } from "lucide-react";
 
-/**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Workflow, Frontend Best Practices, Design Guide and Common Pitfalls
- */
 export default function Home() {
-  // The userAuth hooks provides authentication state
-  // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
-  let { user, loading, error, isAuthenticated, logout } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
 
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
-
-  // Use APP_LOGO (as image src) and APP_TITLE if needed
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      {/* Header */}
+      <header className="container mx-auto py-6 px-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {APP_LOGO && <img src={APP_LOGO} alt="Logo" className="h-10 w-10" />}
+            <h1 className="text-2xl font-bold text-white">{APP_TITLE}</h1>
+          </div>
+          <div>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <span className="text-white/80">{user?.name || user?.email}</span>
+                <Button
+                  variant="outline"
+                  onClick={() => setLocation("/history")}
+                  className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                >
+                  <History className="mr-2 h-4 w-4" />
+                  History
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => window.location.href = getLoginUrl()}
+                className="bg-white text-purple-900 hover:bg-white/90"
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <main className="container mx-auto px-4 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex justify-center mb-6">
+            <Sparkles className="h-16 w-16 text-yellow-400" />
+          </div>
+          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            AI-Powered Face Swap
+          </h2>
+          <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto">
+            Transform faces in videos and photos with cutting-edge AI technology.
+            Powered by FaceFusion for professional-quality results.
+          </p>
+
+          {isAuthenticated ? (
+            <Button
+              size="lg"
+              onClick={() => setLocation("/swap")}
+              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-lg px-8 py-6 h-auto"
+            >
+              <Sparkles className="mr-2 h-5 w-5" />
+              Start Face Swap
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              onClick={() => window.location.href = getLoginUrl()}
+              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-lg px-8 py-6 h-auto"
+            >
+              Sign In to Get Started
+            </Button>
+          )}
+
+          {/* Features */}
+          <div className="grid md:grid-cols-2 gap-8 mt-20">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+              <Video className="h-12 w-12 text-blue-400 mb-4" />
+              <h3 className="text-2xl font-bold text-white mb-3">Video Face Swap</h3>
+              <p className="text-white/70">
+                Swap faces in videos with high-quality results. Supports MP4, MOV, and WEBM formats.
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+              <ImageIcon className="h-12 w-12 text-green-400 mb-4" />
+              <h3 className="text-2xl font-bold text-white mb-3">Photo Face Swap</h3>
+              <p className="text-white/70">
+                Transform faces in static images instantly. Works with JPG, PNG, and WEBP files.
+              </p>
+            </div>
+          </div>
+        </div>
       </main>
+
+      {/* Footer */}
+      <footer className="container mx-auto px-4 py-8 mt-20">
+        <div className="text-center text-white/60 text-sm">
+          <p>Powered by FaceFusion - Open Source Face Swap Technology</p>
+          <p className="mt-2">For private use only. Please respect privacy and obtain consent.</p>
+        </div>
+      </footer>
     </div>
   );
 }
