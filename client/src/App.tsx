@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import FaceSwap from "./pages/FaceSwap";
 import JobHistory from "./pages/JobHistory";
 import JobDetail from "./pages/JobDetail";
+import BatchGallery from "./pages/BatchGallery";
 import AIDashboard from "./pages/AIDashboard";
 import ImageGenerator from "./pages/ImageGenerator";
 import VideoGenerator from "./pages/VideoGenerator";
@@ -23,6 +24,8 @@ function Router() {
       <Route path={"/swap"} component={FaceSwap} />
       <Route path={"/history"} component={JobHistory} />
       <Route path={"/job/:id"} component={JobDetail} />
+      <Route path={"/gallery"} component={BatchGallery} />
+      <Route path={"/gallery/:userId"} component={BatchGallery} />
       <Route path={"/ai"} component={AIDashboard} />
       <Route path={"/ai/image-generator"} component={ImageGenerator} />
       <Route path={"/ai/video-generator"} component={VideoGenerator} />

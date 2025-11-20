@@ -117,3 +117,12 @@
 - [x] Before/After comparison slider - interaktivní slider na výsledcích
 - [x] Before/After comparison slider - side-by-side porovnání původního a swapnutého obličeje
 - [x] Before/After comparison slider - podpora pro obrázky (videa zobrazena normálně)
+
+
+## Gallery View - User Requested
+- [x] Vytvořit gallery view pro batch výsledky
+- [x] Přidat šipky pro navigaci mezi výsledky (předchozí/další)
+- [x] Zobrazit aktuální pozici (např. "3 / 10")
+- [x] Podpora klávesnice (šipky vlevo/vpravo)
+- [x] Thumbnail náhledy všech výsledků v batchi
+- [x] Automatické načítání z history podle batch ID nebo user ID

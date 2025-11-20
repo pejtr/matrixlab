@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Loader2, Image as ImageIcon, Video, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, Image as ImageIcon, Video, CheckCircle, XCircle, Clock, Grid3x3 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export default function JobHistory() {
@@ -81,12 +81,22 @@ export default function JobHistory() {
               <h2 className="text-4xl font-bold text-white mb-2">Job History</h2>
               <p className="text-white/70">View all your face swap jobs</p>
             </div>
-            <Button
-              onClick={() => setLocation("/swap")}
-              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-            >
-              New Face Swap
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setLocation("/gallery")}
+                className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+              >
+                <Grid3x3 className="mr-2 h-4 w-4" />
+                Gallery View
+              </Button>
+              <Button
+                onClick={() => setLocation("/swap")}
+                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+              >
+                New Face Swap
+              </Button>
+            </div>
           </div>
 
           {isLoading ? (
