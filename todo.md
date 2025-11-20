@@ -191,3 +191,18 @@
 - [x] Desktop: Pravý sloupec - Results na plnou výšku
 - [x] Mobile: Zachovat původní obrácené T (vstupy vedle sebe, výsledky dole)
 - [x] Responsive breakpoint: md (768px)
+
+
+## UI Improvements - User Requested
+- [x] Přidat delete badge (Trash2 ikona) na thumbnails pro rychlé smazání
+- [x] Delete badge v pravém horním rohu každého thumbnailuilu
+- [x] Zjednodušit Done badge - pouze zelená fajfka (CheckCircle) bez textu
+- [x] Zachovat ostatní status badges (Pending, Processing, Failed) s textem
+- [x] Odstranit Quick Actions Menu (nahrazeno delete badge)
+
+
+## Bug Fix - User Reported
+- [x] Opravit: Po neúspěšném vytvoření jobu zůstávají preview obrázky
+- [x] Přidat reset preview i v catch bloku handleSubmit
+- [x] Umožnit nové generování i po předchozí chybě
+- [x] Vyčistit isUploading state po chybě

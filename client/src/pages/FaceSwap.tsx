@@ -2,20 +2,15 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, MoreVertical, Trash2, RefreshCw, Share2, Star } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import TemplateGallery, { Template } from "@/components/TemplateGallery";
-import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 
 export default function FaceSwap() {
@@ -208,14 +203,25 @@ export default function FaceSwap() {
     } catch (error) {
       console.error("Upload failed:", error);
       toast.error("Failed to create jobs");
+      
+      // Reset form even after error to allow retry
+      setSourceFile(null);
+      setSourcePreview(null);
+      setTargetFiles([]);
+      setTargetPreviews([]);
+      setSelectedTemplates([]);
+      if (sourceInputRef.current) sourceInputRef.current.value = '';
+      if (targetInputRef.current) targetInputRef.current.value = '';
+      
       setIsUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500 text-xs"><CheckCircle className="mr-1 h-3 w-3" />Done</Badge>;
+        return <Badge className="bg-green-500 text-xs p-1"><CheckCircle className="h-3 w-3" /></Badge>;
       case "processing":
         return <Badge className="bg-blue-500 text-xs"><Loader2 className="mr-1 h-3 w-3 animate-spin" />Processing</Badge>;
       case "failed":
@@ -493,6 +499,25 @@ export default function FaceSwap() {
                           {getStatusBadge(job.status)}
                         </div>
 
+                        {/* Quick Delete Badge (always visible for completed jobs) */}
+                        {job.status === "completed" && (
+                          <div className="absolute top-1 right-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm('Delete this job?')) {
+                                  toast.info('Delete feature coming soon!');
+                                }
+                              }}
+                              className="h-6 w-6 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+
                         {/* Progress Bar for Pending/Processing */}
                         {(job.status === "pending" || job.status === "processing") && (
                           <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
@@ -504,74 +529,7 @@ export default function FaceSwap() {
                           </div>
                         )}
 
-                        {/* Quick Actions Menu (only for completed jobs) */}
-                        {job.status === "completed" && (
-                          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => e.stopPropagation()}
-                                  className="h-6 w-6 p-0 bg-black/50 hover:bg-black/70 text-white"
-                                >
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    window.open(job.resultMediaUrl!, '_blank');
-                                  }}
-                                >
-                                  <Download className="mr-2 h-4 w-4" />
-                                  Download
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.info('Re-run feature coming soon!');
-                                  }}
-                                >
-                                  <RefreshCw className="mr-2 h-4 w-4" />
-                                  Re-run
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigator.clipboard.writeText(window.location.origin + '/job/' + job.id);
-                                    toast.success('Link copied to clipboard!');
-                                  }}
-                                >
-                                  <Share2 className="mr-2 h-4 w-4" />
-                                  Share Link
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.info('Set as template feature coming soon!');
-                                  }}
-                                >
-                                  <Star className="mr-2 h-4 w-4" />
-                                  Set as Template
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (confirm('Delete this job?')) {
-                                      toast.info('Delete feature coming soon!');
-                                    }
-                                  }}
-                                  className="text-red-600"
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        )}
+
                       </div>
                     ))}
                   </div>
