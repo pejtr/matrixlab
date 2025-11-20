@@ -290,3 +290,11 @@
 - [x] Umožnit kliknout na saved face miniaturu pro rychlý výběr
 - [x] Opravit "Failed to load saved face" chybu
 - [x] Diagnostikovat proč handleLoadSavedFace selhává
+
+
+## Clean State on Page Load - User Requested
+- [x] Reset UI state při načtení stránky (refresh)
+- [x] Vymazat source a target file inputs
+- [x] Skrýt Before/After thumbnails
+- [x] Nezobrazovat poslední výsledek automaticky
+- [x] Uživatel začíná s čistým stavem pro nové generování

@@ -60,6 +60,21 @@ export default function FaceSwap() {
   const visibleJobs = jobs?.slice(0, visibleJobsCount) || [];
   const hasMoreJobs = jobs && jobs.length > visibleJobsCount;
 
+  // Reset to clean state on page load
+  useEffect(() => {
+    // Clear all input states
+    setSourceFile(null);
+    setTargetFiles([]);
+    setSourcePreview(null);
+    setTargetPreviews([]);
+    setSelectedTemplates([]);
+    setCurrentResultIndex(0);
+    
+    // Clear file inputs
+    if (sourceInputRef.current) sourceInputRef.current.value = '';
+    if (targetInputRef.current) targetInputRef.current.value = '';
+  }, []); // Run only once on mount
+
   // Auto-refresh notification when new results are ready
   useEffect(() => {
     if (completedJobs.length > previousCompletedCount && previousCompletedCount > 0) {
