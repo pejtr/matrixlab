@@ -44,18 +44,18 @@ export function Navigation() {
       {/* Desktop & Mobile Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-purple-900/80 backdrop-blur-lg border-b border-white/10">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-12">
             {/* Logo */}
             <button
               onClick={() => handleNavClick("/")}
-              className="flex items-center gap-2 text-white font-bold text-xl hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity"
             >
-              <Sparkles className="h-6 w-6 text-yellow-400" />
-              {APP_TITLE}
+              <Sparkles className="h-5 w-5 text-yellow-400" />
+              <span className="hidden sm:inline">{APP_TITLE}</span>
             </button>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
+            {/* Desktop Navigation - Icon Only */}
+            <nav className="hidden md:flex items-center gap-2">
               {navItems.map((item) => {
                 if (item.auth && !isAuthenticated) return null;
                 const Icon = item.icon;
@@ -65,38 +65,39 @@ export function Navigation() {
                   <button
                     key={item.path}
                     onClick={() => handleNavClick(item.path)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    title={item.label}
+                    className={`p-2 rounded-lg transition-all ${
                       isActive
                         ? "bg-white/20 text-white"
                         : "text-white/70 hover:text-white hover:bg-white/10"
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
+                    <Icon className="h-5 w-5" />
                   </button>
                 );
               })}
 
-              {/* User Menu */}
+              {/* User Menu - Compact */}
               {isAuthenticated ? (
-                <div className="flex items-center gap-3 pl-4 border-l border-white/20">
-                  <div className="text-white/70 text-sm">
+                <div className="flex items-center gap-2 pl-2 ml-2 border-l border-white/20">
+                  <div className="text-white/70 text-xs hidden lg:block">
                     {user?.name || user?.email}
                   </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={handleLogout}
-                    className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                    title="Logout"
+                    className="text-white hover:bg-white/10 h-8 w-8 p-0"
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
+                    <LogOut className="h-4 w-4" />
                   </Button>
                 </div>
               ) : (
                 <Button
+                  size="sm"
                   onClick={() => (window.location.href = getLoginUrl())}
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-8 text-xs"
                 >
                   <User className="h-4 w-4 mr-2" />
                   Sign In

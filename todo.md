@@ -146,3 +146,27 @@
 - [x] Odstranit "Original" a "Swapped" labely (použití pouze result view)
 - [x] Odstranit "Job #30007" a "Done" badge
 - [x] Nechat pouze Download tlačítko a navigační šipky
+
+
+## Further UI Simplification & New Features - User Requested
+- [x] Odstranit CardHeader z upload karet ("1. Source Face", "2. Target Media")
+- [x] Odstranit "Click to upload" a "Multi-select" texty
+- [x] Nechat pouze ikony (UserCircle, Users) bez textu
+- [x] Auto-refresh Notification - toast "New result ready!" s možností kliknout
+- [x] Toast má skočit na nový výsledek v carousel po kliknutí
+- [x] Quick Actions Menu - tři-tečkové menu (⋮) na každém thumbnailuilu
+- [x] Quick Actions: Delete job (placeholder)
+- [x] Quick Actions: Re-run with same settings (placeholder)
+- [x] Quick Actions: Share link (copy to clipboard)
+- [x] Quick Actions: Set as template (placeholder)
+- [x] Progress Indicator - mini progress bar na thumbnail gridu
+- [x] Progress bar pro pending/processing joby
+- [x] Vizuální indikace stavu bez klikání
+
+
+## Bug Fixes & UI Improvements - User Reported
+- [x] Opravit: Preview obrázky zůstávají po odeslání formuláře
+- [x] Reset sourcePreview, targetPreviews, sourceFile, targetFiles po úspěšném submitu
+- [x] Kompaktnější navigace - pouze ikony bez textů
+- [x] Zmenšit padding a velikost navigačního menu (h-16 → h-12)
+- [x] Icon-only design pro top navigation bar

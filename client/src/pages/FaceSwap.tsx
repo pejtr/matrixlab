@@ -2,9 +2,15 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, MoreVertical, Trash2, RefreshCw, Share2, Star } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -25,6 +31,7 @@ export default function FaceSwap() {
   const [selectedTemplates, setSelectedTemplates] = useState<Template[]>([]);
   const [currentResultIndex, setCurrentResultIndex] = useState(0);
   const [showComparison, setShowComparison] = useState(true);
+  const [previousCompletedCount, setPreviousCompletedCount] = useState(0);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -42,6 +49,29 @@ export default function FaceSwap() {
 
   const completedJobs = jobs?.filter((job: any) => job.status === "completed" && job.resultMediaUrl) || [];
   const currentJob = completedJobs[currentResultIndex];
+
+  // Auto-refresh notification when new result is ready
+  useEffect(() => {
+    if (completedJobs.length > previousCompletedCount && previousCompletedCount > 0) {
+      const newJobsCount = completedJobs.length - previousCompletedCount;
+      toast.success(
+        `${newJobsCount} new result${newJobsCount > 1 ? 's' : ''} ready!`,
+        {
+          action: {
+            label: 'View',
+            onClick: () => {
+              setCurrentResultIndex(completedJobs.length - 1);
+              // Scroll to results section
+              const resultsSection = document.querySelector('[data-results-section]');
+              resultsSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            },
+          },
+          duration: 5000,
+        }
+      );
+    }
+    setPreviousCompletedCount(completedJobs.length);
+  }, [completedJobs.length, previousCompletedCount]);
 
   // Keyboard navigation for results
   useEffect(() => {
@@ -152,6 +182,16 @@ export default function FaceSwap() {
       }
 
       toast.success(`${targetFiles.length} job(s) created successfully!`);
+      
+      // Reset form after successful submission
+      setSourceFile(null);
+      setSourcePreview(null);
+      setTargetFiles([]);
+      setTargetPreviews([]);
+      setSelectedTemplates([]);
+      if (sourceInputRef.current) sourceInputRef.current.value = '';
+      if (targetInputRef.current) targetInputRef.current.value = '';
+      
       setIsUploading(false);
       setUploadProgress({ current: 0, total: 0 });
     } catch (error) {
@@ -257,9 +297,6 @@ export default function FaceSwap() {
           <div className="grid grid-cols-2 gap-3 mb-4">
             {/* Source Face */}
             <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-              <CardHeader className="p-3">
-                <CardTitle className="text-white text-sm">1. Source Face</CardTitle>
-              </CardHeader>
               <CardContent className="p-3">
                 <input
                   ref={sourceInputRef}
@@ -276,8 +313,7 @@ export default function FaceSwap() {
                     <img src={sourcePreview} alt="Source" className="w-full h-32 object-cover rounded" />
                   ) : (
                     <div className="text-white/70">
-                      <UserCircle className="h-12 w-12 mx-auto mb-2 text-pink-400" />
-                      <p className="text-xs">Click to upload</p>
+                      <UserCircle className="h-16 w-16 mx-auto text-pink-400" />
                     </div>
                   )}
                 </div>
@@ -286,9 +322,6 @@ export default function FaceSwap() {
 
             {/* Target Media */}
             <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-              <CardHeader className="p-3">
-                <CardTitle className="text-white text-sm">2. Target Media</CardTitle>
-              </CardHeader>
               <CardContent className="p-3">
                 <input
                   ref={targetInputRef}
@@ -313,8 +346,7 @@ export default function FaceSwap() {
                     </div>
                   ) : (
                     <div className="text-white/70">
-                      <Users className="h-12 w-12 mx-auto mb-2 text-purple-400" />
-                      <p className="text-xs">Multi-select</p>
+                      <Users className="h-16 w-16 mx-auto text-purple-400" />
                     </div>
                   )}
                 </div>
@@ -383,7 +415,7 @@ export default function FaceSwap() {
 
           {/* Results Section */}
           {completedJobs.length > 0 && (
-            <div className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-4">
+            <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-4">
               {/* Download Button - Floating */}
               <div className="absolute top-3 right-3 z-20">
                 <Button
@@ -455,26 +487,115 @@ export default function FaceSwap() {
                 {jobs.slice(0, 8).map((job: any, idx: number) => (
                   <div
                     key={job.id}
-                    className={`relative rounded overflow-hidden cursor-pointer transition-all ${
+                    className={`relative rounded overflow-hidden group transition-all ${
                       job.status === "completed" && job.resultMediaUrl
                         ? 'opacity-100 hover:scale-105'
                         : 'opacity-50'
                     }`}
-                    onClick={() => {
-                      if (job.status === "completed" && job.resultMediaUrl) {
-                        const jobIndex = completedJobs.findIndex((j: any) => j.id === job.id);
-                        if (jobIndex !== -1) setCurrentResultIndex(jobIndex);
-                      }
-                    }}
                   >
-                    <img
-                      src={job.resultMediaUrl || job.targetMediaUrl}
-                      alt={`Job ${job.id}`}
-                      className="w-full aspect-square object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-0.5 text-center">
-                      {getStatusBadge(job.status)}
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => {
+                        if (job.status === "completed" && job.resultMediaUrl) {
+                          const jobIndex = completedJobs.findIndex((j: any) => j.id === job.id);
+                          if (jobIndex !== -1) setCurrentResultIndex(jobIndex);
+                        }
+                      }}
+                    >
+                      <img
+                        src={job.resultMediaUrl || job.targetMediaUrl}
+                        alt={`Job ${job.id}`}
+                        className="w-full aspect-square object-cover"
+                      />
                     </div>
+                    
+                    {/* Progress Bar for pending/processing jobs */}
+                    {(job.status === "pending" || job.status === "processing") && (
+                      <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/60">
+                        <div 
+                          className={`h-full bg-gradient-to-r from-pink-500 to-purple-500 ${
+                            job.status === "processing" ? 'animate-pulse' : 'w-1/4'
+                          }`}
+                          style={{ width: job.status === "processing" ? '75%' : '25%' }}
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-1 left-1">
+                      <div className="scale-75 origin-top-left">
+                        {getStatusBadge(job.status)}
+                      </div>
+                    </div>
+                    
+                    {/* Quick Actions Menu */}
+                    {job.status === "completed" && (
+                      <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 w-6 p-0 bg-black/60 hover:bg-black/80 text-white"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(job.resultMediaUrl, '_blank');
+                              }}
+                            >
+                              <Download className="mr-2 h-4 w-4" />
+                              Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.info('Re-run feature coming soon!');
+                              }}
+                            >
+                              <RefreshCw className="mr-2 h-4 w-4" />
+                              Re-run
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigator.clipboard.writeText(window.location.origin + '/job/' + job.id);
+                                toast.success('Link copied to clipboard!');
+                              }}
+                            >
+                              <Share2 className="mr-2 h-4 w-4" />
+                              Share Link
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.info('Set as template feature coming soon!');
+                              }}
+                            >
+                              <Star className="mr-2 h-4 w-4" />
+                              Set as Template
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm('Delete this job?')) {
+                                  toast.info('Delete feature coming soon!');
+                                }
+                              }}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
