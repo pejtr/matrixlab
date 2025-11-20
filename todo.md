@@ -767,3 +767,9 @@
 - [x] Přesunout AI Model selector a Templates button z Source Face sekce
 - [x] Umístit AI Model + Templates pod Target Media sekci (pod text "Max 5 files")
 - [x] Zachovat 50:50 layout pro oba prvky
+
+
+## Template Gallery Tab Readability - User Requested
+- [x] Rozdělit tab menu do dvou řádků místo jednoho
+- [x] Zlepšit čitelnost názvů kategorií (odstranit překrývání textu)
+- [x] Zachovat responsive design (mobil vs desktop)

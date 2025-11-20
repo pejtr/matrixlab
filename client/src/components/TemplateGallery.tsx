@@ -605,40 +605,40 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
   return (
     <div className="w-full">
       <Tabs defaultValue="supermodel" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 bg-black/40 backdrop-blur-lg border border-white/20">
-          <TabsTrigger value="favorites" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-white text-white/80 hover:text-white">
+        <TabsList className="flex flex-wrap w-full gap-1 p-1 bg-black/40 backdrop-blur-lg border border-white/20 h-auto">
+          <TabsTrigger value="favorites" className="flex-1 min-w-[80px] data-[state=active]:bg-yellow-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Star className="h-4 w-4 mr-1" />
             <span className="hidden lg:inline">Favorites</span>
           </TabsTrigger>
-          <TabsTrigger value="supermodel" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="supermodel" className="flex-1 min-w-[80px] data-[state=active]:bg-pink-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <ImageIcon className="h-4 w-4 mr-1" />
             <span className="hidden lg:inline">Supermodels</span>
           </TabsTrigger>
-          <TabsTrigger value="superhero" className="data-[state=active]:bg-purple-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="superhero" className="flex-1 min-w-[80px] data-[state=active]:bg-purple-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Zap className="h-4 w-4 mr-1" />
             <span className="hidden lg:inline">Superheroes</span>
           </TabsTrigger>
-          <TabsTrigger value="business" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="business" className="flex-1 min-w-[80px] data-[state=active]:bg-blue-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Briefcase className="h-4 w-4 mr-1" />
             <span className="hidden lg:inline">Business</span>
           </TabsTrigger>
-          <TabsTrigger value="casual" className="data-[state=active]:bg-green-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="casual" className="flex-1 min-w-[80px] data-[state=active]:bg-green-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Coffee className="h-4 w-4 mr-1" />
             <span className="hidden lg:inline">Casual</span>
           </TabsTrigger>
-          <TabsTrigger value="sports" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="sports" className="flex-1 min-w-[80px] data-[state=active]:bg-orange-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Dumbbell className="h-4 w-4 mr-1" />
             <span className="hidden lg:inline">Sports</span>
           </TabsTrigger>
-          <TabsTrigger value="meme" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="meme" className="flex-1 min-w-[80px] data-[state=active]:bg-indigo-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Laugh className="h-4 w-4 mr-1" />
             Memes
           </TabsTrigger>
-          <TabsTrigger value="scene" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="scene" className="flex-1 min-w-[80px] data-[state=active]:bg-cyan-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Film className="h-4 w-4 mr-1" />
             Scenes
           </TabsTrigger>
-          <TabsTrigger value="custom" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white text-white/80 hover:text-white">
+          <TabsTrigger value="custom" className="flex-1 min-w-[80px] data-[state=active]:bg-emerald-500 data-[state=active]:text-white text-white/80 hover:text-white">
             <Upload className="h-4 w-4 mr-1" />
             <span className="hidden lg:inline">Custom</span>
           </TabsTrigger>
