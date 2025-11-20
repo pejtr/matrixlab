@@ -20,51 +20,51 @@ export interface Template {
 
 // Expanded templates - 60% women, 40% men, diverse attractive types
 const sampleTemplates: Template[] = [
-  // CELEBRITIES (60% women, 40% men) - Bombshell Lifestyle
+  // CELEBRITIES (60% women, 40% men) - Supermodel Collection
   {
     id: "celeb-w1",
-    name: "Penthouse Elegance",
+    name: "Studio Elegance",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "/templates/bombshell-1.jpg",
-    mediaUrl: "/templates/bombshell-1.jpg",
-    description: "Luxurious city skyline"
+    thumbnailUrl: "/templates/supermodel-1.jpg",
+    mediaUrl: "/templates/supermodel-1.jpg",
+    description: "Designer dress, dramatic lighting"
   },
   {
     id: "celeb-w2",
-    name: "Art Deco Glamour",
+    name: "Haute Couture",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "/templates/bombshell-2.jpg",
-    mediaUrl: "/templates/bombshell-2.jpg",
-    description: "Hollywood waves & chandeliers"
+    thumbnailUrl: "/templates/supermodel-2.jpg",
+    mediaUrl: "/templates/supermodel-2.jpg",
+    description: "Evening gown, marble backdrop"
   },
   {
     id: "celeb-w3",
-    name: "Ferrari Lifestyle",
+    name: "Beach Glamour",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "/templates/bombshell-3.jpg",
-    mediaUrl: "/templates/bombshell-3.jpg",
-    description: "Luxury sports car & mansion"
+    thumbnailUrl: "/templates/supermodel-3.jpg",
+    mediaUrl: "/templates/supermodel-3.jpg",
+    description: "Tropical resort, golden hour"
   },
   {
     id: "celeb-w4",
     name: "Grand Staircase",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "/templates/bombshell-4.jpg",
-    mediaUrl: "/templates/bombshell-4.jpg",
-    description: "Sequined gown & gold railings"
+    thumbnailUrl: "/templates/supermodel-4.jpg",
+    mediaUrl: "/templates/supermodel-4.jpg",
+    description: "Cocktail dress, chandelier lighting"
   },
   {
     id: "celeb-w5",
-    name: "Infinity Pool Paradise",
+    name: "Penthouse Power",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "/templates/bombshell-5.jpg",
-    mediaUrl: "/templates/bombshell-5.jpg",
-    description: "Tropical resort & ocean views"
+    thumbnailUrl: "/templates/supermodel-5.jpg",
+    mediaUrl: "/templates/supermodel-5.jpg",
+    description: "Designer blazer, city skyline"
   },
   {
     id: "celeb-w6",

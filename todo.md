@@ -732,3 +732,6 @@
 
 - [x] Zafixovat výšku hlavního obrázku na desktopu aby neskákal při listování šipkami (h-[70vh])
 - [x] Ustálit horizontal layout All Jobs pásu (fixed height)
+
+- [x] Vygenerovat nové template obrázky - vnadné super modelky (glamour pózy, profesionální fotografie)
+- [x] Nahradit templates v galerii novými supermodel obrázky
