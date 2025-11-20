@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Download, Trash2, Bookmark } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Download, Trash2, Bookmark, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FullscreenLightboxProps {
@@ -13,6 +13,8 @@ interface FullscreenLightboxProps {
   onDelete?: (id: number) => void;
   onSave?: (imageUrl: string) => void;
   showSave?: boolean;
+  onUpload?: () => void;
+  showUpload?: boolean;
 }
 
 export default function FullscreenLightbox({
@@ -23,6 +25,8 @@ export default function FullscreenLightbox({
   onDelete,
   onSave,
   showSave = false,
+  onUpload,
+  showUpload = false,
 }: FullscreenLightboxProps) {
   const currentImage = images[currentIndex];
 
@@ -154,6 +158,23 @@ export default function FullscreenLightbox({
           className="absolute top-4 right-40 z-10 text-green-400 hover:bg-green-500/20 h-10 w-10 p-0"
         >
           <Bookmark className="h-5 w-5" />
+        </Button>
+      )}
+
+      {/* Upload Button (only for target media) */}
+      {showUpload && onUpload && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onUpload();
+            onClose();
+          }}
+          className="absolute top-4 right-40 z-10 text-blue-400 hover:bg-blue-500/20 h-10 w-10 p-0"
+          title="Upload new media"
+        >
+          <Upload className="h-5 w-5" />
         </Button>
       )}
 

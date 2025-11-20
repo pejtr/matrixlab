@@ -779,3 +779,10 @@
 - [x] Zvětšit Template Gallery dialog okno (větší modal)
 - [x] Zvětšit miniatury šablon v galerii (větší thumbnails)
 - [x] Přidat hover zoom efekt na kulaté saved faces thumbnails (scale-105)
+
+
+## Download & Upload Improvements - User Requested
+- [x] Opravit Download tlačítko - skutečně stahovat soubor místo otevření v nové záložce
+- [x] Přidat lightbox preview pro nahrané target media fotky
+- [x] Přidat upload ikonu/tlačítko do target media lightboxu pro nahrání nové fotky
+- [x] Kliknutí na nahranou fotku otevře lightbox s preview

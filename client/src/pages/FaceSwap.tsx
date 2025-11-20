@@ -750,7 +750,12 @@ export default function FaceSwap() {
                               <img 
                                 src={preview} 
                                 alt={`Target ${idx + 1}`} 
-                                className={targetPreviews.length === 1 ? "w-full aspect-[3/4] object-cover rounded border border-white/20" : "w-full h-12 object-cover rounded border border-white/20"}
+                                onClick={() => {
+                                  setLightboxType('target');
+                                  setLightboxIndex(idx);
+                                  setShowLightbox(true);
+                                }}
+                                className={targetPreviews.length === 1 ? "w-full aspect-[3/4] object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                 <span className="text-white text-[8px] font-medium">#{idx + 1}</span>
@@ -1020,7 +1025,23 @@ export default function FaceSwap() {
                   <div className="absolute top-3 right-3 z-20 flex gap-2">
                     <Button
                       size="sm"
-                      onClick={() => window.open(currentJob?.resultMediaUrl!, "_blank")}
+                      onClick={async () => {
+                        if (!currentJob?.resultMediaUrl) return;
+                        try {
+                          const response = await fetch(currentJob.resultMediaUrl);
+                          const blob = await response.blob();
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `faceswap-result-${currentJob.id}.${currentJob.targetMediaType === 'video' ? 'mp4' : 'jpg'}`;
+                          document.body.appendChild(a);
+                          a.click();
+                          window.URL.revokeObjectURL(url);
+                          document.body.removeChild(a);
+                        } catch (error) {
+                          console.error('Download failed:', error);
+                        }
+                      }}
                       className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"
                       title="Download"
                     >
@@ -1372,15 +1393,18 @@ export default function FaceSwap() {
       </main>
 
       {/* Fullscreen Lightbox */}
-      {showLightbox && completedJobs.length > 0 && (
+      {showLightbox && (lightboxType === 'target' ? targetPreviews.length > 0 : completedJobs.length > 0) && (
         <FullscreenLightbox
-          images={completedJobs
-            // Filter out soft-deleted source images when viewing Before gallery
-            .filter(job => lightboxType !== 'source' || !job.sourceDeletedAt)
-            .map(job => ({
-              url: lightboxType === 'source' ? job.sourceImageUrl : lightboxType === 'target' ? job.targetMediaUrl : job.resultMediaUrl!,
-              id: job.id
-            }))}
+          images={lightboxType === 'target' 
+            ? targetPreviews.map((url, idx) => ({ url, id: idx }))
+            : completedJobs
+              // Filter out soft-deleted source images when viewing Before gallery
+              .filter(job => lightboxType !== 'source' || !job.sourceDeletedAt)
+              .map(job => ({
+                url: lightboxType === 'source' ? job.sourceImageUrl : job.resultMediaUrl!,
+                id: job.id
+              }))
+          }
           currentIndex={lightboxIndex}
           onClose={() => {
             setShowLightbox(false);
@@ -1417,6 +1441,8 @@ export default function FaceSwap() {
           }}
           onSave={lightboxType === 'source' ? handleSaveFaceFromLightbox : undefined}
           showSave={lightboxType === 'source'}
+          onUpload={lightboxType === 'target' ? () => targetInputRef.current?.click() : undefined}
+          showUpload={lightboxType === 'target'}
         />
       )}
 
