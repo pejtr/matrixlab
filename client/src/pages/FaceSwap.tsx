@@ -612,121 +612,106 @@ export default function FaceSwap() {
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-1.5">
-                    {/* 2-Column Layout: 20% thumbnails / 80% preview */}
-                    <div className="flex gap-1.5">
-                      {/* Left Column: Saved Faces Thumbnails (20%) */}
-                      <div className="w-[20%] flex flex-col gap-1">
-                        {/* Render 5 slots */}
-                        {Array.from({ length: 5 }).map((_, idx) => {
-                          const face = savedFaces?.[idx];
-                          return face ? (
-                            <div
-                              key={face.id}
-                              onClick={async () => {
-                                try {
-                                  const response = await fetch(face.faceImageUrl, { mode: 'no-cors' });
-                                  const blob = await response.blob();
-                                  if (blob.size === 0) {
-                                    const file = new File([new Blob()], `saved-face-${face.id}.jpg`, { type: 'image/jpeg' });
-                                    (file as any).__remoteUrl = face.faceImageUrl;
-                                    setSourceFile(file);
-                                    setSourcePreview(face.faceImageUrl);
-                                    toast.success('Saved face loaded');
-                                  } else {
-                                    const file = new File([blob], `saved-face-${face.id}.jpg`, { type: blob.type || 'image/jpeg' });
-                                    setSourceFile(file);
-                                    setSourcePreview(face.faceImageUrl);
-                                    toast.success('Saved face loaded');
-                                  }
-                                  if (currentJob) {
-                                    setIsRegenerateMode(true);
-                                    setRegenerateSourceJobId(currentJob.id);
-                                    if (targetFiles.length === 0) {
-                                      await loadTargetFromJob(currentJob);
-                                    }
-                                  }
-                                } catch (error) {
+                  <CardContent className="p-2">
+                    {/* Hidden file input */}
+                    <input
+                      ref={sourceInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleSourceFileChange}
+                      className="hidden"
+                    />
+                    
+                    {/* Save Button */}
+                    {sourceFile && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleSaveCurrentFace}
+                        className="text-green-400 hover:text-green-300 hover:bg-white/10 text-xs h-6 px-2 mb-2 w-full"
+                      >
+                        Save Current Face
+                      </Button>
+                    )}
+                    
+                    {/* Grid of Saved Faces + Upload Slots */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {/* Render 5 slots */}
+                      {Array.from({ length: 5 }).map((_, idx) => {
+                        const face = savedFaces?.[idx];
+                        return face ? (
+                          <div
+                            key={face.id}
+                            onClick={async () => {
+                              try {
+                                const response = await fetch(face.faceImageUrl, { mode: 'no-cors' });
+                                const blob = await response.blob();
+                                if (blob.size === 0) {
                                   const file = new File([new Blob()], `saved-face-${face.id}.jpg`, { type: 'image/jpeg' });
                                   (file as any).__remoteUrl = face.faceImageUrl;
                                   setSourceFile(file);
                                   setSourcePreview(face.faceImageUrl);
                                   toast.success('Saved face loaded');
-                                  if (currentJob) {
-                                    setIsRegenerateMode(true);
-                                    setRegenerateSourceJobId(currentJob.id);
-                                    if (targetFiles.length === 0) {
-                                      await loadTargetFromJob(currentJob);
-                                    }
+                                } else {
+                                  const file = new File([blob], `saved-face-${face.id}.jpg`, { type: blob.type || 'image/jpeg' });
+                                  setSourceFile(file);
+                                  setSourcePreview(face.faceImageUrl);
+                                  toast.success('Saved face loaded');
+                                }
+                                if (currentJob) {
+                                  setIsRegenerateMode(true);
+                                  setRegenerateSourceJobId(currentJob.id);
+                                  if (targetFiles.length === 0) {
+                                    await loadTargetFromJob(currentJob);
                                   }
                                 }
-                              }}
-                              className="aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
-                            >
-                              <img
-                                src={face.faceImageUrl}
-                                alt="Saved face"
-                                className="w-full h-full object-cover scale-110"
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              key={`empty-${idx}`}
-                              onClick={() => sourceInputRef.current?.click()}
-                              className="aspect-square rounded-full border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-pink-400 hover:bg-pink-500/10 transition-all"
-                            >
-                              <UserCircle className="h-5 w-5 text-white/30" />
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Right Column: Large Preview (90%) */}
-                      <div className="flex-1">
-                        {/* Save Button */}
-                        {sourceFile && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleSaveCurrentFace}
-                            className="text-green-400 hover:text-green-300 hover:bg-white/10 text-[9px] h-4 px-1 mb-0.5 w-full"
+                              } catch (error) {
+                                const file = new File([new Blob()], `saved-face-${face.id}.jpg`, { type: 'image/jpeg' });
+                                (file as any).__remoteUrl = face.faceImageUrl;
+                                setSourceFile(file);
+                                setSourcePreview(face.faceImageUrl);
+                                toast.success('Saved face loaded');
+                                if (currentJob) {
+                                  setIsRegenerateMode(true);
+                                  setRegenerateSourceJobId(currentJob.id);
+                                  if (targetFiles.length === 0) {
+                                    await loadTargetFromJob(currentJob);
+                                  }
+                                }
+                              }
+                            }}
+                            className="relative aspect-square rounded-lg border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                           >
-                            Save
-                          </Button>
-                        )}
-                        {/* Hidden file input */}
-                        <input
-                          ref={sourceInputRef}
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp"
-                          onChange={handleSourceFileChange}
-                          className="hidden"
-                        />
-                        {/* Large preview */}
-                        <div
-                          onClick={() => sourceInputRef.current?.click()}
-                          onDrop={handleSourceDrop}
-                          onDragOver={handleSourceDragOver}
-                          onDragLeave={handleSourceDragLeave}
-                          className={`border-2 border-dashed rounded-lg p-2 text-center cursor-pointer transition-all ${
-                            isDraggingSource 
-                              ? 'border-pink-400 bg-pink-500/20 scale-105' 
-                              : 'border-white/30 hover:border-white/50'
-                          }`}
-                        >
-                          {sourcePreview ? (
-                            <img src={sourcePreview} alt="Source" className="w-full aspect-[3/4] object-cover rounded" />
-                          ) : (
-                            <div className="text-white/70 aspect-[3/4] flex items-center justify-center">
-                              <UserCircle className="h-16 w-16 text-pink-400" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                            <img
+                              src={face.faceImageUrl}
+                              alt="Saved face"
+                              className="w-full h-full object-cover"
+                            />
+                            {/* Active indicator */}
+                            {sourcePreview === face.faceImageUrl && (
+                              <div className="absolute inset-0 ring-2 ring-pink-500 bg-pink-500/20" />
+                            )}
+                          </div>
+                        ) : (
+                          <div
+                            key={`empty-${idx}`}
+                            onClick={() => sourceInputRef.current?.click()}
+                            onDrop={handleSourceDrop}
+                            onDragOver={handleSourceDragOver}
+                            onDragLeave={handleSourceDragLeave}
+                            className={`aspect-square rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer transition-all ${
+                              isDraggingSource
+                                ? 'border-pink-400 bg-pink-500/20 scale-105'
+                                : 'border-white/20 hover:border-pink-400 hover:bg-pink-500/10'
+                            }`}
+                          >
+                            <UserCircle className="h-8 w-8 text-white/30" />
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
-
 
                 {/* Target Media */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">

@@ -687,3 +687,7 @@
 - [x] Změnit Source Face layout ratio z 10:90 na 20:80 (větší levý sloupec pro lepší viditelnost miniatur)
 
 - [x] Změnit desktop main layout ratio z 1:2.5 na 20:80 (širší levý sloupec s většími preview v kartách)
+
+-- [x] Odstranit velký preview z Source Face karty
+- [x] Nechat pouze větší miniatury v grid layoutu
+- [x] Kompaktnější design bez zbyteného preview
