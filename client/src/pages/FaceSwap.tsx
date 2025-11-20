@@ -1031,6 +1031,7 @@ export default function FaceSwap() {
                       onClick={async () => {
                         if (!currentJob?.resultMediaUrl) return;
                         try {
+                          toast.info('Downloading...');
                           const response = await fetch(currentJob.resultMediaUrl);
                           const blob = await response.blob();
                           const url = window.URL.createObjectURL(blob);
@@ -1041,8 +1042,10 @@ export default function FaceSwap() {
                           a.click();
                           window.URL.revokeObjectURL(url);
                           document.body.removeChild(a);
+                          toast.success('Download started');
                         } catch (error) {
                           console.error('Download failed:', error);
+                          toast.error('Download failed');
                         }
                       }}
                       className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"

@@ -99,9 +99,21 @@ export default function FullscreenLightbox({
     }
   };
 
-  const handleDownload = () => {
-    if (currentImage) {
-      window.open(currentImage.url, '_blank');
+  const handleDownload = async () => {
+    if (!currentImage) return;
+    try {
+      const response = await fetch(currentImage.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `image-${Date.now()}.${blob.type.split('/')[1] || 'jpg'}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
     }
   };
 
