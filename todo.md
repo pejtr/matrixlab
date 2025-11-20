@@ -720,3 +720,5 @@
 
 - [x] Opravit 4. prázdnou pozici - neotvírá file picker při kliknutí
 - [x] Přidat delete ikonu (X tlačítko) na saved face miniatury pro smazání
+
+- [x] Opravit progress reporting pro permissive model (zasekává se na 30%, přidat více milestone hodnot)

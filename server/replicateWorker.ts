@@ -100,29 +100,46 @@ async function processJob(jobId: number) {
     let result;
     const useRunPod = isRunPodConfigured() && job.targetMediaType === "video";
     
-    if (useRunPod) {
-      console.log(`[Worker] [Job #${jobId}] Using RunPod for video face swap`);
-      result = await withTimeout(
-        performFaceSwapRunPod({
-          sourceImageUrl: job.sourceImageUrl,
-          targetMediaUrl: job.targetMediaUrl,
-          targetMediaType: job.targetMediaType,
-        }),
-        API_CALL_TIMEOUT,
-        "RunPod API call"
-      );
-    } else {
-      console.log(`[Worker] [Job #${jobId}] Using Replicate for image face swap`);
-      result = await withTimeout(
-        performFaceSwap({
-          sourceImageUrl: job.sourceImageUrl,
-          targetMediaUrl: job.targetMediaUrl,
-          targetMediaType: job.targetMediaType,
-          modelPreference: job.modelPreference || "high_quality",
-        }),
-        API_CALL_TIMEOUT,
-        "Replicate API call"
-      );
+    // Progress update helper for long API calls
+    const progressInterval = setInterval(async () => {
+      const elapsed = Date.now() - apiStartTime;
+      // Update progress every 10 seconds during API call (40%, 50%, 60%)
+      if (elapsed > 10000 && elapsed < 20000) {
+        await updateFaceSwapJobStatus(jobId, "processing", { progress: 40 });
+      } else if (elapsed > 20000 && elapsed < 30000) {
+        await updateFaceSwapJobStatus(jobId, "processing", { progress: 50 });
+      } else if (elapsed > 30000) {
+        await updateFaceSwapJobStatus(jobId, "processing", { progress: 60 });
+      }
+    }, 10000);
+    
+    try {
+      if (useRunPod) {
+        console.log(`[Worker] [Job #${jobId}] Using RunPod for video face swap`);
+        result = await withTimeout(
+          performFaceSwapRunPod({
+            sourceImageUrl: job.sourceImageUrl,
+            targetMediaUrl: job.targetMediaUrl,
+            targetMediaType: job.targetMediaType,
+          }),
+          API_CALL_TIMEOUT,
+          "RunPod API call"
+        );
+      } else {
+        console.log(`[Worker] [Job #${jobId}] Using Replicate for image face swap`);
+        result = await withTimeout(
+          performFaceSwap({
+            sourceImageUrl: job.sourceImageUrl,
+            targetMediaUrl: job.targetMediaUrl,
+            targetMediaType: job.targetMediaType,
+            modelPreference: job.modelPreference || "high_quality",
+          }),
+          API_CALL_TIMEOUT,
+          "Replicate API call"
+        );
+      }
+    } finally {
+      clearInterval(progressInterval);
     }
 
     const apiDuration = Date.now() - apiStartTime;
