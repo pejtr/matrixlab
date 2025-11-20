@@ -216,6 +216,38 @@ export const appRouter = router({
 
         return { success: true };
       }),
+
+    // Update job result URL (for cropped images)
+    updateJobResult: protectedProcedure
+      .input(z.object({
+        jobId: z.number(),
+        resultMediaUrl: z.string().url(),
+        resultMediaKey: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const job = await getFaceSwapJobById(input.jobId);
+        
+        if (!job) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Job not found",
+          });
+        }
+
+        // Verify the job belongs to the user
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to update this job",
+          });
+        }
+
+        // Update job with new result URL
+        const { updateFaceSwapJobResult } = await import("./db");
+        await updateFaceSwapJobResult(input.jobId, input.resultMediaUrl, input.resultMediaKey);
+
+        return { success: true };
+      }),
   }),
 
   // MiniMax AI Tools

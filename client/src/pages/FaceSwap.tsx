@@ -81,6 +81,7 @@ export default function FaceSwap() {
 
   const createJobMutation = trpc.faceSwap.createJob.useMutation();
   const deleteJobMutation = trpc.faceSwap.deleteJob.useMutation();
+  const updateJobResultMutation = trpc.faceSwap.updateJobResult.useMutation();
   const softDeleteSourceMutation = trpc.faceSwap.softDeleteSourceImage.useMutation();
   const utils = trpc.useUtils();
 
@@ -1218,7 +1219,18 @@ export default function FaceSwap() {
         onSave={async (croppedImageUrl) => {
           if (!currentJob) return;
           try {
+            // Extract key from URL for storage
+            const urlObj = new URL(croppedImageUrl);
+            const croppedKey = urlObj.pathname.substring(1); // Remove leading '/'
+            
             // Update job with cropped image URL
+            await updateJobResultMutation.mutateAsync({
+              jobId: currentJob.id,
+              resultMediaUrl: croppedImageUrl,
+              resultMediaKey: croppedKey,
+            });
+            
+            // Refresh jobs to show updated image
             await utils.faceSwap.getMyJobs.invalidate();
             toast.success('Image cropped successfully!');
           } catch (error) {

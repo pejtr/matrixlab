@@ -165,6 +165,23 @@ export async function deleteFaceSwapJob(jobId: number): Promise<void> {
   await db.delete(faceSwapJobs).where(eq(faceSwapJobs.id, jobId));
 }
 
+export async function updateFaceSwapJobResult(
+  jobId: number,
+  resultMediaUrl: string,
+  resultMediaKey: string
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(faceSwapJobs).set({
+    resultMediaUrl,
+    resultMediaKey,
+    updatedAt: new Date(),
+  }).where(eq(faceSwapJobs.id, jobId));
+}
+
 // AI job queries
 import { aiJobs, InsertAIJob, AIJob } from "../drizzle/schema";
 

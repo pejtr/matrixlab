@@ -457,3 +457,20 @@
 - [x] Použít existující server-side proxy endpoint (savedFaces.getFaceImageBlob)
 - [x] Aktualizovat CropDialog pro použití tRPC proxy místo přímého načítání
 - [ ] Testovat crop s proxy endpointem (uživatel otestuje)
+
+## Crop Enhancement - User Requested
+- [x] Přidat resize handles - 8 tažitelných bodů (4 rohy + 4 strany)
+- [x] Implementovat resize logiku pro změnu velikosti crop oblasti
+- [x] Aspect ratio lock - toggle tlačítko pro zamknutí poměru stran (Lock/Unlock ikona)
+- [x] Aspect ratio dropdown - výběr poměru (Free, 1:1, 4:3, 16:9, 9:16)
+- [x] Crop presets - rychlá tlačítka pro Instagram Post (1:1)
+- [x] Crop presets - Instagram Story (9:16)
+- [x] Crop presets - Facebook Cover (16:9)
+- [x] Vizuální feedback při resizu (dynamické kurzory: nw-resize, n-resize, move, atd.)
+
+## Update Result After Crop - User Requested
+- [x] Přidat backend endpoint updateJobResult pro update resultMediaUrl
+- [x] Přidat updateFaceSwapJobResult funkci do db.ts
+- [x] Aktualizovat onSave handler v FaceSwap.tsx pro volání backendu
+- [x] Automatická invalidace a refresh zobrazení po uložení
+- [x] Zobrazit nově oříznutý obrázek místo původního
