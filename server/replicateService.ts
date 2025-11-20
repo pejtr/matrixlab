@@ -70,8 +70,8 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         "easel/advanced-face-swap",
         {
           input: {
-            target_image: input.targetMediaUrl,
-            source_image: input.sourceImageUrl,
+            target_image: input.targetMediaUrl,  // The image to swap onto (base image)
+            swap_image: input.sourceImageUrl,    // The face image to swap from (source face)
           },
         }
       );

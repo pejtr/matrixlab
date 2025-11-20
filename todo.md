@@ -578,3 +578,12 @@
 - [x] Frontend - tlačítko "Upload Custom" v Template Gallery
 - [x] Frontend - zobrazit custom templates společně s vestavěnými
 - [x] Frontend - možnost smazat vlastní šablony (delete badge)
+
+## CRITICAL - 30% Freeze Still Persists (User Reported)
+- [x] Analyzovat worker logy pro detailní příčinu zamrznutí - našel jsem špatné názvy parametrů
+- [x] Opravit názvy parametrů v easel/advanced-face-swap (swap_image místo source_image)
+- [x] Přidat detailní logging každého kroku (API call, polling, response)
+- [x] Implementovat timeout mechanismy (max čekání na odpověď - 3min API, 1min download)
+- [x] Přidat retry strategii (již existovala, zachována)
+- [x] Automatické označení jako failed při timeoutu
+- [x] Monitoring délky jednotlivých kroků (timestamp logging)
