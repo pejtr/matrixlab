@@ -1138,6 +1138,10 @@ export default function FaceSwap() {
                                     targetMediaUrl: job.targetMediaUrl,
                                     targetMediaType: job.targetMediaType,
                                   });
+                                  
+                                  // Delete the failed job after successful retry
+                                  await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                  
                                   toast.success('Job retried successfully');
                                   await utils.faceSwap.getMyJobs.invalidate();
                                 } catch (error) {

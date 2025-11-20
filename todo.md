@@ -510,3 +510,14 @@
 - [x] Aktualizovat Original miniature na aktuální targetPreviews[0]
 - [x] Zobrazit velkou fotku (target) s loading overlay během generování (již hotovo)
 - [x] Zajistit, že miniatury se zobrazí i když ještě není currentJob
+
+## Retry Auto-Delete - User Requested
+- [x] Najít Retry button handler v All Jobs gridu
+- [x] Přidat automatické smazání failed jobu po úspěšném vytvoření retry jobu
+- [x] Zajistit, že se failed job smaže pouze pokud retry úspěšně vytvoří nový job
+- [ ] Testovat retry flow - čeká na uživatele
+
+## Generation Not Working - User Reported
+- [x] Zkontrolovat console errors - žádné chyby
+- [x] Zkontrolovat browser - stránka funguje, zobrazují se výsledky
+- [ ] Čeká na zpřesnění od uživatele - co přesně nefunguje?
