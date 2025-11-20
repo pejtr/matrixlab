@@ -65,14 +65,25 @@ export default function Home() {
           </p>
 
           {isAuthenticated ? (
-            <Button
-              size="lg"
-              onClick={() => setLocation("/swap")}
-              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-lg px-8 py-6 h-auto"
-            >
-              <Sparkles className="mr-2 h-5 w-5" />
-              Start Face Swap
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                size="lg"
+                onClick={() => setLocation("/faceswap")}
+                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-lg px-8 py-6 h-auto"
+              >
+                <Sparkles className="mr-2 h-5 w-5" />
+                Start Face Swap
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setLocation("/ai")}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-lg px-8 py-6 h-auto"
+              >
+                <Sparkles className="mr-2 h-5 w-5" />
+                AI Studio
+              </Button>
+            </div>
           ) : (
             <Button
               size="lg"

@@ -48,3 +48,12 @@
 - [x] Rozšířit job schema o různé typy úloh (faceswap, image_gen, video_gen, music_gen)
 - [x] Přidat metadata pro každý typ úlohy
 - [x] Migrace existujících dat
+
+
+## Current Sprint - Frontend Implementation
+- [x] Vytvořit AI Dashboard s přehledem všech nástrojů
+- [x] Implementovat Image Generator stránku
+- [x] Implementovat Video Generator stránku (T2V + I2V)
+- [x] Implementovat Music Generator stránku
+- [ ] Unified job history pro všechny typy úloh
+- [ ] Workflow: "Animate Result" tlačítko na face swap výsledcích
