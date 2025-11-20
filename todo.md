@@ -685,3 +685,5 @@
 - [x] Opravit Replicate API chybu pro permissive model (character_image parametr)
 
 - [x] Změnit Source Face layout ratio z 10:90 na 20:80 (větší levý sloupec pro lepší viditelnost miniatur)
+
+- [x] Změnit desktop main layout ratio z 1:2.5 na 20:80 (širší levý sloupec s většími preview v kartách)
