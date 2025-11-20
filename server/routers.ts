@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { createFaceSwapJob, getFaceSwapJobById, getUserFaceSwapJobs, updateFaceSwapJobStatus, createAIJob, getAIJobById, getUserAIJobs } from "./db";
+import { createFaceSwapJob, getFaceSwapJobById, getUserFaceSwapJobs, updateFaceSwapJobStatus, deleteFaceSwapJob, createAIJob, getAIJobById, getUserAIJobs } from "./db";
 import * as minimaxService from "./minimaxService";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
@@ -150,6 +150,40 @@ export const appRouter = router({
           errorMessage: input.errorMessage,
           completedAt: input.status === "completed" ? new Date() : undefined,
         });
+
+        return { success: true };
+      }),
+
+    // Delete job
+    deleteJob: protectedProcedure
+      .input(z.object({
+        jobId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const job = await getFaceSwapJobById(input.jobId);
+        
+        if (!job) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Job not found",
+          });
+        }
+
+        // Verify the job belongs to the user
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to delete this job",
+          });
+        }
+
+        // TODO: Delete files from S3
+        // await storageDelete(job.sourceImageKey);
+        // await storageDelete(job.targetMediaKey);
+        // if (job.resultMediaKey) await storageDelete(job.resultMediaKey);
+
+        // Delete from database
+        await deleteFaceSwapJob(input.jobId);
 
         return { success: true };
       }),

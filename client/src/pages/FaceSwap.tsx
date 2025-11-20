@@ -43,6 +43,8 @@ export default function FaceSwap() {
   });
 
   const createJobMutation = trpc.faceSwap.createJob.useMutation();
+  const deleteJobMutation = trpc.faceSwap.deleteJob.useMutation();
+  const utils = trpc.useUtils();
 
   const completedJobs = jobs?.filter(job => job.status === "completed") || [];
   const currentJob = completedJobs[currentResultIndex];
@@ -474,6 +476,30 @@ export default function FaceSwap() {
                   </>
                 )}
               </Button>
+
+              {/* Before/After Thumbnails - Desktop Only, Below Submit Button */}
+              {completedJobs.length > 0 && currentJob && (
+                <div className="hidden md:flex gap-2 mt-3">
+                  {/* Source Face Thumbnail */}
+                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
+                    <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Before</div>
+                    <img
+                      src={currentJob.sourceImageUrl}
+                      alt="Source"
+                      className="w-full aspect-square object-cover rounded"
+                    />
+                  </div>
+                  {/* Target Media Thumbnail */}
+                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
+                    <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Original</div>
+                    <img
+                      src={currentJob.targetMediaUrl}
+                      alt="Target"
+                      className="w-full aspect-square object-cover rounded"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right Column: Results (Desktop: full height, Mobile: below inputs) */}
@@ -481,8 +507,8 @@ export default function FaceSwap() {
               {/* Results Section */}
               {completedJobs.length > 0 && (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden">
-                  {/* Download Button - Floating */}
-                  <div className="absolute top-3 right-3 z-20">
+                  {/* Action Buttons - Floating */}
+                  <div className="absolute top-3 right-3 z-20 flex gap-2">
                     <Button
                       size="sm"
                       onClick={() => window.open(currentJob?.resultMediaUrl!, "_blank")}
@@ -490,6 +516,28 @@ export default function FaceSwap() {
                     >
                       <Download className="mr-1 h-3 w-3" />
                       Download
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        if (!currentJob) return;
+                        try {
+                          await deleteJobMutation.mutateAsync({ jobId: currentJob.id });
+                          toast.success('Job deleted successfully');
+                          await utils.faceSwap.getMyJobs.invalidate();
+                          // Navigate to previous result if available
+                          if (completedJobs.length === 1) {
+                            setCurrentResultIndex(0);
+                          } else if (currentResultIndex >= completedJobs.length - 1) {
+                            setCurrentResultIndex(Math.max(0, currentResultIndex - 1));
+                          }
+                        } catch (error) {
+                          toast.error('Failed to delete job');
+                        }
+                      }}
+                      className="bg-red-500/80 hover:bg-red-600 text-white text-xs h-8 shadow-lg"
+                    >
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                   
@@ -535,27 +583,7 @@ export default function FaceSwap() {
                       />
                     )}
 
-                    {/* Before/After Thumbnails */}
-                    <div className="absolute bottom-3 left-3 flex gap-2 z-10">
-                      {/* Source Face Thumbnail */}
-                      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
-                        <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Before</div>
-                        <img
-                          src={currentJob?.sourceImageUrl}
-                          alt="Source"
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                      </div>
-                      {/* Target Media Thumbnail */}
-                      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
-                        <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Original</div>
-                        <img
-                          src={currentJob?.targetMediaUrl}
-                          alt="Target"
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                      </div>
-                    </div>
+
                   </div>
                 </div>
               )}
@@ -596,16 +624,22 @@ export default function FaceSwap() {
                           {getStatusBadge(job.status)}
                         </div>
 
-                        {/* Quick Delete Badge (always visible for completed jobs) */}
-                        {job.status === "completed" && (
+                        {/* Quick Delete Badge (always visible for completed and failed jobs) */}
+                        {(job.status === "completed" || job.status === "failed") && (
                           <div className="absolute top-1 right-1">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
                                 if (confirm('Delete this job?')) {
-                                  toast.info('Delete feature coming soon!');
+                                  try {
+                                    await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                    toast.success('Job deleted successfully');
+                                    await utils.faceSwap.getMyJobs.invalidate();
+                                  } catch (error) {
+                                    toast.error('Failed to delete job');
+                                  }
                                 }
                               }}
                               className="h-6 w-6 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
@@ -617,7 +651,7 @@ export default function FaceSwap() {
 
                         {/* Retry Button for Failed Jobs */}
                         {job.status === "failed" && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -671,9 +705,21 @@ export default function FaceSwap() {
             setLightboxIndex(index);
             setCurrentResultIndex(index);
           }}
-          onDelete={(jobId) => {
-            toast.info('Delete feature coming soon!');
-            // TODO: Implement actual delete mutation
+          onDelete={async (jobId) => {
+            try {
+              await deleteJobMutation.mutateAsync({ jobId });
+              toast.success('Job deleted successfully');
+              await utils.faceSwap.getMyJobs.invalidate();
+              // If we deleted the current job, close lightbox or navigate
+              if (completedJobs.length === 1) {
+                setShowLightbox(false);
+              } else if (lightboxIndex >= completedJobs.length - 1) {
+                setLightboxIndex(Math.max(0, lightboxIndex - 1));
+                setCurrentResultIndex(Math.max(0, currentResultIndex - 1));
+              }
+            } catch (error) {
+              toast.error('Failed to delete job');
+            }
           }}
         />
       )}

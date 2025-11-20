@@ -229,3 +229,19 @@
 - [x] Retry funkce pro Failed joby - možnost přegenerovat (placeholder)
 - [x] Delete ikona v Lightbox galerii
 - [x] Delete funkce přímo z fullscreen view (placeholder)
+
+
+## Delete Fix & Thumbnail Relayout - User Requested
+- [x] Implementovat skutečné mazání jobů (tRPC mutation)
+- [x] Delete job z databáze (jobs tabulka)
+- [x] Delete souborů z S3 (resultMediaUrl, sourceImageUrl, targetMediaUrl)
+- [x] Refresh job listu po úspěšném smazání
+- [x] Přesunout before/after miniatury pod generovací tlačítko (desktop)
+- [x] Miniatury v levém sloupci na desktopu
+- [x] Skrýt miniatury na mobilu (hidden md:flex)
+
+
+## Delete UI Improvements - User Requested
+- [x] Přidat delete ikonu vedle Download tlačítka v hlavním results view
+- [x] Umožnit mazání i neúspěšných generování (failed jobs)
+- [x] Delete badge i na failed jobs v thumbnail gridu
