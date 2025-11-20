@@ -103,3 +103,24 @@ export const aiJobs = mysqlTable("aiJobs", {
 
 export type AIJob = typeof aiJobs.$inferSelect;
 export type InsertAIJob = typeof aiJobs.$inferInsert;
+
+/**
+ * Saved Faces table - Store frequently used source faces for quick reuse
+ * Users can save their favorite faces to avoid re-uploading
+ */
+export const savedFaces = mysqlTable("savedFaces", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  
+  // Face image references
+  faceImageKey: varchar("faceImageKey", { length: 512 }).notNull(),
+  faceImageUrl: text("faceImageUrl").notNull(),
+  
+  // User-defined name for the face
+  name: varchar("name", { length: 128 }).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SavedFace = typeof savedFaces.$inferSelect;
+export type InsertSavedFace = typeof savedFaces.$inferInsert;

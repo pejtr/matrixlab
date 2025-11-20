@@ -1,17 +1,19 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2 } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import TemplateGallery, { Template } from "@/components/TemplateGallery";
 
 import FullscreenLightbox from "@/components/FullscreenLightbox";
+import SavedFacesDialog from "@/components/SavedFacesDialog";
 
 export default function FaceSwap() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -30,6 +32,7 @@ export default function FaceSwap() {
   const [previousCompletedCount, setPreviousCompletedCount] = useState(0);
   const [showLightbox, setShowLightbox] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [showSavedFaces, setShowSavedFaces] = useState(false);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -147,6 +150,60 @@ export default function FaceSwap() {
     }
   };
 
+  const saveFaceMutation = trpc.savedFaces.saveFace.useMutation({
+    onSuccess: () => {
+      toast.success("Face saved successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to save face");
+    },
+  });
+
+  const handleSaveCurrentFace = async () => {
+    if (!sourceFile || !sourcePreview) {
+      toast.error("No source face to save");
+      return;
+    }
+
+    const faceName = prompt("Enter a name for this face:");
+    if (!faceName) return;
+
+    try {
+      // Upload the source file first
+      const formData = new FormData();
+      formData.append("file", sourceFile);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const uploadData = await uploadRes.json();
+
+      // Save to database
+      await saveFaceMutation.mutateAsync({
+        faceImageKey: uploadData.key || `saved-${Date.now()}`,
+        faceImageUrl: uploadData.url,
+        name: faceName,
+      });
+    } catch (error) {
+      console.error("Failed to save face:", error);
+      toast.error("Failed to save face");
+    }
+  };
+
+  const handleLoadSavedFace = async (faceImageUrl: string) => {
+    try {
+      const response = await fetch(faceImageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], "saved-face.jpg", { type: blob.type });
+      
+      setSourceFile(file);
+      setSourcePreview(faceImageUrl);
+    } catch (error) {
+      console.error("Failed to load saved face:", error);
+      toast.error("Failed to load saved face");
+    }
+  };
+
   const handleSubmit = async () => {
     if (!sourceFile || targetFiles.length === 0) {
       toast.error("Please upload both source face and target media");
@@ -259,20 +316,16 @@ export default function FaceSwap() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
       {/* Compact Header */}
-      <header className="container mx-auto py-3 px-4">
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => setLocation("/")}
-            className="text-white hover:bg-white/10 h-8 px-2"
-            size="sm"
-          >
-            <ArrowLeft className="mr-1 h-4 w-4" />
-            Back
-          </Button>
-          <h1 className="text-lg font-bold text-white">{APP_TITLE}</h1>
-          <div className="w-16" />
-        </div>
+      <header className="container mx-auto py-2 px-4">
+        <Button
+          variant="ghost"
+          onClick={() => setLocation("/")}
+          className="text-white hover:bg-white/10 h-8 px-2"
+          size="sm"
+        >
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          Back
+        </Button>
       </header>
 
       {/* Main Content */}
@@ -304,6 +357,28 @@ export default function FaceSwap() {
                         <div className="text-white/70">
                           <UserCircle className="h-16 w-16 mx-auto text-pink-400" />
                         </div>
+                      )}
+                    </div>
+                    {/* Saved Faces & Save Button */}
+                    <div className="mt-2 flex justify-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowSavedFaces(true)}
+                        className="text-white/70 hover:text-white hover:bg-white/10 text-xs h-7"
+                      >
+                        <Bookmark className="mr-1 h-3 w-3" />
+                        Saved Faces
+                      </Button>
+                      {sourceFile && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleSaveCurrentFace}
+                          className="text-green-400 hover:text-green-300 hover:bg-white/10 text-xs h-7"
+                        >
+                          Save This Face
+                        </Button>
                       )}
                     </div>
                   </CardContent>
@@ -445,20 +520,42 @@ export default function FaceSwap() {
                     {currentJob?.targetMediaType === "video" ? (
                       <video
                         src={currentJob.resultMediaUrl!}
-                        className="w-full"
+                        className="w-full max-h-[calc(100vh-12rem)] object-contain"
                         controls
                       />
                     ) : (
                       <img
                         src={currentJob?.resultMediaUrl || ""}
                         alt="Result"
-                        className="w-full cursor-pointer hover:opacity-90 transition-opacity"
+                        className="w-full max-h-[calc(100vh-12rem)] object-contain cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => {
                           setLightboxIndex(currentResultIndex);
                           setShowLightbox(true);
                         }}
                       />
                     )}
+
+                    {/* Before/After Thumbnails */}
+                    <div className="absolute bottom-3 left-3 flex gap-2 z-10">
+                      {/* Source Face Thumbnail */}
+                      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
+                        <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Before</div>
+                        <img
+                          src={currentJob?.sourceImageUrl}
+                          alt="Source"
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      </div>
+                      {/* Target Media Thumbnail */}
+                      <div className="bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
+                        <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Original</div>
+                        <img
+                          src={currentJob?.targetMediaUrl}
+                          alt="Target"
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -554,6 +651,42 @@ export default function FaceSwap() {
             setCurrentResultIndex(index);
           }}
         />
+      )}
+
+      {/* Saved Faces Dialog */}
+      <SavedFacesDialog
+        open={showSavedFaces}
+        onOpenChange={setShowSavedFaces}
+        onSelectFace={handleLoadSavedFace}
+      />
+
+      {/* Template Gallery */}
+      {showTemplateGallery && (
+        <Dialog open={showTemplateGallery} onOpenChange={setShowTemplateGallery}>
+          <DialogContent className="max-w-4xl bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-lg border-white/20 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-white">Template Gallery</DialogTitle>
+            </DialogHeader>
+            <TemplateGallery
+              selectedTemplates={selectedTemplates}
+              onSelectTemplate={handleTemplateSelect}
+            />
+            <div className="flex justify-end gap-2 pt-4 border-t border-white/20">
+              <Button variant="outline" onClick={() => setShowTemplateGallery(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  handleUseTemplates();
+                  setShowTemplateGallery(false);
+                }}
+                disabled={selectedTemplates.length === 0}
+              >
+                Use {selectedTemplates.length} Template(s)
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

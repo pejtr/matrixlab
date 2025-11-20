@@ -195,3 +195,42 @@ export async function getUserAIJobs(userId: number): Promise<AIJob[]> {
 
   return db.select().from(aiJobs).where(eq(aiJobs.userId, userId)).orderBy(desc(aiJobs.createdAt));
 }
+
+// Saved faces queries
+import { savedFaces, InsertSavedFace, SavedFace } from "../drizzle/schema";
+
+export async function createSavedFace(face: InsertSavedFace): Promise<SavedFace> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(savedFaces).values(face);
+  const insertedId = Number(result[0].insertId);
+  
+  const inserted = await db.select().from(savedFaces).where(eq(savedFaces.id, insertedId)).limit(1);
+  
+  if (!inserted[0]) {
+    throw new Error("Failed to retrieve inserted saved face");
+  }
+  
+  return inserted[0];
+}
+
+export async function getUserSavedFaces(userId: number): Promise<SavedFace[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(savedFaces).where(eq(savedFaces.userId, userId)).orderBy(desc(savedFaces.createdAt));
+}
+
+export async function deleteSavedFace(faceId: number, userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.delete(savedFaces).where(eq(savedFaces.id, faceId));
+}

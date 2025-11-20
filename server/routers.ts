@@ -370,6 +370,43 @@ export const appRouter = router({
         return getUserAIJobs(ctx.user.id);
       }),
   }),
+
+  savedFaces: router({
+    // Get user's saved faces
+    getMySavedFaces: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getUserSavedFaces } = await import("./db");
+        return getUserSavedFaces(ctx.user.id);
+      }),
+
+    // Save a new face
+    saveFace: protectedProcedure
+      .input(z.object({
+        faceImageKey: z.string(),
+        faceImageUrl: z.string(),
+        name: z.string().min(1).max(128),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createSavedFace } = await import("./db");
+        return createSavedFace({
+          userId: ctx.user.id,
+          faceImageKey: input.faceImageKey,
+          faceImageUrl: input.faceImageUrl,
+          name: input.name,
+        });
+      }),
+
+    // Delete a saved face
+    deleteFace: protectedProcedure
+      .input(z.object({
+        faceId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { deleteSavedFace } = await import("./db");
+        await deleteSavedFace(input.faceId, ctx.user.id);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

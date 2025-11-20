@@ -206,3 +206,14 @@
 - [x] Přidat reset preview i v catch bloku handleSubmit
 - [x] Umožnit nové generování i po předchozí chybě
 - [x] Vyčistit isUploading state po chybě
+
+
+## Result Display & Saved Faces - User Requested
+- [x] Odstranit horní řádek "FaceSwap Web" pro více prostoru
+- [x] Výsledná fotografie max-height podle viewport (max-h-[calc(100vh-16rem)])
+- [x] Přidat miniatury před/po (source face + target media) vedle hlavního výsledku
+- [x] Implementovat Saved Faces feature - možnost uložit často používané source faces
+- [x] Saved Faces ikona/tlačítko vedle Source Face upload pole
+- [x] Database schema pro savedFaces tabulku (userId, faceImageKey, faceImageUrl, name)
+- [x] UI pro výběr z uložených tváří (SavedFacesDialog modal)
+- [x] Možnost smazat uloženou tvář (delete badge v dialogu)
