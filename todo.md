@@ -706,3 +706,8 @@
 - [x] Nechat jen 4 kulaté miniatury + AI Model/Templates řádek
 
 - [x] Opravit zobrazení nejnovější fotky - po vygenerování se zobrazuje poslední místo nejnovější
+
+- [x] Odstranit mezery nad a pod velkou fotkou
+- [x] Přizpůsobit výšku pole výšce obrázku (ne fixed height)
+- [x] All Jobs pás miniatur hned pod fotkou (bez mezery)
+- [x] Přidat Delete tlačítko na Pending joby

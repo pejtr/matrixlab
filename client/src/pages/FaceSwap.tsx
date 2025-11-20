@@ -929,7 +929,7 @@ export default function FaceSwap() {
               )}
               
               {completedJobs.length > 0 && (
-                <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden">
+                <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
                   {/* Action Buttons - Floating */}
                   <div className="absolute top-3 right-3 z-20 flex gap-2">
                     <Button
@@ -1014,14 +1014,14 @@ export default function FaceSwap() {
                     {currentJob?.targetMediaType === "video" ? (
                       <video
                         src={currentJob.resultMediaUrl!}
-                        className="w-full h-[calc(100vh-8rem)] object-contain"
+                        className="w-full object-contain"
                         controls
                       />
                     ) : (
                       <img
                         src={currentJob?.resultMediaUrl || ""}
                         alt="Result"
-                        className="w-full h-[calc(100vh-8rem)] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                        className="w-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => {
                           setLightboxIndex(currentResultIndex);
                           setShowLightbox(true);
@@ -1038,7 +1038,7 @@ export default function FaceSwap() {
 
           {/* All Jobs List (Full Width) */}
           {jobs && jobs.length > 0 && (
-            <div className="mt-4">
+            <div className="mt-2">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-white text-sm font-semibold">All Jobs ({jobs.length})</h3>
               </div>
@@ -1226,9 +1226,29 @@ export default function FaceSwap() {
                                       }
                                     }
                                   }}
-                                  className="bg-red-500/80 hover:bg-red-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
+                                  className="bg-orange-500/80 hover:bg-orange-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
                                 >
                                   <XCircle className="h-3 w-3" />
+                                </Button>
+                                {/* Delete Button */}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (confirm('Delete this job permanently?')) {
+                                      try {
+                                        await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                        toast.success('Job deleted');
+                                        await utils.faceSwap.getMyJobs.invalidate();
+                                      } catch (error) {
+                                        toast.error('Failed to delete job');
+                                      }
+                                    }
+                                  }}
+                                  className="bg-red-500/80 hover:bg-red-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
+                                >
+                                  <Trash2 className="h-3 w-3" />
                                 </Button>
                               </div>
                             </div>
