@@ -167,16 +167,16 @@ export default function FaceSwap() {
             <p className="text-white/70">Upload a source face and target media to begin</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
             {/* Source Image Upload */}
             <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-              <CardHeader>
-                <CardTitle className="text-white">1. Source Face</CardTitle>
-                <CardDescription className="text-white/70">
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-white text-sm md:text-lg">1. Source Face</CardTitle>
+                <CardDescription className="text-white/70 text-xs md:text-sm hidden md:block">
                   Upload an image with the face you want to use
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 <input
                   ref={sourceInputRef}
                   type="file"
@@ -186,15 +186,15 @@ export default function FaceSwap() {
                 />
                 <div
                   onClick={() => sourceInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/30 rounded-lg p-8 text-center cursor-pointer hover:border-white/50 transition-colors"
+                  className="border-2 border-dashed border-white/30 rounded-lg p-4 md:p-8 text-center cursor-pointer hover:border-white/50 transition-colors"
                 >
                   {sourcePreview ? (
                     <img src={sourcePreview} alt="Source" className="max-h-48 mx-auto rounded" />
                   ) : (
                     <div className="text-white/70">
-                      <UserCircle className="h-16 w-16 mx-auto mb-3 text-pink-400" />
-                      <p>Click to upload source image</p>
-                      <p className="text-sm mt-2">JPG, PNG, or WEBP</p>
+                      <UserCircle className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-2 md:mb-3 text-pink-400" />
+                      <p className="text-xs md:text-base">Click to upload</p>
+                      <p className="text-xs mt-1 md:mt-2 hidden md:block">JPG, PNG, or WEBP</p>
                     </div>
                   )}
                 </div>
@@ -206,13 +206,13 @@ export default function FaceSwap() {
 
             {/* Target Media Upload */}
             <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-              <CardHeader>
-                <CardTitle className="text-white">2. Target Media</CardTitle>
-                <CardDescription className="text-white/70">
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-white text-sm md:text-lg">2. Target Media</CardTitle>
+                <CardDescription className="text-white/70 text-xs md:text-sm hidden md:block">
                   Upload a video or image to apply the face swap
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 <input
                   ref={targetInputRef}
                   type="file"
@@ -222,7 +222,7 @@ export default function FaceSwap() {
                 />
                 <div
                   onClick={() => targetInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/30 rounded-lg p-8 text-center cursor-pointer hover:border-white/50 transition-colors"
+                  className="border-2 border-dashed border-white/30 rounded-lg p-4 md:p-8 text-center cursor-pointer hover:border-white/50 transition-colors"
                 >
                   {targetPreview ? (
                     targetFile?.type.startsWith("video/") ? (
@@ -232,10 +232,10 @@ export default function FaceSwap() {
                     )
                   ) : (
                     <div className="text-white/70">
-                      <Users className="h-16 w-16 mx-auto mb-3 text-purple-400" />
-                      <p>Click to upload target media</p>
-                      <p className="text-sm mt-2">Video: MP4, MOV, WEBM</p>
-                      <p className="text-sm">Image: JPG, PNG, WEBP</p>
+                      <Users className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-2 md:mb-3 text-purple-400" />
+                      <p className="text-xs md:text-base">Click to upload</p>
+                      <p className="text-xs mt-1 md:mt-2 hidden md:block">Video: MP4, MOV, WEBM</p>
+                      <p className="text-xs hidden md:block">Image: JPG, PNG, WEBP</p>
                     </div>
                   )}
                 </div>
@@ -247,12 +247,12 @@ export default function FaceSwap() {
           </div>
 
           {/* Submit Button */}
-          <div className="text-center">
+          <div className="w-full md:text-center">
             <Button
               size="lg"
               onClick={handleSubmit}
               disabled={!sourceFile || !targetFile || isUploading}
-              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-lg px-12 py-6 h-auto"
+              className="w-full md:w-auto bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-base md:text-lg px-8 md:px-12 py-4 md:py-6 h-auto"
             >
               {isUploading ? (
                 <>

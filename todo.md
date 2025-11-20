@@ -98,3 +98,10 @@
 ## UI Icon Updates - User Requested
 - [x] Změnit Source Face ikonu na ikonu hlavy/portrétu (UserCircle)
 - [x] Změnit Target Media ikonu na ikonu celé postavy (Users)
+
+
+## Mobile Layout Improvements - User Requested
+- [x] Změnit FaceSwap layout na mobilu - Source a Target vedle sebe (grid-cols-2)
+- [x] Výsledek pod upload poli v plné šířce
+- [x] Vytvořit "obrácené T" zobrazení na mobilu
+- [x] Desktop layout zůstane původní (grid-cols-2 pro všechny karty)
