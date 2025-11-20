@@ -73,8 +73,8 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
           "fofr/face-swap-with-ideogram",
           {
             input: {
+              character_image: input.sourceImageUrl,
               target_image: input.targetMediaUrl,
-              swap_image: input.sourceImageUrl,
             },
           }
         );
@@ -105,8 +105,8 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
               "fofr/face-swap-with-ideogram",
               {
                 input: {
+                  character_image: input.sourceImageUrl,
                   target_image: input.targetMediaUrl,
-                  swap_image: input.sourceImageUrl,
                 },
               }
             );
@@ -120,8 +120,8 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
             "fofr/face-swap-with-ideogram",
             {
               input: {
+                character_image: input.sourceImageUrl,
                 target_image: input.targetMediaUrl,
-                swap_image: input.sourceImageUrl,
               },
             }
           );

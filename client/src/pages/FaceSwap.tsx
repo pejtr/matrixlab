@@ -616,13 +616,9 @@ export default function FaceSwap() {
                     {/* 2-Column Layout: 10% thumbnails / 90% preview */}
                     <div className="flex gap-1.5">
                       {/* Left Column: Saved Faces Thumbnails (10%) */}
-                      <div className="w-[10%] flex flex-col gap-0.5">
-                        {/* Header */}
-                        <div className="text-white/70 text-[8px] text-center mb-0.5">
-                          <Bookmark className="h-2.5 w-2.5 mx-auto" />
-                        </div>
-                        {/* Render 8 slots */}
-                        {Array.from({ length: 8 }).map((_, idx) => {
+                      <div className="w-[10%] flex flex-col gap-1">
+                        {/* Render 5 slots */}
+                        {Array.from({ length: 5 }).map((_, idx) => {
                           const face = savedFaces?.[idx];
                           return face ? (
                             <div
@@ -665,7 +661,7 @@ export default function FaceSwap() {
                                   }
                                 }
                               }}
-                              className="aspect-square rounded-full border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                              className="aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                             >
                               <img
                                 src={face.faceImageUrl}
@@ -677,9 +673,9 @@ export default function FaceSwap() {
                             <div
                               key={`empty-${idx}`}
                               onClick={() => sourceInputRef.current?.click()}
-                              className="aspect-square rounded-full border border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-pink-400 hover:bg-pink-500/10 transition-all"
+                              className="aspect-square rounded-full border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-pink-400 hover:bg-pink-500/10 transition-all"
                             >
-                              <UserCircle className="h-4 w-4 text-white/30" />
+                              <UserCircle className="h-5 w-5 text-white/30" />
                             </div>
                           );
                         })}
@@ -769,13 +765,13 @@ export default function FaceSwap() {
                       }`}
                     >
                       {targetPreviews.length > 0 ? (
-                        <div className="grid grid-cols-3 gap-1">
+                        <div className={targetPreviews.length === 1 ? "" : "grid grid-cols-3 gap-1"}>
                           {targetPreviews.map((preview, idx) => (
                             <div key={idx} className="relative group">
                               <img 
                                 src={preview} 
                                 alt={`Target ${idx + 1}`} 
-                                className="w-full h-12 object-cover rounded border border-white/20" 
+                                className={targetPreviews.length === 1 ? "w-full aspect-[3/4] object-cover rounded border border-white/20" : "w-full h-12 object-cover rounded border border-white/20"}
                               />
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                 <span className="text-white text-[8px] font-medium">#{idx + 1}</span>
@@ -833,7 +829,6 @@ export default function FaceSwap() {
                   <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
                   <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
                 </select>
-                <p className="text-white/60 text-xs">High Quality may block inappropriate content. Use Permissive for nude/NSFW images.</p>
               </div>
 
               {/* Submit Button */}
@@ -1243,27 +1238,57 @@ export default function FaceSwap() {
                               <span className="text-white text-xs font-semibold">
                                 {job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}
                               </span>
-                              {/* Cancel Button */}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-                                  if (confirm('Cancel this job?')) {
+                              {/* Action Buttons */}
+                              <div className="flex gap-2 mt-2">
+                                {/* Retry Button */}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
                                     try {
+                                      // Cancel current job
                                       await cancelJobMutation.mutateAsync({ jobId: job.id });
-                                      toast.success('Job cancelled');
+                                      // Create new job with same parameters
+                                      await createJobMutation.mutateAsync({
+                                        sourceImageKey: job.sourceImageKey,
+                                        sourceImageUrl: job.sourceImageUrl,
+                                        targetMediaKey: job.targetMediaKey,
+                                        targetMediaUrl: job.targetMediaUrl,
+                                        targetMediaType: job.targetMediaType,
+                                        modelPreference: job.modelPreference || "high_quality",
+                                      });
                                       await utils.faceSwap.getMyJobs.invalidate();
+                                      toast.success('Job restarted');
                                     } catch (error) {
-                                      toast.error('Failed to cancel job');
+                                      toast.error('Failed to restart job');
                                     }
-                                  }
-                                }}
-                                className="mt-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg px-3 py-1.5 text-xs font-semibold pointer-events-auto"
-                              >
-                                <XCircle className="h-3 w-3 mr-1" />
-                                Cancel
-                              </Button>
+                                  }}
+                                  className="bg-yellow-500/80 hover:bg-yellow-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
+                                >
+                                  <RotateCcw className="h-3 w-3" />
+                                </Button>
+                                {/* Cancel Button */}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if (confirm('Cancel this job?')) {
+                                      try {
+                                        await cancelJobMutation.mutateAsync({ jobId: job.id });
+                                        toast.success('Job cancelled');
+                                        await utils.faceSwap.getMyJobs.invalidate();
+                                      } catch (error) {
+                                        toast.error('Failed to cancel job');
+                                      }
+                                    }
+                                  }}
+                                  className="bg-red-500/80 hover:bg-red-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
+                                >
+                                  <XCircle className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                             {/* Progress Bar */}
                             <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">

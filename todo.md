@@ -672,3 +672,14 @@
 - [x] Přidat prázdné placeholder sloty (8 celkem pro saved faces)
 - [x] Prázdné sloty zobrazují UserCircle ikonu
 - [x] Kliknutí na prázdný slot otevře file picker
+
+
+### UI Refinements - User Requested
+- [x] Snížit počet saved face slotů z 8 na 5
+- [x] Zvětšit miniatury saved faces (větší velikost)
+- [x] Odstranit mezery nahoře a dole u saved faces thumbnails
+- [x] Skrýt popisek u AI Model selectu (zabírá moc místa)
+- [x] Template preview - plná šířka když je jen 1 fotka (ne grid)
+- [x] Přidat Cancel tlačítko na pending joby v thumbnail gridu
+- [x] Přidat Retry tlačítko na pending joby v thumbnail gridu
+- [x] Opravit Replicate API chybu pro permissive model (character_image parametr)
