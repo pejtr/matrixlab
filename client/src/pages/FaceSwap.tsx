@@ -66,7 +66,7 @@ export default function FaceSwap() {
   const [isRegenerateMode, setIsRegenerateMode] = useState(false);
   const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
-  const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
+  const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("permissive");
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);

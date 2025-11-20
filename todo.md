@@ -726,3 +726,6 @@
 - [x] Omezit maximální výšku velkého obrázku na 80vh (80% obrazovky)
 
 - [x] Přidat X tlačítko na target media thumbnails pro jednotlivé odstranění
+
+- [- [x] Změnit default model na Permissive (reálištější výstupy)
+- [x] Zjistit ceny obou modelů (High Quality: $0.05/img, Permissive: $0.11/run)
