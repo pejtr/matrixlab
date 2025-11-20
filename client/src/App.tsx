@@ -4,6 +4,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { Navigation } from "./components/Navigation";
+import { BottomNav } from "./components/BottomNav";
 import Home from "./pages/Home";
 import FaceSwap from "./pages/FaceSwap";
 import JobHistory from "./pages/JobHistory";
@@ -37,7 +39,11 @@ function App() {
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <Navigation />
+          <div className="pb-16 md:pb-0">
+            <Router />
+          </div>
+          <BottomNav />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

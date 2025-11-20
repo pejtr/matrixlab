@@ -18,40 +18,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Header */}
-      <header className="container mx-auto py-6 px-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {APP_LOGO && <img src={APP_LOGO} alt="Logo" className="h-10 w-10" />}
-            <h1 className="text-2xl font-bold text-white">{APP_TITLE}</h1>
-          </div>
-          <div>
-            {isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                <span className="text-white/80">{user?.name || user?.email}</span>
-                <Button
-                  variant="outline"
-                  onClick={() => setLocation("/history")}
-                  className="bg-white/10 text-white border-white/20 hover:bg-white/20"
-                >
-                  <History className="mr-2 h-4 w-4" />
-                  History
-                </Button>
-              </div>
-            ) : (
-              <Button
-                onClick={() => window.location.href = getLoginUrl()}
-                className="bg-white text-purple-900 hover:bg-white/90"
-              >
-                Sign In
-              </Button>
-            )}
-          </div>
-        </div>
-      </header>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-4 py-20">
+      <main className="container mx-auto px-4 py-12 md:py-20">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex justify-center mb-6">
             <Sparkles className="h-16 w-16 text-yellow-400" />

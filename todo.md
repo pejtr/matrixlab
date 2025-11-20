@@ -85,3 +85,11 @@
 - [x] Replicate API validation error - špatné názvy parametrů (swap_image vs source_image)
 - [x] Zkontrolovat dokumentaci codeplugtech/face-swap modelu
 - [x] Opravit názvy parametrů v replicateService.ts
+
+
+## Navigation Improvements - User Requested
+- [x] Vytvořit hamburger menu komponentu (desktop + mobil)
+- [x] Implementovat sticky bottom navigation pro mobil
+- [x] Přidat ikony a textové názvy do bottom menu
+- [x] Integrovat navigaci do všech stránek
+- [x] Responsive design - skrýt bottom nav na desktopu
