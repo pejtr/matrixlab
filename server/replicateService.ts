@@ -42,11 +42,15 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
 
     // Use different models based on media type
     let output;
+    let modelUsed: string;
     
     if (input.targetMediaType === "video") {
       // For videos, use xrunda/hello model (supports video face swap)
+      // Cost: $0.10 per run, ~103 seconds
+      modelUsed = "xrunda/hello (video)";
+      console.log("[Replicate] Using model: xrunda/hello for VIDEO (cost: $0.10, ~103s)");
       output = await replicate.run(
-        "xrunda/hello:2e0f58e3c8b8b5d5e5b5b5e2c5b5b5e2c5b5b5e2c5b5b5e2c5b5b5e2c5b5b",
+        "xrunda/hello",
         {
           input: {
             target_face: input.sourceImageUrl,
@@ -55,7 +59,10 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         }
       );
     } else {
-      // For images, use codeplugtech/face-swap (reliable for images)
+      // For images, use codeplugtech/face-swap (cheapest and fastest for images)
+      // Cost: $0.00031 per run, ~27 seconds
+      modelUsed = "codeplugtech/face-swap (image)";
+      console.log("[Replicate] Using model: codeplugtech/face-swap for IMAGE (cost: $0.00031, ~27s)");
       output = await replicate.run(
         "codeplugtech/face-swap:278a81e7ebb22db98bcba54de985d22cc1abeead2754eb1f2af717247be69b34",
         {
@@ -66,6 +73,8 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         }
       );
     }
+    
+    console.log("[Replicate] Model used:", modelUsed);
 
     console.log("[Replicate] Output:", output);
 

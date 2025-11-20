@@ -356,3 +356,17 @@
 - [x] Estimated time pro delší operace (videa - "1-2 minutes")
 - [x] Zobrazit na hlavním výsledkovém obrázku během zpracování
 - [x] Progress bar v thumbnail gridu s procenty
+
+
+## Media Type Detection - Debug & Fix
+- [x] Zkontrolovat frontend detekci typu média - správně: `type.startsWith("video/")`
+- [x] Zkontrolovat backend job creation - správně předává targetMediaType
+- [x] Ověřit Replicate service - správný model pro fotky (codeplugtech/face-swap)
+- [x] Přidat debug logy - přidány logy s cenou a časem pro každý model
+- [x] Opravit špatnou verzi xrunda/hello modelu (použit bez verze = latest)
+
+
+## UX Improvement - Preserve Source Face
+- [x] Po vygenerování zachovat zvolenou Saved Face v input poli
+- [x] Vymazat pouze target files (ne source face)
+- [x] Umožnit rychlé generování dalších variant se stejnou tváří

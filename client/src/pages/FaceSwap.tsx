@@ -310,12 +310,10 @@ export default function FaceSwap() {
       toast.success(`${targetFiles.length} job(s) created successfully!`);
       
       // Reset form after successful submission
-      setSourceFile(null);
-      setSourcePreview(null);
+      // Keep source face for easy re-use, only clear target files
       setTargetFiles([]);
       setTargetPreviews([]);
       setSelectedTemplates([]);
-      if (sourceInputRef.current) sourceInputRef.current.value = '';
       if (targetInputRef.current) targetInputRef.current.value = '';
       
       setIsUploading(false);
@@ -325,12 +323,10 @@ export default function FaceSwap() {
       toast.error("Failed to create jobs");
       
       // Reset form even after error to allow retry
-      setSourceFile(null);
-      setSourcePreview(null);
+      // Keep source face for easy retry, only clear target files
       setTargetFiles([]);
       setTargetPreviews([]);
       setSelectedTemplates([]);
-      if (sourceInputRef.current) sourceInputRef.current.value = '';
       if (targetInputRef.current) targetInputRef.current.value = '';
       
       setIsUploading(false);
