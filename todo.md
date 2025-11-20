@@ -488,3 +488,11 @@
 - [x] loadTargetFromJob se volá pouze pokud targetFiles.length === 0
 - [x] Zajistit nezávislost obou vstupních polí
 - [x] Odstranit nežádoucí reset logiku
+
+## Generation Issues - User Reported
+- [x] Opravit generování - nemazat target files po odeslání
+- [x] Aktualizovat velkou fotku po dokončení generování (automatické přepnutí na nejnovější)
+- [x] Before/Original miniatury zobrazují aktuální currentJob (správně)
+- [x] Zobrazit target fotku v hlavním okně během generování (s loading overlay)
+- [x] Opravit mizející target miniatura - nyní zůstává po odeslání
+- [ ] Console error - čeká na uživatele pro testování

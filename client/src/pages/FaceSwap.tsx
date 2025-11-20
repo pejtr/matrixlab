@@ -109,12 +109,15 @@ export default function FaceSwap() {
   useEffect(() => {
     if (completedJobs.length > previousCompletedCount && previousCompletedCount > 0) {
       const newCount = completedJobs.length - previousCompletedCount;
+      
+      // Automatically switch to the newest result
+      setCurrentResultIndex(completedJobs.length - 1);
+      
       toast.success(`${newCount} new result(s) ready!`, {
         duration: 5000,
         action: {
           label: "View",
           onClick: () => {
-            setCurrentResultIndex(completedJobs.length - 1);
             document.querySelector('[data-results-section]')?.scrollIntoView({ behavior: 'smooth' });
           },
         },
@@ -492,25 +495,24 @@ export default function FaceSwap() {
 
       toast.success(`${targetFiles.length} job(s) created successfully!`);
       
-      // Reset form after successful submission
-      // Keep source face for easy re-use, only clear target files
-      setTargetFiles([]);
-      setTargetPreviews([]);
+      // Keep both source and target for easy viewing/comparison
+      // Don't reset form - user can see what they just submitted
       setSelectedTemplates([]);
-      if (targetInputRef.current) targetInputRef.current.value = '';
       
       setIsUploading(false);
       setUploadProgress({ current: 0, total: 0 });
+      
+      // Refresh jobs to get new results
+      await refetch();
+      
+      // Auto-switch to the newest result when it completes
+      // The useEffect will handle notification and index update
     } catch (error) {
       console.error("Upload failed:", error);
       toast.error("Failed to create jobs");
       
-      // Reset form even after error to allow retry
-      // Keep source face for easy retry, only clear target files
-      setTargetFiles([]);
-      setTargetPreviews([]);
+      // Keep form data for easy retry
       setSelectedTemplates([]);
-      if (targetInputRef.current) targetInputRef.current.value = '';
       
       setIsUploading(false);
       setUploadProgress({ current: 0, total: 0 });
@@ -874,16 +876,44 @@ export default function FaceSwap() {
               {/* Loading State - Show when processing */}
               {jobs && jobs.some(j => j.status === "pending" || j.status === "processing") && completedJobs.length === 0 && (
                 <div className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden">
-                  <div className="flex flex-col items-center justify-center py-32 px-8">
-                    <Loader2 className="h-16 w-16 text-pink-400 animate-spin mb-4" />
-                    <h3 className="text-white text-xl font-semibold mb-2">Generating Face Swap...</h3>
-                    <p className="text-white/70 text-sm text-center mb-4">
-                      {jobs.find(j => j.status === "processing")?.targetMediaType === "video" 
-                        ? "Video processing may take 1-2 minutes"
-                        : "This usually takes 10-30 seconds"}
-                    </p>
+                  {/* Show target preview during generation */}
+                  {targetPreviews.length > 0 && (
+                    <div className="relative">
+                      <img 
+                        src={targetPreviews[0]} 
+                        alt="Target preview" 
+                        className="w-full h-auto object-contain max-h-[600px]"
+                      />
+                      {/* Loading overlay */}
+                      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                        <div className="text-center">
+                          <Loader2 className="h-16 w-16 text-pink-400 animate-spin mb-4 mx-auto" />
+                          <h3 className="text-white text-xl font-semibold mb-2">Generating Face Swap...</h3>
+                          <p className="text-white/70 text-sm mb-4">
+                            {jobs.find(j => j.status === "processing")?.targetMediaType === "video" 
+                              ? "Video processing may take 1-2 minutes"
+                              : "This usually takes 10-30 seconds"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {/* Fallback: no preview available */}
+                  {targetPreviews.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-32 px-8">
+                      <Loader2 className="h-16 w-16 text-pink-400 animate-spin mb-4" />
+                      <h3 className="text-white text-xl font-semibold mb-2">Generating Face Swap...</h3>
+                      <p className="text-white/70 text-sm text-center mb-4">
+                        {jobs.find(j => j.status === "processing")?.targetMediaType === "video" 
+                          ? "Video processing may take 1-2 minutes"
+                          : "This usually takes 10-30 seconds"}
+                      </p>
+                    </div>
+                  )}
+                  {/* Progress bars */}
+                  <div className="px-8 pb-8">
                     {jobs.filter(j => j.status === "pending" || j.status === "processing").map(job => (
-                      <div key={job.id} className="w-full max-w-md bg-white/5 rounded-lg p-3 mb-2">
+                      <div key={job.id} className="w-full max-w-md bg-white/5 rounded-lg p-3 mb-2 mx-auto">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-white/90 text-sm">Job #{job.id}</span>
                           <span className="text-white/70 text-xs">{job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}</span>
