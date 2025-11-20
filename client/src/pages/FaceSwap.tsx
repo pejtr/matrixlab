@@ -14,6 +14,7 @@ import TemplateGallery, { Template } from "@/components/TemplateGallery";
 
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import SavedFacesDialog from "@/components/SavedFacesDialog";
+import RegenerateDialog from "@/components/RegenerateDialog";
 
 export default function FaceSwap() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -34,6 +35,8 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showSavedFaces, setShowSavedFaces] = useState(false);
   const [visibleJobsCount, setVisibleJobsCount] = useState(20);
+  const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
+  const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -100,6 +103,14 @@ export default function FaceSwap() {
 
   const handleTargetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    
+    // Limit to 5 files maximum
+    if (files.length > 5) {
+      toast.error('Maximum 5 target media files allowed');
+      if (targetInputRef.current) targetInputRef.current.value = '';
+      return;
+    }
+    
     if (files.length > 0) {
       setTargetFiles(files);
       const previews: string[] = [];
@@ -132,6 +143,12 @@ export default function FaceSwap() {
 
   const handleUseTemplates = async () => {
     const templateUrls = selectedTemplates.map(t => t.mediaUrl);
+    
+    // Limit to 5 templates maximum
+    if (templateUrls.length > 5) {
+      toast.error('Maximum 5 templates allowed');
+      return;
+    }
     
     try {
       const responses = await Promise.all(
@@ -212,6 +229,12 @@ export default function FaceSwap() {
   const handleSubmit = async () => {
     if (!sourceFile || targetFiles.length === 0) {
       toast.error("Please upload both source face and target media");
+      return;
+    }
+
+    // Limit to 5 jobs maximum
+    if (targetFiles.length > 5) {
+      toast.error('Maximum 5 target media files allowed');
       return;
     }
 
@@ -420,7 +443,10 @@ export default function FaceSwap() {
                       )}
                     </div>
                     {targetFiles.length > 0 && (
-                      <p className="text-white/70 text-xs mt-2 text-center">{targetFiles.length} file(s)</p>
+                      <p className="text-white/70 text-xs mt-2 text-center">{targetFiles.length} / 5 file(s)</p>
+                    )}
+                    {targetFiles.length === 0 && (
+                      <p className="text-white/50 text-[10px] mt-1 text-center">Max 5 files</p>
                     )}
                     <Button
                       variant="outline"
@@ -552,8 +578,21 @@ export default function FaceSwap() {
                       size="sm"
                       onClick={() => window.open(currentJob?.resultMediaUrl!, "_blank")}
                       className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"
+                      title="Download"
                     >
                       <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if (!currentJob) return;
+                        setRegenerateJob(currentJob);
+                        setShowRegenerateDialog(true);
+                      }}
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-8 w-8 p-0 shadow-lg"
+                      title="Regenerate with different face"
+                    >
+                      <RotateCcw className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -786,6 +825,30 @@ export default function FaceSwap() {
         open={showSavedFaces}
         onOpenChange={setShowSavedFaces}
         onSelectFace={handleLoadSavedFace}
+      />
+
+      {/* Regenerate Dialog */}
+      <RegenerateDialog
+        open={showRegenerateDialog}
+        onOpenChange={setShowRegenerateDialog}
+        job={regenerateJob}
+        onRegenerate={async (newSourceImageKey, newSourceImageUrl) => {
+          if (!regenerateJob) return;
+          try {
+            await createJobMutation.mutateAsync({
+              sourceImageKey: newSourceImageKey,
+              sourceImageUrl: newSourceImageUrl,
+              targetMediaKey: regenerateJob.targetMediaKey,
+              targetMediaUrl: regenerateJob.targetMediaUrl,
+              targetMediaType: regenerateJob.targetMediaType,
+            });
+            toast.success('Regeneration started!');
+            await utils.faceSwap.getMyJobs.invalidate();
+          } catch (error) {
+            toast.error('Failed to start regeneration');
+            throw error;
+          }
+        }}
       />
 
       {/* Template Gallery */}

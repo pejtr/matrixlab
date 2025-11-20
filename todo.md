@@ -261,3 +261,19 @@
 - [x] Přidat "Load More" tlačítko pro načítání dalších jobů (pagination)
 - [x] Opravit Retry funkcionalitu - implementovat skutečný retry mechanismus
 - [x] Opravit delete badge na failed jobs - není klikatelný kvůli overlay
+
+
+## Regenerate Functionality - User Requested
+- [x] Přidat Regenerate ikonu (šipky v kruhu) vedle Download a Delete tlačítek
+- [x] Vytvořit RegenerateDialog komponentu pro výběr nové source face
+- [x] Defaultně předvyplnit původní source a target z dokončeného jobu
+- [x] Umožnit výběr jiné saved face nebo nahrání nové
+- [x] Implementovat regenerate logiku - vytvoření nového jobu se stejným target, novou source
+
+
+## Batch Generation Fix & Limit - User Requested
+- [x] Diagnostikovat proč batch generování fotografií nefunguje
+- [x] Opravit batch generation logiku pro multiple target files
+- [x] Přidat limit 5 target médií maximálně
+- [x] Frontend validace - zobrazit chybu při výběru více než 5 souborů
+- [x] Backend validace - zabránit vytvoření více než 5 jobů najednou
