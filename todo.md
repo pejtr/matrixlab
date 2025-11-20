@@ -347,3 +347,12 @@
 
 ## Layout Adjustment - User Requested
 - [x] Zvětšit vygenerovaný obrázek v pravém sloupci (změnit grid ratio z 1:2 na 1:2.5)
+
+
+## Loading Indicator - User Requested
+- [x] Přidat vizuální indikátor načítání během generování
+- [x] Loading overlay s animovaným spinnerem
+- [x] Progress text s procentálním stavem (např. "Processing... 30%")
+- [x] Estimated time pro delší operace (videa - "1-2 minutes")
+- [x] Zobrazit na hlavním výsledkovém obrázku během zpracování
+- [x] Progress bar v thumbnail gridu s procenty

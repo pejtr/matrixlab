@@ -641,6 +641,35 @@ export default function FaceSwap() {
             {/* Right Column: Results (Desktop: full height, Mobile: below inputs) */}
             <div className="space-y-4">
               {/* Results Section */}
+              {/* Loading State - Show when processing */}
+              {jobs && jobs.some(j => j.status === "pending" || j.status === "processing") && completedJobs.length === 0 && (
+                <div className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden">
+                  <div className="flex flex-col items-center justify-center py-32 px-8">
+                    <Loader2 className="h-16 w-16 text-pink-400 animate-spin mb-4" />
+                    <h3 className="text-white text-xl font-semibold mb-2">Generating Face Swap...</h3>
+                    <p className="text-white/70 text-sm text-center mb-4">
+                      {jobs.find(j => j.status === "processing")?.targetMediaType === "video" 
+                        ? "Video processing may take 1-2 minutes"
+                        : "This usually takes 10-30 seconds"}
+                    </p>
+                    {jobs.filter(j => j.status === "pending" || j.status === "processing").map(job => (
+                      <div key={job.id} className="w-full max-w-md bg-white/5 rounded-lg p-3 mb-2">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white/90 text-sm">Job #{job.id}</span>
+                          <span className="text-white/70 text-xs">{job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}</span>
+                        </div>
+                        <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
+                            style={{ width: `${job.status === "processing" ? (job.progress || 0) : 10}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               {completedJobs.length > 0 && (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden">
                   {/* Action Buttons - Floating */}
@@ -832,13 +861,22 @@ export default function FaceSwap() {
 
                         {/* Progress Bar for Pending/Processing */}
                         {(job.status === "pending" || job.status === "processing") && (
-                          <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                            <div 
-                              className={`h-full bg-gradient-to-r from-pink-500 to-purple-500 ${
-                                job.status === "processing" ? "w-3/4 animate-pulse" : "w-1/4"
-                              }`}
-                            />
-                          </div>
+                          <>
+                            {/* Loading Overlay */}
+                            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
+                              <Loader2 className="h-8 w-8 text-white animate-spin mb-2" />
+                              <span className="text-white text-xs font-semibold">
+                                {job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}
+                              </span>
+                            </div>
+                            {/* Progress Bar */}
+                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">
+                              <div 
+                                className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
+                                style={{ width: `${job.status === "processing" ? (job.progress || 0) : 10}%` }}
+                              />
+                            </div>
+                          </>
                         )}
 
 
