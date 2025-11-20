@@ -16,6 +16,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import TemplateGallery, { Template } from "@/components/TemplateGallery";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import FullscreenLightbox from "@/components/FullscreenLightbox";
 
 export default function FaceSwap() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -32,6 +33,8 @@ export default function FaceSwap() {
   const [currentResultIndex, setCurrentResultIndex] = useState(0);
   const [showComparison, setShowComparison] = useState(true);
   const [previousCompletedCount, setPreviousCompletedCount] = useState(0);
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -462,7 +465,11 @@ export default function FaceSwap() {
                   <img
                     src={currentJob?.resultMediaUrl || ""}
                     alt="Result"
-                    className="w-full"
+                    className="w-full cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => {
+                      setLightboxIndex(currentResultIndex);
+                      setShowLightbox(true);
+                    }}
                   />
                 )}
               </div>
@@ -603,6 +610,22 @@ export default function FaceSwap() {
           )}
         </div>
       </main>
+
+      {/* Fullscreen Lightbox */}
+      {showLightbox && completedJobs.length > 0 && (
+        <FullscreenLightbox
+          images={completedJobs.map(job => ({
+            url: job.resultMediaUrl!,
+            id: job.id
+          }))}
+          currentIndex={lightboxIndex}
+          onClose={() => setShowLightbox(false)}
+          onNavigate={(index) => {
+            setLightboxIndex(index);
+            setCurrentResultIndex(index);
+          }}
+        />
+      )}
     </div>
   );
 }

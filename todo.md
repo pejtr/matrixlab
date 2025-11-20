@@ -170,3 +170,16 @@
 - [x] Kompaktnější navigace - pouze ikony bez textů
 - [x] Zmenšit padding a velikost navigačního menu (h-16 → h-12)
 - [x] Icon-only design pro top navigation bar
+
+
+## Fullscreen Lightbox Gallery - User Requested
+- [x] Vytvořit fullscreen lightbox komponentu
+- [x] Otevřít lightbox po kliknutí na výslednou fotografii
+- [x] Navigace šipkami vlevo/vpravo mezi všemi výtvory
+- [x] Podpora klávesnice (Arrow Left/Right, Escape)
+- [x] Tmavé pozadí s overlay (bg-black/95)
+- [x] Zavírací tlačítko (X)
+- [x] Counter zobrazující aktuální pozici (např. "3 / 10")
+- [x] Thumbnail strip na spodním okraji pro rychlý přechod
+- [x] Download tlačítko v lightboxu
+- [x] Podpora pro videa i obrázky
