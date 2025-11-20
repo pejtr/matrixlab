@@ -183,3 +183,11 @@
 - [x] Thumbnail strip na spodním okraji pro rychlý přechod
 - [x] Download tlačítko v lightboxu
 - [x] Podpora pro videa i obrázky
+
+
+## Horizontal T Layout for Desktop - User Requested
+- [x] Desktop: Změnit na ležící T layout (otočené o 90° doleva)
+- [x] Desktop: Levý sloupec - Source Face (nahoře) + Target Media (dole) = 2 řádky
+- [x] Desktop: Pravý sloupec - Results na plnou výšku
+- [x] Mobile: Zachovat původní obrácené T (vstupy vedle sebe, výsledky dole)
+- [x] Responsive breakpoint: md (768px)
