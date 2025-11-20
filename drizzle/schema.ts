@@ -53,6 +53,7 @@ export const faceSwapJobs = mysqlTable("faceSwapJobs", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   completedAt: timestamp("completedAt"),
+  sourceDeletedAt: timestamp("sourceDeletedAt"), // Soft delete for source image (hides from Before lightbox)
 });
 
 export type FaceSwapJob = typeof faceSwapJobs.$inferSelect;
@@ -120,6 +121,7 @@ export const savedFaces = mysqlTable("savedFaces", {
   name: varchar("name", { length: 128 }).notNull(),
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  deletedAt: timestamp("deletedAt"), // Soft delete timestamp
 });
 
 export type SavedFace = typeof savedFaces.$inferSelect;

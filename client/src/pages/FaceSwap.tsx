@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import TemplateGallery, { Template } from "@/components/TemplateGallery";
 import FullscreenLightbox from "@/components/FullscreenLightbox";
 import SavedFacesDialog from "@/components/SavedFacesDialog";
 import RegenerateDialog from "@/components/RegenerateDialog";
+import CropDialog from "@/components/CropDialog";
 
 /**
  * Get video duration in seconds
@@ -62,6 +63,9 @@ export default function FaceSwap() {
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
   const [isDraggingSource, setIsDraggingSource] = useState(false);
   const [isDraggingTarget, setIsDraggingTarget] = useState(false);
+  const [isRegenerateMode, setIsRegenerateMode] = useState(false);
+  const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
+  const [showCropDialog, setShowCropDialog] = useState(false);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -77,6 +81,7 @@ export default function FaceSwap() {
 
   const createJobMutation = trpc.faceSwap.createJob.useMutation();
   const deleteJobMutation = trpc.faceSwap.deleteJob.useMutation();
+  const softDeleteSourceMutation = trpc.faceSwap.softDeleteSourceImage.useMutation();
   const utils = trpc.useUtils();
 
   const completedJobs = jobs?.filter(job => job.status === "completed") || [];
@@ -372,6 +377,45 @@ export default function FaceSwap() {
     }
   };
 
+  // Load target media from existing job (for regenerate mode)
+  const loadTargetFromJob = async (job: typeof completedJobs[0]) => {
+    try {
+      // Fetch the original target media from the job
+      const response = await fetch(job.targetMediaUrl, { mode: 'no-cors' });
+      const blob = await response.blob();
+      
+      // Determine file extension from media type
+      const extension = job.targetMediaType === 'video' ? 'mp4' : 'jpg';
+      const mimeType = job.targetMediaType === 'video' ? 'video/mp4' : 'image/jpeg';
+      
+      // Create file object
+      let file: File;
+      if (blob.size === 0) {
+        // CORS blocked - create proxy file with URL reference
+        file = new File([new Blob()], `target-${job.id}.${extension}`, { type: mimeType });
+        (file as any).__remoteUrl = job.targetMediaUrl;
+      } else {
+        file = new File([blob], `target-${job.id}.${extension}`, { type: blob.type || mimeType });
+      }
+      
+      // Set target files and preview
+      setTargetFiles([file]);
+      setTargetPreviews([job.targetMediaUrl]);
+      
+      toast.success('Original photo loaded for regeneration');
+    } catch (error) {
+      console.error('Failed to load target from job:', error);
+      // Fallback: create proxy file with URL
+      const extension = job.targetMediaType === 'video' ? 'mp4' : 'jpg';
+      const mimeType = job.targetMediaType === 'video' ? 'video/mp4' : 'image/jpeg';
+      const file = new File([new Blob()], `target-${job.id}.${extension}`, { type: mimeType });
+      (file as any).__remoteUrl = job.targetMediaUrl;
+      setTargetFiles([file]);
+      setTargetPreviews([job.targetMediaUrl]);
+      toast.success('Original photo loaded (using URL)');
+    }
+  };
+
   const handleSubmit = async () => {
 
     
@@ -525,7 +569,7 @@ export default function FaceSwap() {
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
                   <CardContent className="p-1.5">
                     {/* Saved Faces Inline Thumbnails - MOVED ABOVE */}
-                    <div className="mb-1.5">
+                    <div className="mb-0">
                       <div className="flex items-center justify-between mb-0.5">
                         <div className="text-white/70 text-[9px] flex items-center gap-0.5">
                           <Bookmark className="h-2.5 w-2.5" />
@@ -567,6 +611,14 @@ export default function FaceSwap() {
                                     setSourcePreview(face.faceImageUrl);
                                     toast.success('Saved face loaded');
                                   }
+                                  
+                                  // Enable regenerate mode if viewing a result
+                                  if (currentJob) {
+                                    setIsRegenerateMode(true);
+                                    setRegenerateSourceJobId(currentJob.id);
+                                    // Auto-fill target media with current job's original photo
+                                    await loadTargetFromJob(currentJob);
+                                  }
                                 } catch (error) {
                                   console.error('Failed to load saved face:', error);
                                   // Fallback: just use the URL directly
@@ -575,6 +627,14 @@ export default function FaceSwap() {
                                   setSourceFile(file);
                                   setSourcePreview(face.faceImageUrl);
                                   toast.success('Saved face loaded (using URL)');
+                                  
+                                  // Enable regenerate mode if viewing a result
+                                  if (currentJob) {
+                                    setIsRegenerateMode(true);
+                                    setRegenerateSourceJobId(currentJob.id);
+                                    // Auto-fill target media with current job's original photo
+                                    await loadTargetFromJob(currentJob);
+                                  }
                                 }
                               }}
                               className="aspect-square rounded-full border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
@@ -719,8 +779,17 @@ export default function FaceSwap() {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Start Face Swap
+                    {isRegenerateMode ? (
+                      <>
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Regenerate
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Start Face Swap
+                      </>
+                    )}
                   </>
                 )}
               </Button>
@@ -843,6 +912,17 @@ export default function FaceSwap() {
                       title="Regenerate with different face"
                     >
                       <RotateCcw className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if (!currentJob) return;
+                        setShowCropDialog(true);
+                      }}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-8 w-8 p-0 shadow-lg"
+                      title="Crop image"
+                    >
+                      <Crop className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -1053,10 +1133,13 @@ export default function FaceSwap() {
       {/* Fullscreen Lightbox */}
       {showLightbox && completedJobs.length > 0 && (
         <FullscreenLightbox
-          images={completedJobs.map(job => ({
-            url: lightboxType === 'source' ? job.sourceImageUrl : lightboxType === 'target' ? job.targetMediaUrl : job.resultMediaUrl!,
-            id: job.id
-          }))}
+          images={completedJobs
+            // Filter out soft-deleted source images when viewing Before gallery
+            .filter(job => lightboxType !== 'source' || !job.sourceDeletedAt)
+            .map(job => ({
+              url: lightboxType === 'source' ? job.sourceImageUrl : lightboxType === 'target' ? job.targetMediaUrl : job.resultMediaUrl!,
+              id: job.id
+            }))}
           currentIndex={lightboxIndex}
           onClose={() => {
             setShowLightbox(false);
@@ -1068,9 +1151,18 @@ export default function FaceSwap() {
           }}
           onDelete={async (jobId) => {
             try {
-              await deleteJobMutation.mutateAsync({ jobId });
-              toast.success('Job deleted successfully');
+              // For source type, use soft delete (hides from Before gallery, keeps job visible)
+              if (lightboxType === 'source') {
+                await softDeleteSourceMutation.mutateAsync({ jobId });
+                toast.success('Source image hidden from Before gallery');
+              } else {
+                // For result/target type, hard delete the entire job
+                await deleteJobMutation.mutateAsync({ jobId });
+                toast.success('Job deleted successfully');
+              }
+              
               await utils.faceSwap.getMyJobs.invalidate();
+              
               // If we deleted the current job, close lightbox or navigate
               if (completedJobs.length === 1) {
                 setShowLightbox(false);
@@ -1079,7 +1171,7 @@ export default function FaceSwap() {
                 setCurrentResultIndex(Math.max(0, currentResultIndex - 1));
               }
             } catch (error) {
-              toast.error('Failed to delete job');
+              toast.error('Failed to delete');
             }
           }}
           onSave={lightboxType === 'source' ? handleSaveFaceFromLightbox : undefined}
@@ -1113,6 +1205,24 @@ export default function FaceSwap() {
             await utils.faceSwap.getMyJobs.invalidate();
           } catch (error) {
             toast.error('Failed to start regeneration');
+            throw error;
+          }
+        }}
+      />
+
+      {/* Crop Dialog */}
+      <CropDialog
+        open={showCropDialog}
+        onOpenChange={setShowCropDialog}
+        imageUrl={currentJob?.resultMediaUrl || ''}
+        onSave={async (croppedImageUrl) => {
+          if (!currentJob) return;
+          try {
+            // Update job with cropped image URL
+            await utils.faceSwap.getMyJobs.invalidate();
+            toast.success('Image cropped successfully!');
+          } catch (error) {
+            toast.error('Failed to save cropped image');
             throw error;
           }
         }}

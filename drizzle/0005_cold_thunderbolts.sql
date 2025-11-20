@@ -1,0 +1,1 @@
+ALTER TABLE `savedFaces` ADD `deletedAt` timestamp;

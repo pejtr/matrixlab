@@ -36,6 +36,20 @@
       "when": 1763635761200,
       "tag": "0004_previous_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1763652613670,
+      "tag": "0005_cold_thunderbolts",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1763653013817,
+      "tag": "0006_square_hedge_knight",
+      "breakpoints": true
     }
   ]
 }

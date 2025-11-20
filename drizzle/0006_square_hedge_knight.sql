@@ -1,0 +1,1 @@
+ALTER TABLE `faceSwapJobs` ADD `sourceDeletedAt` timestamp;

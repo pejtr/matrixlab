@@ -243,3 +243,14 @@ export async function deleteSavedFace(faceId: number, userId: number): Promise<v
 
   await db.delete(savedFaces).where(eq(savedFaces.id, faceId));
 }
+
+export async function softDeleteSourceImage(jobId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(faceSwapJobs)
+    .set({ sourceDeletedAt: new Date() })
+    .where(eq(faceSwapJobs.id, jobId));
+}

@@ -407,3 +407,47 @@
 - [x] Zobrazit pouze pro "source" type lightbox (Before obrázky)
 - [x] Toast notification po úspěšném uložení
 - [x] Automatická invalidace saved faces seznamu po uložení
+
+
+## Critical Bug - Delete Behavior
+- [x] Soft delete pro source images - smazání Before fotky nesmaže celé generování
+- [x] Přidat `sourceDeletedAt` timestamp do faceSwapJobs tabulky
+- [x] Before thumbnail se zobrazuje normálně (jako by nic)
+- [ ] Možnost obnovit smazanou source image (Restore button)
+- [x] Lightbox Before galerie přeskočí smazané faces
+
+## Batch Delete Feature
+- [ ] Přidat checkbox selection do All Jobs gridu
+- [ ] "Select All" checkbox v hlavičce
+- [ ] "Delete Selected" button (zobrazí se když je něco vybráno)
+- [ ] Confirmation dialog před smazáním více jobů
+
+## Before/After Comparison Slider
+- [ ] Implementovat slider overlay pro porovnání Before/After
+- [ ] Přidat tlačítko "Compare" u každého výsledku
+- [ ] Interaktivní slider pro přepínání mezi Before a After
+- [ ] Responsive design pro mobile
+
+## Export All Results
+- [ ] Přidat "Download All as ZIP" button
+- [ ] Server-side ZIP generation (všechny completed results)
+- [ ] Progress indicator během generování ZIP
+- [ ] Automatické stažení po dokončení
+
+## Regenerate Mode - User Requested
+- [ ] Detekce regenerate mode (source face změněna + current result existuje)
+- [ ] Auto-fill target media s původní fotkou z current result
+- [ ] Změnit tlačítko "Start Face Swap" na "Regenerate"
+- [ ] Zachovat regenerate mode při změně source face
+
+## UI Spacing Fix - User Requested
+- [x] Odstranit mezeru nad Saved Faces miniaturami (zbytečný padding/margin)
+
+## Crop Functionality - User Requested
+- [x] Přidat CROP ikonu vedle Download/Delete/Regenerate
+- [x] Implementovat CropDialog komponentu s canvas editorem
+- [x] Interaktivní crop area s drag & resize
+- [x] Auto-save oříznutého výsledku do S3
+- [x] Reset funkce pro vrácení k původnímu crop area
+- [ ] Aktualizace job v databázi s cropped URL (backend)
+- [ ] Undo funkce - uložit původní URL před cropem
