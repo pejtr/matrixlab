@@ -497,19 +497,40 @@ export default function FaceSwap() {
                                   toast.success('Saved face loaded (using URL)');
                                 }
                               }}
-                              className="aspect-square rounded border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                              className="aspect-square rounded-full border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                             >
                               <img
                                 src={face.faceImageUrl}
                                 alt="Saved face"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover scale-110"
                               />
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <div className="text-white/50 text-[10px] text-center py-2">
-                          No saved faces yet
+                        <div className="text-white/50 text-[9px] text-center py-1">
+                          No saved faces
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Upload Input - MOVED BELOW Saved Faces */}
+                    <input
+                      ref={sourceInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={handleSourceFileChange}
+                      className="hidden"
+                    />
+                    <div
+                      onClick={() => sourceInputRef.current?.click()}
+                      className="border-2 border-dashed border-white/30 rounded-lg p-2 text-center cursor-pointer hover:border-white/50 transition-colors"
+                    >
+                      {sourcePreview ? (
+                        <img src={sourcePreview} alt="Source" className="w-full h-24 object-cover rounded" />
+                      ) : (
+                        <div className="text-white/70">
+                          <UserCircle className="h-12 w-12 mx-auto text-pink-400" />
                         </div>
                       )}
                     </div>
@@ -518,7 +539,7 @@ export default function FaceSwap() {
 
                 {/* Target Media */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-2">
+                  <CardContent className="p-1.5">
                     <input
                       ref={targetInputRef}
                       type="file"
@@ -529,12 +550,12 @@ export default function FaceSwap() {
                     />
                     <div
                       onClick={() => targetInputRef.current?.click()}
-                      className="border-2 border-dashed border-white/30 rounded-lg p-4 text-center cursor-pointer hover:border-white/50 transition-colors"
+                      className="border-2 border-dashed border-white/30 rounded-lg p-2 text-center cursor-pointer hover:border-white/50 transition-colors"
                     >
                       {targetPreviews.length > 0 ? (
                         <div className="grid grid-cols-2 gap-1">
                           {targetPreviews.slice(0, 2).map((preview, idx) => (
-                            <img key={idx} src={preview} alt={`Target ${idx + 1}`} className="w-full h-14 object-cover rounded" />
+                            <img key={idx} src={preview} alt={`Target ${idx + 1}`} className="w-full h-12 object-cover rounded" />
                           ))}
                           {targetPreviews.length > 2 && (
                             <div className="col-span-2 text-white/70 text-xs mt-1">+{targetPreviews.length - 2} more</div>
@@ -542,15 +563,15 @@ export default function FaceSwap() {
                         </div>
                       ) : (
                         <div className="text-white/70">
-                          <Users className="h-16 w-16 mx-auto text-purple-400" />
+                          <Users className="h-12 w-12 mx-auto text-purple-400" />
                         </div>
                       )}
                     </div>
                     {targetFiles.length > 0 && (
-                      <p className="text-white/70 text-xs mt-2 text-center">{targetFiles.length} / 5 file(s)</p>
+                      <p className="text-white/70 text-[9px] mt-1 text-center">{targetFiles.length} / 5 file(s)</p>
                     )}
                     {targetFiles.length === 0 && (
-                      <p className="text-white/50 text-[10px] mt-1 text-center">Max 5 files</p>
+                      <p className="text-white/50 text-[9px] mt-0.5 text-center">Max 5 files</p>
                     )}
                     <Button
                       variant="outline"
@@ -559,7 +580,7 @@ export default function FaceSwap() {
                         e.stopPropagation();
                         setShowTemplateGallery(!showTemplateGallery);
                       }}
-                      className="w-full mt-2 bg-transparent border-white/30 text-white hover:bg-white/10 text-xs h-7"
+                      className="w-full mt-1 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] h-6"
                     >
                       <Library className="mr-1 h-3 w-3" />
                       {showTemplateGallery ? 'Hide' : 'Templates'}
@@ -612,9 +633,9 @@ export default function FaceSwap() {
 
               {/* Before/After Thumbnails - Desktop Only, Below Submit Button */}
               {completedJobs.length > 0 && currentJob && (
-                <div className="hidden md:flex gap-1 mt-1.5">
+                <div className="hidden md:flex gap-0.5 mt-1">
                   {/* Source Face Thumbnail */}
-                  <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md relative cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                  <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded p-0.5 shadow-sm relative cursor-pointer hover:ring-1 hover:ring-pink-500 transition-all"
                     onClick={() => {
                       // Open lightbox with source image
                       setLightboxType('source');
@@ -622,11 +643,11 @@ export default function FaceSwap() {
                       setLightboxIndex(currentResultIndex);
                     }}
                   >
-                    <div className="text-[9px] font-semibold text-gray-700 mb-0.5 text-center">Before</div>
+                    <div className="text-[8px] font-semibold text-gray-700 mb-0.5 text-center">Before</div>
                     <img
                       src={currentJob.sourceImageUrl}
                       alt="Source"
-                      className="w-full aspect-square object-cover rounded"
+                      className="w-full aspect-[4/3] object-cover rounded"
                     />
                     {/* Save to Faces Badge */}
                     <div className="absolute top-1 right-1">
@@ -647,14 +668,14 @@ export default function FaceSwap() {
                             toast.error('Failed to save face');
                           }
                         }}
-                        className="h-5 w-5 p-0 bg-pink-500/80 hover:bg-pink-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="h-4 w-4 p-0 bg-pink-500/80 hover:bg-pink-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <Bookmark className="h-2.5 w-2.5" />
+                        <Bookmark className="h-2 w-2" />
                       </Button>
                     </div>
                   </div>
                   {/* Target Media Thumbnail */}
-                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded p-0.5 shadow-sm cursor-pointer hover:ring-1 hover:ring-purple-500 transition-all"
                     onClick={() => {
                       // Open lightbox with target image
                       setLightboxType('target');
@@ -662,11 +683,11 @@ export default function FaceSwap() {
                       setLightboxIndex(currentResultIndex);
                     }}
                   >
-                    <div className="text-[9px] font-semibold text-gray-700 mb-0.5 text-center">Original</div>
+                    <div className="text-[8px] font-semibold text-gray-700 mb-0.5 text-center">Original</div>
                     <img
                       src={currentJob.targetMediaUrl}
                       alt="Target"
-                      className="w-full aspect-square object-cover rounded"
+                      className="w-full aspect-[4/3] object-cover rounded"
                     />
                   </div>
                 </div>
@@ -780,14 +801,14 @@ export default function FaceSwap() {
                     {currentJob?.targetMediaType === "video" ? (
                       <video
                         src={currentJob.resultMediaUrl!}
-                        className="w-full max-h-[calc(100vh-12rem)] object-contain"
+                        className="w-full h-[calc(100vh-8rem)] object-contain"
                         controls
                       />
                     ) : (
                       <img
                         src={currentJob?.resultMediaUrl || ""}
                         alt="Result"
-                        className="w-full max-h-[calc(100vh-12rem)] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                        className="w-full h-[calc(100vh-8rem)] object-contain cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => {
                           setLightboxIndex(currentResultIndex);
                           setShowLightbox(true);

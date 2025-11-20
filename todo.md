@@ -379,3 +379,11 @@
 - [x] Přidat validaci délky videa (max 30s) ve frontendu
 - [x] Vytvořit dokumentaci pro deployment (DEPLOYMENT.md)
 - [ ] Uživatel musí nasadit Docker image na RunPod a nastavit API keys
+
+
+## Layout Optimization - 100% Zoom
+- [x] Zvětšit vygenerovanou fotku na výšku (h-[calc(100vh-8rem)])
+- [x] Přesunout Saved Faces NAD ikonu nahrání tváře
+- [x] Udělat miniatury Saved Faces kulaté (rounded-full) a menší (grid-cols-6)
+- [x] Odstranit zbytené mezery - p-1.5, gap-1.5, menší fonty
+- [x] Zmenšit Before/After miniatury (aspect-[4/3], menší text)
