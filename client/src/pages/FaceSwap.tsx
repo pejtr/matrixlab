@@ -1340,15 +1340,17 @@ export default function FaceSwap() {
       {/* Template Gallery */}
       {showTemplateGallery && (
         <Dialog open={showTemplateGallery} onOpenChange={setShowTemplateGallery}>
-          <DialogContent className="max-w-4xl bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-lg border-white/20 text-white">
-            <DialogHeader>
+          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-lg border-white/20 text-white">
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle className="text-white">Template Gallery</DialogTitle>
             </DialogHeader>
-            <TemplateGallery
-              selectedTemplates={selectedTemplates}
-              onSelectTemplate={handleTemplateSelect}
-            />
-            <div className="flex justify-end gap-2 pt-4 border-t border-white/20">
+            <div className="flex-1 overflow-y-auto min-h-0">
+              <TemplateGallery
+                selectedTemplates={selectedTemplates}
+                onSelectTemplate={handleTemplateSelect}
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t border-white/20 flex-shrink-0 bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95">
               <Button variant="outline" onClick={() => setShowTemplateGallery(false)}>
                 Cancel
               </Button>
@@ -1358,6 +1360,7 @@ export default function FaceSwap() {
                   setShowTemplateGallery(false);
                 }}
                 disabled={selectedTemplates.length === 0}
+                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
               >
                 Use {selectedTemplates.length} Template(s)
               </Button>

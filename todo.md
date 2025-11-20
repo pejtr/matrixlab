@@ -594,3 +594,9 @@
 - [x] Přidat withDbRetry wrapper pro automatické zotavení z connection errors
 - [x] Upravit worker pro použití withDbRetry
 - [x] Testovat - worker běží bez chyb
+
+## Template Selection Not Working (User Reported)
+- [x] Zkontrolovat TemplateGallery onSelect handler - funguje správně
+- [x] Identifikovat problém - tlačítko "Use Templates" je mimo viewport na mobilu/tabletu
+- [x] Opravit dialog - přidat max-h-[90vh], scrollování a sticky footer
+- [x] Zvýraznit tlačítko - gradient růžovo-fialový
