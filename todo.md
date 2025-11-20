@@ -282,3 +282,11 @@
 ## Layout Optimization - User Requested
 - [x] Odstranit Back tlačítko a celý horní řádek
 - [x] Optimalizovat layout pro 100% zoom na desktopu
+
+
+## Before Thumbnail & Saved Faces Fixes - User Requested
+- [x] Opravit Before thumbnail lightbox - zobrazit správnou source fotku místo target
+- [x] Nahradit Saved Faces tlačítko inline miniaturami uložených tváří
+- [x] Umožnit kliknout na saved face miniaturu pro rychlý výběr
+- [x] Opravit "Failed to load saved face" chybu
+- [x] Diagnostikovat proč handleLoadSavedFace selhává

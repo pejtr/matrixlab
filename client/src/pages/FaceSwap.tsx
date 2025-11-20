@@ -33,6 +33,7 @@ export default function FaceSwap() {
   const [previousCompletedCount, setPreviousCompletedCount] = useState(0);
   const [showLightbox, setShowLightbox] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
   const [visibleJobsCount, setVisibleJobsCount] = useState(20);
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
@@ -44,6 +45,10 @@ export default function FaceSwap() {
   const { data: jobs, refetch } = trpc.faceSwap.getMyJobs.useQuery(undefined, {
     enabled: isAuthenticated,
     refetchInterval: 5000, // Poll every 5s for real-time updates
+  });
+
+  const { data: savedFaces } = trpc.savedFaces.getMySavedFaces.useQuery(undefined, {
+    enabled: isAuthenticated,
   });
 
   const createJobMutation = trpc.faceSwap.createJob.useMutation();
@@ -172,14 +177,7 @@ export default function FaceSwap() {
     }
   };
 
-  const saveFaceMutation = trpc.savedFaces.saveFace.useMutation({
-    onSuccess: () => {
-      toast.success("Face saved successfully!");
-    },
-    onError: () => {
-      toast.error("Failed to save face");
-    },
-  });
+  const saveFaceMutation = trpc.savedFaces.saveFace.useMutation();
 
   const handleSaveCurrentFace = async () => {
     if (!sourceFile || !sourcePreview) {
@@ -374,26 +372,62 @@ export default function FaceSwap() {
                         </div>
                       )}
                     </div>
-                    {/* Saved Faces & Save Button */}
-                    <div className="mt-2 flex justify-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowSavedFaces(true)}
-                        className="text-white/70 hover:text-white hover:bg-white/10 text-xs h-7"
-                      >
-                        <Bookmark className="mr-1 h-3 w-3" />
-                        Saved Faces
-                      </Button>
-                      {sourceFile && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={handleSaveCurrentFace}
-                          className="text-green-400 hover:text-green-300 hover:bg-white/10 text-xs h-7"
-                        >
-                          Save This Face
-                        </Button>
+                    {/* Saved Faces Inline Thumbnails */}
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="text-white/70 text-[10px] flex items-center gap-1">
+                          <Bookmark className="h-3 w-3" />
+                          Saved Faces {savedFaces && `(${savedFaces.length}/8)`}
+                        </div>
+                        {sourceFile && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleSaveCurrentFace}
+                            className="text-green-400 hover:text-green-300 hover:bg-white/10 text-[10px] h-5 px-1"
+                          >
+                            Save This
+                          </Button>
+                        )}
+                      </div>
+                      {savedFaces && savedFaces.length > 0 ? (
+                        <div className="grid grid-cols-4 gap-1">
+                          {savedFaces.map((face) => (
+                            <div
+                              key={face.id}
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(face.faceImageUrl, {
+                                    mode: 'cors',
+                                    credentials: 'omit'
+                                  });
+                                  if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                  }
+                                  const blob = await response.blob();
+                                  const file = new File([blob], `saved-face-${face.id}.jpg`, { type: blob.type || 'image/jpeg' });
+                                  setSourceFile(file);
+                                  setSourcePreview(face.faceImageUrl);
+                                  toast.success('Saved face loaded');
+                                } catch (error) {
+                                  console.error('Failed to load saved face:', error);
+                                  toast.error(`Failed to load saved face: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                                }
+                              }}
+                              className="aspect-square rounded border border-white/20 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                            >
+                              <img
+                                src={face.faceImageUrl}
+                                alt="Saved face"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-white/50 text-[10px] text-center py-2">
+                          No saved faces yet
+                        </div>
                       )}
                     </div>
                   </CardContent>
@@ -500,6 +534,7 @@ export default function FaceSwap() {
                   <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-lg relative cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                     onClick={() => {
                       // Open lightbox with source image
+                      setLightboxType('source');
                       setShowLightbox(true);
                       setLightboxIndex(currentResultIndex);
                     }}
@@ -539,6 +574,7 @@ export default function FaceSwap() {
                   <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-lg cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
                     onClick={() => {
                       // Open lightbox with target image
+                      setLightboxType('target');
                       setShowLightbox(true);
                       setLightboxIndex(currentResultIndex);
                     }}
@@ -781,9 +817,15 @@ export default function FaceSwap() {
       {/* Fullscreen Lightbox */}
       {showLightbox && completedJobs.length > 0 && (
         <FullscreenLightbox
-          images={completedJobs.map(job => ({ url: job.resultMediaUrl!, id: job.id }))}
+          images={completedJobs.map(job => ({
+            url: lightboxType === 'source' ? job.sourceImageUrl : lightboxType === 'target' ? job.targetMediaUrl : job.resultMediaUrl!,
+            id: job.id
+          }))}
           currentIndex={lightboxIndex}
-          onClose={() => setShowLightbox(false)}
+          onClose={() => {
+            setShowLightbox(false);
+            setLightboxType('result');
+          }}
           onNavigate={(index) => {
             setLightboxIndex(index);
             setCurrentResultIndex(index);
