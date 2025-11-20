@@ -496,3 +496,17 @@
 - [x] Zobrazit target fotku v hlavním okně během generování (s loading overlay)
 - [x] Opravit mizející target miniatura - nyní zůstává po odeslání
 - [ ] Console error - čeká na uživatele pro testování
+
+## Cancel Job Functionality - User Requested
+- [x] Přidat backend endpoint cancelJob pro zrušení jobu
+- [x] Update job status na "cancelled" v databázi (přidáno do schema)
+- [x] Přidat Cancel tlačítko k progress bars (u každého pending/processing jobu)
+- [x] Automatická invalidace a refresh po zrušení
+- [x] Zobrazit toast notifikaci po úspěšném zrušení
+
+## Generation UI Updates - User Requested
+- [x] Zobrazit Before/Original miniatury během generování (ze vstupních polí)
+- [x] Aktualizovat Before miniature na aktuální sourcePreview
+- [x] Aktualizovat Original miniature na aktuální targetPreviews[0]
+- [x] Zobrazit velkou fotku (target) s loading overlay během generování (již hotovo)
+- [x] Zajistit, že miniatury se zobrazí i když ještě není currentJob

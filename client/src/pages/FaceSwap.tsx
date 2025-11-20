@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -81,6 +81,7 @@ export default function FaceSwap() {
 
   const createJobMutation = trpc.faceSwap.createJob.useMutation();
   const deleteJobMutation = trpc.faceSwap.deleteJob.useMutation();
+  const cancelJobMutation = trpc.faceSwap.cancelJob.useMutation();
   const updateJobResultMutation = trpc.faceSwap.updateJobResult.useMutation();
   const softDeleteSourceMutation = trpc.faceSwap.softDeleteSourceImage.useMutation();
   const utils = trpc.useUtils();
@@ -808,7 +809,8 @@ export default function FaceSwap() {
               </Button>
 
               {/* Before/After Thumbnails - Desktop Only, Below Submit Button */}
-              {completedJobs.length > 0 && currentJob && (
+              {/* Show thumbnails if: 1) there are completed jobs OR 2) currently generating with form inputs */}
+              {((completedJobs.length > 0 && currentJob) || (sourcePreview && targetPreviews.length > 0)) && (
                 <div className="hidden md:flex gap-0.5 mt-1">
                   {/* Source Face Thumbnail */}
                   <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded p-0.5 shadow-sm relative cursor-pointer hover:ring-1 hover:ring-pink-500 transition-all"
@@ -821,7 +823,7 @@ export default function FaceSwap() {
                   >
                     <div className="text-[8px] font-semibold text-gray-700 mb-0.5 text-center">Before</div>
                     <img
-                      src={currentJob.sourceImageUrl}
+                      src={currentJob ? currentJob.sourceImageUrl : sourcePreview!}
                       alt="Source"
                       className="w-full aspect-[4/3] object-cover rounded"
                     />
@@ -861,7 +863,7 @@ export default function FaceSwap() {
                   >
                     <div className="text-[8px] font-semibold text-gray-700 mb-0.5 text-center">Original</div>
                     <img
-                      src={currentJob.targetMediaUrl}
+                      src={currentJob ? currentJob.targetMediaUrl : targetPreviews[0]!}
                       alt="Target"
                       className="w-full aspect-[4/3] object-cover rounded"
                     />
@@ -915,7 +917,27 @@ export default function FaceSwap() {
                     {jobs.filter(j => j.status === "pending" || j.status === "processing").map(job => (
                       <div key={job.id} className="w-full max-w-md bg-white/5 rounded-lg p-3 mb-2 mx-auto">
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-white/90 text-sm">Job #{job.id}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white/90 text-sm">Job #{job.id}</span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={async () => {
+                                try {
+                                  await cancelJobMutation.mutateAsync({ jobId: job.id });
+                                  toast.success('Job cancelled successfully');
+                                  await refetch();
+                                } catch (error) {
+                                  console.error('Failed to cancel job:', error);
+                                  toast.error('Failed to cancel job');
+                                }
+                              }}
+                              className="h-6 px-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                            >
+                              <X className="h-3 w-3 mr-1" />
+                              Cancel
+                            </Button>
+                          </div>
                           <span className="text-white/70 text-xs">{job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}</span>
                         </div>
                         <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">

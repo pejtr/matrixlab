@@ -129,7 +129,7 @@ export async function getUserFaceSwapJobs(userId: number): Promise<FaceSwapJob[]
 
 export async function updateFaceSwapJobStatus(
   jobId: number,
-  status: "pending" | "processing" | "completed" | "failed",
+  status: "pending" | "processing" | "completed" | "failed" | "cancelled",
   updates?: {
     resultMediaKey?: string;
     resultMediaUrl?: string;

@@ -217,6 +217,43 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    // Cancel pending/processing job
+    cancelJob: protectedProcedure
+      .input(z.object({
+        jobId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const job = await getFaceSwapJobById(input.jobId);
+        
+        if (!job) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Job not found",
+          });
+        }
+
+        // Verify the job belongs to the user
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to cancel this job",
+          });
+        }
+
+        // Only allow cancelling pending or processing jobs
+        if (job.status !== "pending" && job.status !== "processing") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Can only cancel pending or processing jobs",
+          });
+        }
+
+        // Update job status to cancelled
+        await updateFaceSwapJobStatus(input.jobId, "cancelled");
+
+        return { success: true };
+      }),
+
     // Update job result URL (for cropped images)
     updateJobResult: protectedProcedure
       .input(z.object({

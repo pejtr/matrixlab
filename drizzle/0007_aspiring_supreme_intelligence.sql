@@ -1,0 +1,2 @@
+ALTER TABLE `aiJobs` MODIFY COLUMN `status` enum('pending','processing','completed','failed','cancelled') NOT NULL DEFAULT 'pending';--> statement-breakpoint
+ALTER TABLE `faceSwapJobs` MODIFY COLUMN `status` enum('pending','processing','completed','failed','cancelled') NOT NULL DEFAULT 'pending';
