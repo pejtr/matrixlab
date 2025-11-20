@@ -5,6 +5,7 @@
 
 import { getFaceSwapJobById, updateFaceSwapJobStatus } from "./db.js";
 import { performFaceSwap } from "./replicateService.js";
+import { performFaceSwapRunPod, isRunPodConfigured } from "./runpodService.js";
 import { storagePut } from "./storage.js";
 // Using native fetch (Node.js 18+)
 
@@ -40,17 +41,30 @@ async function processJob(jobId: number) {
     // Update progress: preparing
     await updateFaceSwapJobStatus(jobId, "processing", { progress: 30 });
 
-    // Perform face swap using Replicate
-    const result = await performFaceSwap({
-      sourceImageUrl: job.sourceImageUrl,
-      targetMediaUrl: job.targetMediaUrl,
-      targetMediaType: job.targetMediaType,
-    });
+    // Choose service based on configuration and media type
+    let result;
+    const useRunPod = isRunPodConfigured() && job.targetMediaType === "video";
+    
+    if (useRunPod) {
+      console.log(`[Worker] Using RunPod for video face swap`);
+      result = await performFaceSwapRunPod({
+        sourceImageUrl: job.sourceImageUrl,
+        targetMediaUrl: job.targetMediaUrl,
+        targetMediaType: job.targetMediaType,
+      });
+    } else {
+      console.log(`[Worker] Using Replicate for image face swap`);
+      result = await performFaceSwap({
+        sourceImageUrl: job.sourceImageUrl,
+        targetMediaUrl: job.targetMediaUrl,
+        targetMediaType: job.targetMediaType,
+      });
+    }
 
     // Update progress: face swap completed
     await updateFaceSwapJobStatus(jobId, "processing", { progress: 70 });
 
-    if (!result.success || !result.outputUrl) {
+    if (!result.success || (!result.outputUrl && !result.outputBase64)) {
       // Retry logic: retry up to 3 times
       const maxRetries = 3;
       if (job.retryCount < maxRetries) {
@@ -73,9 +87,17 @@ async function processJob(jobId: number) {
     // Update progress: downloading result
     await updateFaceSwapJobStatus(jobId, "processing", { progress: 80 });
 
-    // Download the result from Replicate
-    console.log(`[Replicate Worker] Downloading result from ${result.outputUrl}`);
-    const resultBuffer = await downloadFile(result.outputUrl);
+    // Get result buffer (either from URL or base64)
+    let resultBuffer: Buffer;
+    if (result.outputUrl) {
+      console.log(`[Worker] Downloading result from ${result.outputUrl}`);
+      resultBuffer = await downloadFile(result.outputUrl);
+    } else if (result.outputBase64) {
+      console.log(`[Worker] Converting base64 result to buffer`);
+      resultBuffer = Buffer.from(result.outputBase64, 'base64');
+    } else {
+      throw new Error('No output URL or base64 data');
+    }
 
     // Upload to S3
     const contentType = job.targetMediaType === "video" ? "video/mp4" : "image/png";

@@ -370,3 +370,12 @@
 - [x] Po vygenerování zachovat zvolenou Saved Face v input poli
 - [x] Vymazat pouze target files (ne source face)
 - [x] Umožnit rychlé generování dalších variant se stejnou tváří
+
+
+## RunPod Deployment - Video Face Swap
+- [x] Vytvořit Docker image s Inswapper (roop) + RunPod handler
+- [x] Vytvořit RunPod Serverless konfiguraci
+- [x] Integrovat RunPod API do aplikace (runpodService.ts)
+- [x] Přidat validaci délky videa (max 30s) ve frontendu
+- [x] Vytvořit dokumentaci pro deployment (DEPLOYMENT.md)
+- [ ] Uživatel musí nasadit Docker image na RunPod a nastavit API keys

@@ -16,6 +16,28 @@ import FullscreenLightbox from "@/components/FullscreenLightbox";
 import SavedFacesDialog from "@/components/SavedFacesDialog";
 import RegenerateDialog from "@/components/RegenerateDialog";
 
+/**
+ * Get video duration in seconds
+ */
+function getVideoDuration(file: File): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = () => {
+      window.URL.revokeObjectURL(video.src);
+      resolve(video.duration);
+    };
+    
+    video.onerror = () => {
+      window.URL.revokeObjectURL(video.src);
+      reject(new Error('Failed to load video metadata'));
+    };
+    
+    video.src = URL.createObjectURL(file);
+  });
+}
+
 export default function FaceSwap() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
@@ -263,6 +285,23 @@ export default function FaceSwap() {
     if (targetFiles.length > 5) {
       toast.error('Maximum 5 target media files allowed');
       return;
+    }
+
+    // Validate video duration (max 30 seconds)
+    for (const file of targetFiles) {
+      if (file.type.startsWith('video/')) {
+        try {
+          const duration = await getVideoDuration(file);
+          if (duration > 30) {
+            toast.error(`Video "${file.name}" is too long (${duration.toFixed(1)}s). Maximum: 30 seconds`);
+            return;
+          }
+        } catch (error) {
+          console.error('Failed to get video duration:', error);
+          toast.error(`Failed to validate video "${file.name}"`);
+          return;
+        }
+      }
     }
 
 

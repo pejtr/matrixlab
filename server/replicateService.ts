@@ -20,6 +20,8 @@ export interface FaceSwapInput {
 export interface FaceSwapResult {
   success: boolean;
   outputUrl?: string;
+  outputBase64?: string;
+  mimeType?: string;
   error?: string;
 }
 
