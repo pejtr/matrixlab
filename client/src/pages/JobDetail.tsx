@@ -6,12 +6,15 @@ import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation, useParams } from "wouter";
 import { ArrowLeft, Loader2, Download, CheckCircle, XCircle, Clock, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import { useState } from "react";
 
 export default function JobDetail() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const params = useParams<{ id: string }>();
   const jobId = parseInt(params.id || "0");
+  const [showComparison, setShowComparison] = useState(true);
 
   const { data: job, isLoading, refetch } = trpc.faceSwap.getJob.useQuery(
     { jobId },
@@ -151,15 +154,26 @@ export default function JobDetail() {
               {job.status === "completed" && job.resultMediaUrl && (
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20 mb-8">
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
                       <CardTitle className="text-white text-2xl">Result</CardTitle>
-                      <Button
-                        onClick={() => window.open(job.resultMediaUrl!, "_blank")}
-                        className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-                      >
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
+                      <div className="flex gap-2">
+                        {job.targetMediaType === "image" && (
+                          <Button
+                            variant="outline"
+                            onClick={() => setShowComparison(!showComparison)}
+                            className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+                          >
+                            {showComparison ? 'Show Result Only' : 'Show Comparison'}
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => window.open(job.resultMediaUrl!, "_blank")}
+                          className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -168,6 +182,13 @@ export default function JobDetail() {
                         src={job.resultMediaUrl}
                         className="w-full rounded-lg"
                         controls
+                      />
+                    ) : showComparison ? (
+                      <BeforeAfterSlider
+                        beforeImage={job.targetMediaUrl}
+                        afterImage={job.resultMediaUrl}
+                        beforeLabel="Original"
+                        afterLabel="Face Swapped"
                       />
                     ) : (
                       <img

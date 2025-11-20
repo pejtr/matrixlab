@@ -105,3 +105,15 @@
 - [x] Výsledek pod upload poli v plné šířce
 - [x] Vytvořit "obrácené T" zobrazení na mobilu
 - [x] Desktop layout zůstane původní (grid-cols-2 pro všechny karty)
+
+
+## New Features - User Requested (Priority)
+- [x] Batch processing - možnost nahrát více cílových médií najednou (multi-select)
+- [x] Batch processing - vytvořit hromadnou úlohu se stejným zdrojovým obličejem
+- [x] Batch processing - zobrazit progress pro všechny úlohy v batchi
+- [x] Template gallery - vytvořit knihovnu předpřipravených šablon
+- [x] Template gallery - kategorie: celebrity, memes, populární scény
+- [x] Template gallery - thumbnail náhledy pro rychlé testování
+- [x] Before/After comparison slider - interaktivní slider na výsledcích
+- [x] Before/After comparison slider - side-by-side porovnání původního a swapnutého obličeje
+- [x] Before/After comparison slider - podpora pro obrázky (videa zobrazena normálně)
