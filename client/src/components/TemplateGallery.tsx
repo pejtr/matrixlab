@@ -1,15 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Film, Image as ImageIcon, Laugh, Upload, Trash2, Loader2 } from "lucide-react";
+import { Film, Image as ImageIcon, Laugh, Upload, Trash2, Loader2, Star, Briefcase, Coffee, Dumbbell, Zap } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 
 export interface Template {
   id: string;
   name: string;
-  category: "celebrity" | "meme" | "scene" | "custom";
+  category: "supermodel" | "superhero" | "business" | "casual" | "sports" | "meme" | "scene" | "custom";
   type: "image" | "video";
   thumbnailUrl: string;
   mediaUrl: string;
@@ -18,101 +18,253 @@ export interface Template {
   customId?: number;
 }
 
-// Expanded templates - 60% women, 40% men, diverse attractive types
+// Expanded templates with new categories
 const sampleTemplates: Template[] = [
-  // CELEBRITIES (60% women, 40% men) - Supermodel Collection
+  // SUPERMODELS (5 templates)
   {
-    id: "celeb-w1",
+    id: "supermodel-1",
     name: "Studio Elegance",
-    category: "celebrity",
+    category: "supermodel",
     type: "image",
     thumbnailUrl: "/templates/supermodel-1.jpg",
     mediaUrl: "/templates/supermodel-1.jpg",
     description: "Designer dress, dramatic lighting"
   },
   {
-    id: "celeb-w2",
+    id: "supermodel-2",
     name: "Haute Couture",
-    category: "celebrity",
+    category: "supermodel",
     type: "image",
     thumbnailUrl: "/templates/supermodel-2.jpg",
     mediaUrl: "/templates/supermodel-2.jpg",
     description: "Evening gown, marble backdrop"
   },
   {
-    id: "celeb-w3",
+    id: "supermodel-3",
     name: "Beach Glamour",
-    category: "celebrity",
+    category: "supermodel",
     type: "image",
     thumbnailUrl: "/templates/supermodel-3.jpg",
     mediaUrl: "/templates/supermodel-3.jpg",
     description: "Tropical resort, golden hour"
   },
   {
-    id: "celeb-w4",
+    id: "supermodel-4",
     name: "Grand Staircase",
-    category: "celebrity",
+    category: "supermodel",
     type: "image",
     thumbnailUrl: "/templates/supermodel-4.jpg",
     mediaUrl: "/templates/supermodel-4.jpg",
     description: "Cocktail dress, chandelier lighting"
   },
   {
-    id: "celeb-w5",
+    id: "supermodel-5",
     name: "Penthouse Power",
-    category: "celebrity",
+    category: "supermodel",
     type: "image",
     thumbnailUrl: "/templates/supermodel-5.jpg",
     mediaUrl: "/templates/supermodel-5.jpg",
     description: "Designer blazer, city skyline"
   },
+
+  // SUPERHEROES (6 templates - 3 male + 3 female)
   {
-    id: "celeb-w6",
-    name: "Athletic Beauty",
-    category: "celebrity",
+    id: "superhero-male-1",
+    name: "Dark Tactical",
+    category: "superhero",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&h=800&fit=crop",
-    description: "Sporty and fit"
+    thumbnailUrl: "/templates/superhero-male-1.jpg",
+    mediaUrl: "/templates/superhero-male-1.jpg",
+    description: "Muscular hero, tactical suit"
   },
   {
-    id: "celeb-m1",
-    name: "Handsome Actor",
-    category: "celebrity",
+    id: "superhero-male-2",
+    name: "Red Guardian",
+    category: "superhero",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop",
-    description: "Leading man"
+    thumbnailUrl: "/templates/superhero-male-2.jpg",
+    mediaUrl: "/templates/superhero-male-2.jpg",
+    description: "Powerful stance, red armor"
   },
   {
-    id: "celeb-m2",
-    name: "Dapper Gentleman",
-    category: "celebrity",
+    id: "superhero-male-3",
+    name: "Steel Warrior",
+    category: "superhero",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop",
-    description: "Suave and stylish"
+    thumbnailUrl: "/templates/superhero-male-3.jpg",
+    mediaUrl: "/templates/superhero-male-3.jpg",
+    description: "Metallic suit, heroic pose"
   },
   {
-    id: "celeb-m3",
-    name: "Rugged Hero",
-    category: "celebrity",
+    id: "superhero-female-1",
+    name: "Crimson Avenger",
+    category: "superhero",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=800&fit=crop",
-    description: "Masculine charm"
+    thumbnailUrl: "/templates/superhero-female-1.jpg",
+    mediaUrl: "/templates/superhero-female-1.jpg",
+    description: "Fierce warrior, red costume"
   },
   {
-    id: "celeb-m4",
-    name: "Business Executive",
-    category: "celebrity",
+    id: "superhero-female-2",
+    name: "Golden Goddess",
+    category: "superhero",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&h=800&fit=crop",
-    description: "Power and confidence"
+    thumbnailUrl: "/templates/superhero-female-2.jpg",
+    mediaUrl: "/templates/superhero-female-2.jpg",
+    description: "Powerful heroine, gold armor"
+  },
+  {
+    id: "superhero-female-3",
+    name: "Silver Sentinel",
+    category: "superhero",
+    type: "image",
+    thumbnailUrl: "/templates/superhero-female-3.jpg",
+    mediaUrl: "/templates/superhero-female-3.jpg",
+    description: "Elegant hero, silver suit"
   },
 
-  // MEMES (60% women, 40% men)
+  // BUSINESS PROFESSIONAL (5 templates)
+  {
+    id: "business-1",
+    name: "Navy Executive",
+    category: "business",
+    type: "image",
+    thumbnailUrl: "/templates/business-1.jpg",
+    mediaUrl: "/templates/business-1.jpg",
+    description: "Tailored suit, boardroom"
+  },
+  {
+    id: "business-2",
+    name: "Corporate Leader",
+    category: "business",
+    type: "image",
+    thumbnailUrl: "/templates/business-2.jpg",
+    mediaUrl: "/templates/business-2.jpg",
+    description: "Professional attire, office"
+  },
+  {
+    id: "business-3",
+    name: "Power Suit",
+    category: "business",
+    type: "image",
+    thumbnailUrl: "/templates/business-3.jpg",
+    mediaUrl: "/templates/business-3.jpg",
+    description: "Confident stance, modern office"
+  },
+  {
+    id: "business-4",
+    name: "Executive Style",
+    category: "business",
+    type: "image",
+    thumbnailUrl: "/templates/business-4.jpg",
+    mediaUrl: "/templates/business-4.jpg",
+    description: "Elegant business attire"
+  },
+  {
+    id: "business-5",
+    name: "Professional Portrait",
+    category: "business",
+    type: "image",
+    thumbnailUrl: "/templates/business-5.jpg",
+    mediaUrl: "/templates/business-5.jpg",
+    description: "Corporate headshot"
+  },
+
+  // CASUAL LIFESTYLE (5 templates)
+  {
+    id: "casual-1",
+    name: "Urban Street",
+    category: "casual",
+    type: "image",
+    thumbnailUrl: "/templates/casual-1.jpg",
+    mediaUrl: "/templates/casual-1.jpg",
+    description: "Denim jacket, cafe background"
+  },
+  {
+    id: "casual-2",
+    name: "Coffee Shop",
+    category: "casual",
+    type: "image",
+    thumbnailUrl: "/templates/casual-2.jpg",
+    mediaUrl: "/templates/casual-2.jpg",
+    description: "Leather jacket, cozy interior"
+  },
+  {
+    id: "casual-3",
+    name: "Home Comfort",
+    category: "casual",
+    type: "image",
+    thumbnailUrl: "/templates/casual-3.jpg",
+    mediaUrl: "/templates/casual-3.jpg",
+    description: "Sweater, modern apartment"
+  },
+  {
+    id: "casual-4",
+    name: "Park Stroll",
+    category: "casual",
+    type: "image",
+    thumbnailUrl: "/templates/casual-4.jpg",
+    mediaUrl: "/templates/casual-4.jpg",
+    description: "Casual chic, urban park"
+  },
+  {
+    id: "casual-5",
+    name: "Rooftop Sunset",
+    category: "casual",
+    type: "image",
+    thumbnailUrl: "/templates/casual-5.jpg",
+    mediaUrl: "/templates/casual-5.jpg",
+    description: "Blazer, city terrace"
+  },
+
+  // SPORTS & FITNESS (5 templates)
+  {
+    id: "sports-1",
+    name: "Gym Power",
+    category: "sports",
+    type: "image",
+    thumbnailUrl: "/templates/sports-1.jpg",
+    mediaUrl: "/templates/sports-1.jpg",
+    description: "Muscular athlete, gym"
+  },
+  {
+    id: "sports-2",
+    name: "Yoga Serenity",
+    category: "sports",
+    type: "image",
+    thumbnailUrl: "/templates/sports-2.jpg",
+    mediaUrl: "/templates/sports-2.jpg",
+    description: "Yoga pose, mountains"
+  },
+  {
+    id: "sports-3",
+    name: "Running Strong",
+    category: "sports",
+    type: "image",
+    thumbnailUrl: "/templates/sports-3.jpg",
+    mediaUrl: "/templates/sports-3.jpg",
+    description: "Athletic runner, park trail"
+  },
+  {
+    id: "sports-4",
+    name: "Tennis Pro",
+    category: "sports",
+    type: "image",
+    thumbnailUrl: "/templates/sports-4.jpg",
+    mediaUrl: "/templates/sports-4.jpg",
+    description: "Tennis outfit, court"
+  },
+  {
+    id: "sports-5",
+    name: "Boxing Champion",
+    category: "sports",
+    type: "image",
+    thumbnailUrl: "/templates/sports-5.jpg",
+    mediaUrl: "/templates/sports-5.jpg",
+    description: "Boxing gloves, gym"
+  },
+
+  // MEMES (5 templates)
   {
     id: "meme-w1",
     name: "Surprised Girl",
@@ -159,7 +311,7 @@ const sampleTemplates: Template[] = [
     description: "What just happened?"
   },
 
-  // SCENES (60% women, 40% men)
+  // SCENES (5 templates)
   {
     id: "scene-w1",
     name: "Office Professional",
@@ -212,13 +364,42 @@ interface TemplateGalleryProps {
   selectedTemplates?: Template[];
 }
 
+const FAVORITES_KEY = 'faceswap_favorite_templates';
+
 export default function TemplateGallery({ onSelectTemplate, selectedTemplates = [] }: TemplateGalleryProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { data: customTemplates = [], refetch: refetchCustom } = trpc.customTemplates.getMyTemplates.useQuery();
   const uploadTemplateMutation = trpc.customTemplates.uploadTemplate.useMutation();
   const deleteTemplateMutation = trpc.customTemplates.deleteTemplate.useMutation();
+
+  // Load favorites from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(FAVORITES_KEY);
+    if (stored) {
+      try {
+        setFavorites(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse favorites:', e);
+      }
+    }
+  }, []);
+
+  // Save favorites to localStorage whenever they change
+  const toggleFavorite = (templateId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites(prev => {
+      const newFavorites = prev.includes(templateId)
+        ? prev.filter(id => id !== templateId)
+        : [...prev, templateId];
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites));
+      return newFavorites;
+    });
+  };
+
+  const isFavorite = (templateId: string) => favorites.includes(templateId);
   
   const isSelected = (template: Template) => 
     selectedTemplates.some(t => t.id === template.id);
@@ -323,10 +504,20 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
     customId: ct.id,
   }));
 
-  const renderTemplateGrid = (category: Template["category"]) => {
-    const templates = category === "custom" 
-      ? customTemplatesFormatted
-      : sampleTemplates.filter(t => t.category === category);
+  const renderTemplateGrid = (category: Template["category"] | "favorites") => {
+    let templates: Template[];
+    
+    if (category === "favorites") {
+      // Get all favorite templates from all categories
+      templates = [
+        ...sampleTemplates.filter(t => isFavorite(t.id)),
+        ...customTemplatesFormatted.filter(t => isFavorite(t.id))
+      ];
+    } else if (category === "custom") {
+      templates = customTemplatesFormatted;
+    } else {
+      templates = sampleTemplates.filter(t => t.category === category);
+    }
     
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -352,6 +543,25 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
                     <Film className="h-4 w-4 text-white" />
                   </div>
                 )}
+                {/* Favorite star button */}
+                <div className="absolute top-1 left-1 z-10">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => toggleFavorite(template.id, e)}
+                    className={`h-6 w-6 p-0 rounded-full ${
+                      isFavorite(template.id)
+                        ? 'bg-yellow-500/90 hover:bg-yellow-600'
+                        : 'bg-black/40 hover:bg-black/60'
+                    }`}
+                  >
+                    <Star 
+                      className={`h-3 w-3 ${
+                        isFavorite(template.id) ? 'fill-white text-white' : 'text-white'
+                      }`} 
+                    />
+                  </Button>
+                </div>
                 {isSelected(template) && (
                   <div className="absolute inset-0 bg-pink-500/20 rounded flex items-center justify-center">
                     <div className="bg-pink-500 rounded-full p-2">
@@ -381,37 +591,81 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
             </CardContent>
           </Card>
         ))}
+        {category === "favorites" && templates.length === 0 && (
+          <div className="col-span-full text-center py-12 text-white/60">
+            <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>No favorite templates yet.</p>
+            <p className="text-sm">Click the star icon on any template to add it to favorites.</p>
+          </div>
+        )}
       </div>
     );
   };
 
   return (
     <div className="w-full">
-      <Tabs defaultValue="celebrity" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-lg">
-          <TabsTrigger value="celebrity" className="data-[state=active]:bg-pink-500">
-            <ImageIcon className="h-4 w-4 mr-2" />
-            <span className="hidden md:inline">Celebrities</span>
-            <span className="md:hidden">Celebs</span>
+      <Tabs defaultValue="supermodel" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 bg-white/10 backdrop-blur-lg">
+          <TabsTrigger value="favorites" className="data-[state=active]:bg-yellow-500">
+            <Star className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Favorites</span>
           </TabsTrigger>
-          <TabsTrigger value="meme" className="data-[state=active]:bg-purple-500">
-            <Laugh className="h-4 w-4 mr-2" />
+          <TabsTrigger value="supermodel" className="data-[state=active]:bg-pink-500">
+            <ImageIcon className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Supermodels</span>
+          </TabsTrigger>
+          <TabsTrigger value="superhero" className="data-[state=active]:bg-purple-500">
+            <Zap className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Superheroes</span>
+          </TabsTrigger>
+          <TabsTrigger value="business" className="data-[state=active]:bg-blue-500">
+            <Briefcase className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Business</span>
+          </TabsTrigger>
+          <TabsTrigger value="casual" className="data-[state=active]:bg-green-500">
+            <Coffee className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Casual</span>
+          </TabsTrigger>
+          <TabsTrigger value="sports" className="data-[state=active]:bg-orange-500">
+            <Dumbbell className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Sports</span>
+          </TabsTrigger>
+          <TabsTrigger value="meme" className="data-[state=active]:bg-indigo-500">
+            <Laugh className="h-4 w-4 mr-1" />
             Memes
           </TabsTrigger>
-          <TabsTrigger value="scene" className="data-[state=active]:bg-blue-500">
-            <Film className="h-4 w-4 mr-2" />
-            <span className="hidden md:inline">Scenes</span>
-            <span className="md:hidden">Scenes</span>
+          <TabsTrigger value="scene" className="data-[state=active]:bg-cyan-500">
+            <Film className="h-4 w-4 mr-1" />
+            Scenes
           </TabsTrigger>
-          <TabsTrigger value="custom" className="data-[state=active]:bg-green-500">
-            <Upload className="h-4 w-4 mr-2" />
-            <span className="hidden md:inline">Custom</span>
-            <span className="md:hidden">Mine</span>
+          <TabsTrigger value="custom" className="data-[state=active]:bg-emerald-500">
+            <Upload className="h-4 w-4 mr-1" />
+            <span className="hidden lg:inline">Custom</span>
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="celebrity" className="mt-4">
-          {renderTemplateGrid("celebrity")}
+        <TabsContent value="favorites" className="mt-4">
+          {renderTemplateGrid("favorites")}
+        </TabsContent>
+        
+        <TabsContent value="supermodel" className="mt-4">
+          {renderTemplateGrid("supermodel")}
+        </TabsContent>
+        
+        <TabsContent value="superhero" className="mt-4">
+          {renderTemplateGrid("superhero")}
+        </TabsContent>
+        
+        <TabsContent value="business" className="mt-4">
+          {renderTemplateGrid("business")}
+        </TabsContent>
+        
+        <TabsContent value="casual" className="mt-4">
+          {renderTemplateGrid("casual")}
+        </TabsContent>
+        
+        <TabsContent value="sports" className="mt-4">
+          {renderTemplateGrid("sports")}
         </TabsContent>
         
         <TabsContent value="meme" className="mt-4">

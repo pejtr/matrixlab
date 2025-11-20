@@ -735,3 +735,29 @@
 
 - [x] Vygenerovat nové template obrázky - vnadné super modelky (glamour pózy, profesionální fotografie)
 - [x] Nahradit templates v galerii novými supermodel obrázky
+
+- [ ] Vygenerovat superhero templates - mužní superhrdinové (muscular, heroic poses)
+- [ ] Vygenerovat superhrdinky templates (sexy costumes, powerful poses)
+- [ ] Vygenerovat Business Professional templates (suits, office settings)
+- [ ] Vygenerovat Casual Lifestyle templates (everyday fashion, relaxed poses)
+- [ ] Vygenerovat Sports & Fitness templates (athletic wear, gym/outdoor settings)
+- [ ] Přidat nové kategorie do TemplateGallery (business, casual, sports, superhero)
+- [ ] Implementovat favorite system - star ikona na thumbnails
+- [ ] Přidat "Favorites" tab v galerii pro oblíbené templates
+
+- [ ] Přidat hover zoom efekt na saved face miniatury (scale 200-300% při hoveru)
+
+
+## Template Gallery Enhancements - User Requested (COMPLETED)
+- [x] Hover zoom na saved face thumbnails (scale-105 s transition)
+- [x] Template kategorie systém s tab navigací
+- [x] Superheroes kategorie (6 templates: 3 male + 3 female)
+- [x] Business Professional kategorie (5 templates)
+- [x] Casual Lifestyle kategorie (5 templates)
+- [x] Sports & Fitness kategorie (5 templates)
+- [x] Supermodels kategorie (původních 5 templates)
+- [x] Favorite templates systém s star ikonou
+- [x] Favorites tab pro rychlý přístup k oblíbeným
+- [x] LocalStorage pro ukládání favorites (přetrvává po reloadu)
+- [x] Responsive tab design (4 hlavní kategorie na mobilu, 9 na desktopu)
+- [x] Ikony pro každou kategorii (Star, Zap, Briefcase, Coffee, Dumbbell, atd.)
