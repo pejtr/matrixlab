@@ -1,0 +1,1 @@
+ALTER TABLE `faceSwapJobs` ADD `modelPreference` enum('high_quality','permissive') DEFAULT 'high_quality' NOT NULL;

@@ -66,6 +66,7 @@ export default function FaceSwap() {
   const [isRegenerateMode, setIsRegenerateMode] = useState(false);
   const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
+  const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -521,6 +522,7 @@ export default function FaceSwap() {
           targetMediaKey: targetUploadData.key || `uploaded-${Date.now()}`,
           targetMediaUrl: targetUploadData.url,
           targetMediaType,
+          modelPreference,
         });
 
       }
@@ -820,6 +822,20 @@ export default function FaceSwap() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Model Selector */}
+              <div className="space-y-1">
+                <label className="text-white text-xs font-medium">AI Model</label>
+                <select
+                  value={modelPreference}
+                  onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
+                  className="w-full h-9 px-3 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                >
+                  <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
+                  <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
+                </select>
+                <p className="text-white/60 text-xs">High Quality may block inappropriate content. Use Permissive for nude/NSFW images.</p>
+              </div>
 
               {/* Submit Button */}
               <Button
@@ -1187,13 +1203,14 @@ export default function FaceSwap() {
                                   console.log('[Retry] Starting retry for job:', job.id);
                                   
                                   // Create new job with same source/target from failed job
-                                  const newJob = await createJobMutation.mutateAsync({
-                                    sourceImageKey: job.sourceImageKey,
-                                    sourceImageUrl: job.sourceImageUrl,
-                                    targetMediaKey: job.targetMediaKey,
-                                    targetMediaUrl: job.targetMediaUrl,
-                                    targetMediaType: job.targetMediaType,
-                                  });
+                  const newJob = await createJobMutation.mutateAsync({
+                    sourceImageKey: job.sourceImageKey,
+                    sourceImageUrl: job.sourceImageUrl,
+                    targetMediaKey: job.targetMediaKey,
+                    targetMediaUrl: job.targetMediaUrl,
+                    targetMediaType: job.targetMediaType,
+                    modelPreference: job.modelPreference || "high_quality",
+                  });
                                   console.log('[Retry] New job created:', newJob);
                                   
                                   // Delete the failed job after successful retry
@@ -1350,6 +1367,7 @@ export default function FaceSwap() {
               targetMediaKey: regenerateJob.targetMediaKey,
               targetMediaUrl: regenerateJob.targetMediaUrl,
               targetMediaType: regenerateJob.targetMediaType,
+              modelPreference: regenerateJob.modelPreference || "high_quality",
             });
             toast.success('Regeneration started!');
             await utils.faceSwap.getMyJobs.invalidate();

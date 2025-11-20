@@ -83,6 +83,7 @@ export const appRouter = router({
         targetMediaKey: z.string(),
         targetMediaUrl: z.string(),
         targetMediaType: z.enum(["image", "video"]),
+        modelPreference: z.enum(["high_quality", "permissive"]).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const job = await createFaceSwapJob({
@@ -92,6 +93,7 @@ export const appRouter = router({
           targetMediaKey: input.targetMediaKey,
           targetMediaUrl: input.targetMediaUrl,
           targetMediaType: input.targetMediaType,
+          modelPreference: input.modelPreference || "high_quality",
           status: "pending",
         });
 

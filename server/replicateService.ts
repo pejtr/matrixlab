@@ -16,6 +16,7 @@ export interface FaceSwapInput {
   sourceImageUrl: string;
   targetMediaUrl: string;
   targetMediaType: "image" | "video";
+  modelPreference?: "high_quality" | "permissive"; // Model selection: high_quality (NSFW filter) vs permissive (NSFW allowed)
 }
 
 export interface FaceSwapResult {
@@ -43,9 +44,10 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     console.log("[Replicate] Target:", input.targetMediaUrl);
     console.log("[Replicate] Type:", input.targetMediaType);
 
-    // Use different models based on media type
+    // Use different models based on media type and preference
     let output;
     let modelUsed: string;
+    const modelPreference = input.modelPreference || "high_quality";
     
     if (input.targetMediaType === "video") {
       // For videos, use xrunda/hello model (supports video face swap)
@@ -62,19 +64,69 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         }
       );
     } else {
-      // For images, use easel/advanced-face-swap (commercial-grade, most reliable)
-      // According to Replicate docs: "outputs highly polished, commercial-grade swaps"
-      modelUsed = "easel/advanced-face-swap (image)";
-      console.log("[Replicate] Using model: easel/advanced-face-swap for IMAGE (commercial-grade quality)");
-      output = await replicate.run(
-        "easel/advanced-face-swap",
-        {
-          input: {
-            target_image: input.targetMediaUrl,  // The image to swap onto (base image)
-            swap_image: input.sourceImageUrl,    // The face image to swap from (source face)
-          },
+      // For images, choose model based on preference
+      if (modelPreference === "permissive") {
+        // Use fofr/face-swap-with-ideogram (NSFW-friendly, lower quality)
+        modelUsed = "fofr/face-swap-with-ideogram (permissive)";
+        console.log("[Replicate] Using model: fofr/face-swap-with-ideogram for IMAGE (NSFW-friendly)");
+        output = await replicate.run(
+          "fofr/face-swap-with-ideogram",
+          {
+            input: {
+              target_image: input.targetMediaUrl,
+              swap_image: input.sourceImageUrl,
+            },
+          }
+        );
+      } else {
+        // Use easel/advanced-face-swap (commercial-grade, NSFW filter)
+        modelUsed = "easel/advanced-face-swap (high quality)";
+        console.log("[Replicate] Using model: easel/advanced-face-swap for IMAGE (commercial-grade quality, NSFW filter)");
+        
+        try {
+          output = await replicate.run(
+            "easel/advanced-face-swap",
+            {
+              input: {
+                target_image: input.targetMediaUrl,
+                swap_image: input.sourceImageUrl,
+              },
+            }
+          );
+          
+          // Check if output is empty (NSFW detected)
+          const outputUrl = Array.isArray(output) ? output[0] : output;
+          if (!outputUrl || outputUrl === "" || (Array.isArray(output) && output.length === 0)) {
+            console.log("[Replicate] High-quality model returned empty output (NSFW detected), falling back to permissive model...");
+            
+            // Fallback to permissive model
+            modelUsed = "fofr/face-swap-with-ideogram (fallback)";
+            output = await replicate.run(
+              "fofr/face-swap-with-ideogram",
+              {
+                input: {
+                  target_image: input.targetMediaUrl,
+                  swap_image: input.sourceImageUrl,
+                },
+              }
+            );
+          }
+        } catch (error) {
+          console.error("[Replicate] High-quality model failed, falling back to permissive model:", error);
+          
+          // Fallback to permissive model on error
+          modelUsed = "fofr/face-swap-with-ideogram (fallback)";
+          output = await replicate.run(
+            "fofr/face-swap-with-ideogram",
+            {
+              input: {
+                target_image: input.targetMediaUrl,
+                swap_image: input.sourceImageUrl,
+              },
+            }
+          );
         }
-      );
+      }
     }
     
     console.log("[Replicate] Model used:", modelUsed);

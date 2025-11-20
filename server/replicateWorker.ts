@@ -118,6 +118,7 @@ async function processJob(jobId: number) {
           sourceImageUrl: job.sourceImageUrl,
           targetMediaUrl: job.targetMediaUrl,
           targetMediaType: job.targetMediaType,
+          modelPreference: job.modelPreference || "high_quality",
         }),
         API_CALL_TIMEOUT,
         "Replicate API call"

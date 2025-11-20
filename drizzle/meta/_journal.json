@@ -64,6 +64,13 @@
       "when": 1763661927449,
       "tag": "0008_loud_queen_noir",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1763669242961,
+      "tag": "0009_slimy_penance",
+      "breakpoints": true
     }
   ]
 }

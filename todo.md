@@ -634,3 +634,13 @@
 - [ ] Uživatel musí otestovat: Nový upload (ne template/regenerate)
 - [ ] Uživatel musí otestovat: Regenerate s existujícím jobem
 - [ ] Uživatel musí otestovat: Templates (vestavěné i custom)
+
+## NSFW-Friendly Model Selector (User Requested)
+- [x] Výzkum NSFW-friendly modelů na Replicate - fofr/face-swap-with-ideogram
+- [x] Přidat model preference do database schema (faceSwapJobs.modelPreference)
+- [x] Backend - přidat model selection do createJob endpoint
+- [x] replicateService - implementovat automatic fallback (easel → fofr)
+- [x] Frontend - přidat model selector dropdown (High Quality vs Permissive)
+- [x] Frontend - NSFW warning text
+- [x] Přidat modelPreference do všech createJobMutation volání
+- [ ] Uživatel musí otestovat s NSFW obsahem
