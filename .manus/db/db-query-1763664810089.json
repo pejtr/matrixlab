@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, status, errorMessage, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, status, errorMessage, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 5",
+  "rows": [
+    {
+      "id": "90027",
+      "status": "failed",
+      "errorMessage": "Prediction failed: Missing required inputs. For faceswap mode, provide target_image and swap_image.",
+      "createdAt": "2025-11-20 18:10:06"
+    },
+    {
+      "id": "90026",
+      "status": "failed",
+      "errorMessage": "Invalid output from Replicate API",
+      "createdAt": "2025-11-20 17:32:48"
+    },
+    {
+      "id": "90025",
+      "status": "failed",
+      "errorMessage": "Invalid output from Replicate API",
+      "createdAt": "2025-11-20 17:14:56"
+    },
+    {
+      "id": "90024",
+      "status": "failed",
+      "errorMessage": "Invalid output from Replicate API",
+      "createdAt": "2025-11-20 17:14:11"
+    },
+    {
+      "id": "90023",
+      "status": "failed",
+      "errorMessage": "Invalid output from Replicate API",
+      "createdAt": "2025-11-20 17:02:32"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\terrorMessage\tcreatedAt\n90027\tfailed\tPrediction failed: Missing required inputs. For faceswap mode, provide target_image and swap_image.\t2025-11-20 18:10:06\n90026\tfailed\tInvalid output from Replicate API\t2025-11-20 17:32:48\n90025\tfailed\tInvalid output from Replicate API\t2025-11-20 17:14:56\n90024\tfailed\tInvalid output from Replicate API\t2025-11-20 17:14:11\n90023\tfailed\tInvalid output from Replicate API\t2025-11-20 17:02:32\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

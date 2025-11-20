@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, sourceImageUrl, targetMediaUrl, errorMessage FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, sourceImageUrl, targetMediaUrl, errorMessage FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 1",
+  "rows": [
+    {
+      "id": "90027",
+      "sourceImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/89740521/Up5RWiGVfNMp6M7A4q94aj/uploads/1763657285656-csmk18.jpg",
+      "targetMediaUrl": "https://d2xsxph8kpxj0f.cloudfront.net/89740521/Up5RWiGVfNMp6M7A4q94aj/uploads/1763657288832-s9bzk.jpg",
+      "errorMessage": "Prediction failed: Missing required inputs. For faceswap mode, provide target_image and swap_image."
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsourceImageUrl\ttargetMediaUrl\terrorMessage\n90027\thttps://d2xsxph8kpxj0f.cloudfront.net/89740521/Up5RWiGVfNMp6M7A4q94aj/uploads/1763657285656-csmk18.jpg\thttps://d2xsxph8kpxj0f.cloudfront.net/89740521/Up5RWiGVfNMp6M7A4q94aj/uploads/1763657288832-s9bzk.jpg\tPrediction failed: Missing required inputs. For faceswap mode, provide target_image and swap_image.\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Loader2, Image as ImageIcon, Video, CheckCircle, XCircle, Clock, Grid3x3 } from "lucide-react";
+import { ArrowLeft, Loader2, Image as ImageIcon, Video, CheckCircle, XCircle, Clock, Grid3x3, RotateCcw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 export default function JobHistory() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -15,6 +16,17 @@ export default function JobHistory() {
     enabled: isAuthenticated,
     refetchInterval: 5000, // Refresh every 5 seconds
   });
+
+  const retryAllMutation = trpc.faceSwap.retryAllFailed.useMutation({
+    onSuccess: (data) => {
+      toast.success(`${data.retriedCount} job(s) queued for retry`);
+    },
+    onError: (error) => {
+      toast.error(`Failed to retry jobs: ${error.message}`);
+    },
+  });
+
+  const failedJobsCount = jobs?.filter(j => j.status === 'failed').length || 0;
 
   if (authLoading) {
     return (
@@ -82,6 +94,21 @@ export default function JobHistory() {
               <p className="text-white/70">View all your face swap jobs</p>
             </div>
             <div className="flex gap-2">
+              {failedJobsCount > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={() => retryAllMutation.mutate()}
+                  disabled={retryAllMutation.isPending}
+                  className="bg-red-500/20 text-red-200 border-red-500/30 hover:bg-red-500/30"
+                >
+                  {retryAllMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                  )}
+                  Retry All Failed ({failedJobsCount})
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => setLocation("/gallery")}

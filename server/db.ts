@@ -352,3 +352,22 @@ export async function deleteCustomTemplate(templateId: number, userId: number): 
     .set({ deletedAt: new Date() })
     .where(and(eq(customTemplates.id, templateId), eq(customTemplates.userId, userId)));
 }
+
+export async function retryAllFailedJobs(userId: number): Promise<number> {
+  return withDbRetry(async (db) => {
+    // Reset all failed jobs to pending status for retry
+    const result = await db
+      .update(faceSwapJobs)
+      .set({
+        status: "pending",
+        errorMessage: null,
+        progress: 0,
+        retryCount: 0,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(faceSwapJobs.userId, userId), eq(faceSwapJobs.status, "failed")));
+    
+    // Return number of jobs retried
+    return result[0]?.affectedRows || 0;
+  });
+}

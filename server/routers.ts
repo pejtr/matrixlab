@@ -258,23 +258,22 @@ export const appRouter = router({
     updateJobResult: protectedProcedure
       .input(z.object({
         jobId: z.number(),
-        resultMediaUrl: z.string().url(),
+        resultMediaUrl: z.string(),
         resultMediaKey: z.string(),
       }))
       .mutation(async ({ ctx, input }) => {
+        // Verify job belongs to user
         const job = await getFaceSwapJobById(input.jobId);
-        
         if (!job) {
           throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Job not found",
+            code: 'NOT_FOUND',
+            message: 'Job not found',
           });
         }
 
-        // Verify the job belongs to the user
         if (job.userId !== ctx.user.id) {
           throw new TRPCError({
-            code: "FORBIDDEN",
+            code: 'FORBIDDEN',
             message: "You don't have permission to update this job",
           });
         }
@@ -284,6 +283,14 @@ export const appRouter = router({
         await updateFaceSwapJobResult(input.jobId, input.resultMediaUrl, input.resultMediaKey);
 
         return { success: true };
+      }),
+
+    // Retry all failed jobs
+    retryAllFailed: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const { retryAllFailedJobs } = await import("./db");
+        const retriedCount = await retryAllFailedJobs(ctx.user.id);
+        return { success: true, retriedCount };
       }),
   }),
 

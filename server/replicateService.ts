@@ -79,7 +79,7 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     
     console.log("[Replicate] Model used:", modelUsed);
 
-    console.log("[Replicate] Output:", output);
+    console.log("[Replicate] Raw output:", JSON.stringify(output));
 
     // Output is typically a URL string or array of URLs
     const outputUrl = Array.isArray(output) ? output[0] : output;
@@ -88,10 +88,12 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
       console.error("[Replicate] Unexpected output type:", typeof outputUrl, outputUrl);
     }
 
-    if (!outputUrl) {
+    if (!outputUrl || outputUrl === "" || (Array.isArray(output) && output.length === 0)) {
+      // Empty output usually means NSFW content was detected
+      console.error("[Replicate] Empty output - possible NSFW content detected or invalid input");
       return {
         success: false,
-        error: "Invalid output from Replicate API",
+        error: "No output images were generated. This may be due to NSFW content detection or invalid input images. Please try different images.",
       };
     }
 

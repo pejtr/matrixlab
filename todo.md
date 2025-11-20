@@ -600,3 +600,18 @@
 - [x] Identifikovat problém - tlačítko "Use Templates" je mimo viewport na mobilu/tabletu
 - [x] Opravit dialog - přidat max-h-[90vh], scrollování a sticky footer
 - [x] Zvýraznit tlačítko - gradient růžovo-fialový
+
+## 30% Freeze Still Happening + Retry All (User Reported)
+- [ ] Analyzovat logy - "No output images were generated"
+- [ ] Zkontrolovat Replicate API parametry (swap_image vs target_image)
+- [ ] Otestovat s jiným modelem nebo opravit parametry
+- [ ] Přidat "Retry All" tlačítko v AI Studio
+- [ ] Backend endpoint pro bulk retry failed jobs
+- [ ] Testovat retry all funkcionalitu
+
+## Test Replicate API + NSFW Blocking (User Reported)
+- [x] Zkontrolovat pending/failed jobs v databázi
+- [x] Otestovat Replicate API s běžným template - API klíč funguje
+- [x] Ověřit, jestli API klíč funguje - není zablokovaný
+- [x] Přidat lepší error message pro NSFW detection
+- [x] Implementovat "Retry All" tlačítko v Job History
