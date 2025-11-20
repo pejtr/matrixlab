@@ -722,3 +722,7 @@
 - [x] Přidat delete ikonu (X tlačítko) na saved face miniatury pro smazání
 
 - [x] Opravit progress reporting pro permissive model (zasekává se na 30%, přidat více milestone hodnot)
+
+- [x] Omezit maximální výšku velkého obrázku na 80vh (80% obrazovky)
+
+- [x] Přidat X tlačítko na target media thumbnails pro jednotlivé odstranění

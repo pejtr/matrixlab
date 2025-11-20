@@ -782,6 +782,21 @@ export default function FaceSwap() {
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                 <span className="text-white text-[8px] font-medium">#{idx + 1}</span>
                               </div>
+                              {/* Delete button */}
+                              <Button
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newFiles = Array.from(targetFiles).filter((_, i) => i !== idx);
+                                  const newPreviews = targetPreviews.filter((_, i) => i !== idx);
+                                  setTargetFiles(newFiles);
+                                  setTargetPreviews(newPreviews);
+                                  toast.success('Target media removed');
+                                }}
+                                className="absolute top-1 right-1 h-5 w-5 p-0 bg-red-500/90 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
                             </div>
                           ))}
                         </div>
@@ -918,7 +933,7 @@ export default function FaceSwap() {
                       <img 
                         src={targetPreviews[0]} 
                         alt="Target preview" 
-                        className="w-full h-auto object-contain max-h-[calc(100vh-350px)]"
+                        className="w-full h-auto object-contain max-h-[80vh]"
                       />
                       {/* Loading overlay */}
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
@@ -1085,14 +1100,14 @@ export default function FaceSwap() {
                     {currentJob?.targetMediaType === "video" ? (
                       <video
                         src={currentJob.resultMediaUrl!}
-                        className="w-full object-contain"
+                        className="w-full object-contain max-h-[80vh]"
                         controls
                       />
                     ) : (
                       <img
                         src={currentJob?.resultMediaUrl || ""}
                         alt="Result"
-                        className="w-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                        className="w-full object-contain max-h-[80vh] cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => {
                           setLightboxIndex(currentResultIndex);
                           setShowLightbox(true);
