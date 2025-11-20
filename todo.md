@@ -644,3 +644,7 @@
 - [x] Frontend - NSFW warning text
 - [x] Přidat modelPreference do všech createJobMutation volání
 - [ ] Uživatel musí otestovat s NSFW obsahem
+
+## Vertical Portrait Layout (User Requested)
+- [x] Změnit Saved Faces layout - grid-cols-2 (hlavy pod sebou)
+- [x] Změnit Target Media preview - aspect-[3/4] (portrait orientace)

@@ -632,7 +632,7 @@ export default function FaceSwap() {
                         )}
                       </div>
                       {savedFaces && savedFaces.length > 0 ? (
-                        <div className="grid grid-cols-6 gap-0.5">
+                        <div className="grid grid-cols-2 gap-0.5">
                           {savedFaces.map((face) => (
                             <div
                               key={face.id}
@@ -922,7 +922,7 @@ export default function FaceSwap() {
                     <img
                       src={currentJob ? currentJob.targetMediaUrl : targetPreviews[0]!}
                       alt="Target"
-                      className="w-full aspect-[4/3] object-cover rounded"
+                      className="w-full aspect-[3/4] object-cover rounded"
                     />
                   </div>
                 </div>
