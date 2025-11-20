@@ -1180,8 +1180,10 @@ export default function FaceSwap() {
                               <span className="text-white text-xs font-semibold">
                                 {job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}
                               </span>
-                              {/* Action Buttons */}
-                              <div className="flex gap-2 mt-2">
+                            </div>
+                            {/* Action Buttons - Outside pointer-events-none */}
+                            <div className="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none">
+                              <div className="flex gap-2 pointer-events-auto">
                                 {/* Retry Button */}
                                 <Button
                                   variant="ghost"

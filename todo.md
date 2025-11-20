@@ -711,3 +711,5 @@
 - [x] Přizpůsobit výšku pole výšce obrázku (ne fixed height)
 - [x] All Jobs pás miniatur hned pod fotkou (bez mezery)
 - [x] Přidat Delete tlačítko na Pending joby
+
+- [x] Opravit viditelnost Retry/Cancel/Delete tlačítek na pending thumbnails (nejsou zobrazená)
