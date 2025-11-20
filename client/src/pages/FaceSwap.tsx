@@ -699,41 +699,31 @@ export default function FaceSwap() {
                       })}
                     </div>
                     
-                    {/* Preview Area (Square aspect ratio) */}
-                    <div
-                      onClick={() => !sourcePreview && sourceInputRef.current?.click()}
-                      onDrop={handleSourceDrop}
-                      onDragOver={handleSourceDragOver}
-                      onDragLeave={handleSourceDragLeave}
-                      className={`border-2 border-dashed rounded-lg overflow-hidden transition-all ${
-                        isDraggingSource
-                          ? 'border-pink-400 bg-pink-500/20 scale-105'
-                          : sourcePreview
-                          ? 'border-white/10 cursor-default'
-                          : 'border-white/30 hover:border-white/50 cursor-pointer'
-                      }`}
-                    >
-                      {sourcePreview ? (
-                        <div className="relative aspect-square">
-                          <img src={sourcePreview} alt="Source" className="w-full h-full object-cover" />
-                          {/* Save button overlay */}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSaveCurrentFace();
-                            }}
-                            className="absolute top-1 right-1 text-green-400 hover:text-green-300 bg-black/50 hover:bg-black/70 text-xs h-6 px-2"
-                          >
-                            Save
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="aspect-square flex items-center justify-center text-white/70">
-                          <UserCircle className="h-12 w-12 text-pink-400" />
-                        </div>
-                      )}
+                    {/* AI Model + Templates Row (50:50) */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* AI Model Select */}
+                      <select
+                        value={modelPreference}
+                        onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
+                        className="h-7 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      >
+                        <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
+                        <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
+                      </select>
+                      
+                      {/* Templates Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowTemplateGallery(!showTemplateGallery);
+                        }}
+                        className="h-7 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-2"
+                      >
+                        <Library className="mr-1 h-3 w-3" />
+                        {showTemplateGallery ? 'Hide' : 'Templates'}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -741,20 +731,6 @@ export default function FaceSwap() {
                 {/* Target Media */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
                   <CardContent className="p-1.5 space-y-1.5">
-                    {/* Templates Button - Above Icon */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowTemplateGallery(!showTemplateGallery);
-                      }}
-                      className="w-full bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] h-6"
-                    >
-                      <Library className="mr-1 h-3 w-3" />
-                      {showTemplateGallery ? 'Hide' : 'Templates'}
-                    </Button>
-                    
                     <input
                       ref={targetInputRef}
                       type="file"
@@ -828,19 +804,6 @@ export default function FaceSwap() {
                 </Card>
               )}
 
-              {/* Model Selector */}
-              <div className="space-y-1">
-                <label className="text-white text-xs font-medium">AI Model</label>
-                <select
-                  value={modelPreference}
-                  onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
-                  className="w-full h-9 px-3 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
-                >
-                  <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
-                  <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
-                </select>
-              </div>
-
               {/* Submit Button */}
               <Button
                 onClick={handleSubmit}
@@ -869,68 +832,7 @@ export default function FaceSwap() {
                 )}
               </Button>
 
-              {/* Before/After Thumbnails - Desktop Only, Below Submit Button */}
-              {/* Show thumbnails if: 1) there are completed jobs OR 2) currently generating with form inputs */}
-              {((completedJobs.length > 0 && currentJob) || (sourcePreview && targetPreviews.length > 0)) && (
-                <div className="hidden md:flex gap-0.5 mt-1">
-                  {/* Source Face Thumbnail */}
-                  <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded p-0.5 shadow-sm relative cursor-pointer hover:ring-1 hover:ring-pink-500 transition-all"
-                    onClick={() => {
-                      // Open lightbox with source image
-                      setLightboxType('source');
-                      setShowLightbox(true);
-                      setLightboxIndex(currentResultIndex);
-                    }}
-                  >
-                    <div className="text-[8px] font-semibold text-gray-700 mb-0.5 text-center">Before</div>
-                    <img
-                      src={currentJob ? currentJob.sourceImageUrl : sourcePreview!}
-                      alt="Source"
-                      className="w-full aspect-[4/3] object-cover rounded"
-                    />
-                    {/* Save to Faces Badge */}
-                    <div className="absolute top-1 right-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          try {
-                            await saveFaceMutation.mutateAsync({
-                              faceImageUrl: currentJob.sourceImageUrl,
-                              faceImageKey: currentJob.sourceImageKey,
-                              name: `Face ${new Date().toLocaleString()}`
-                            });
-                            toast.success('Face saved successfully');
-                            await utils.savedFaces.getMySavedFaces.invalidate();
-                          } catch (error) {
-                            toast.error('Failed to save face');
-                          }
-                        }}
-                        className="h-4 w-4 p-0 bg-pink-500/80 hover:bg-pink-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Bookmark className="h-2 w-2" />
-                      </Button>
-                    </div>
-                  </div>
-                  {/* Target Media Thumbnail */}
-                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded p-0.5 shadow-sm cursor-pointer hover:ring-1 hover:ring-purple-500 transition-all"
-                    onClick={() => {
-                      // Open lightbox with target image
-                      setLightboxType('target');
-                      setShowLightbox(true);
-                      setLightboxIndex(currentResultIndex);
-                    }}
-                  >
-                    <div className="text-[8px] font-semibold text-gray-700 mb-0.5 text-center">Original</div>
-                    <img
-                      src={currentJob ? currentJob.targetMediaUrl : targetPreviews[0]!}
-                      alt="Target"
-                      className="w-full aspect-[3/4] object-cover rounded"
-                    />
-                  </div>
-                </div>
-              )}
+
             </div>
 
             {/* Right Column: Results (Desktop: full height, Mobile: below inputs) */}
@@ -1169,6 +1071,36 @@ export default function FaceSwap() {
                         <div className="absolute top-1 left-1 scale-75 origin-top-left">
                           {getStatusBadge(job.status, job.errorMessage)}
                         </div>
+                        
+                        {/* Before/After Badge - Bottom Left */}
+                        {job.status === "completed" && (
+                          <div className="absolute bottom-1 left-1 flex gap-0.5">
+                            <div 
+                              className="bg-pink-500/90 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded cursor-pointer hover:bg-pink-600 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxType('source');
+                                setShowLightbox(true);
+                                const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
+                                if (completedIndex !== -1) setLightboxIndex(completedIndex);
+                              }}
+                            >
+                              Before
+                            </div>
+                            <div 
+                              className="bg-purple-500/90 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded cursor-pointer hover:bg-purple-600 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxType('target');
+                                setShowLightbox(true);
+                                const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
+                                if (completedIndex !== -1) setLightboxIndex(completedIndex);
+                              }}
+                            >
+                              After
+                            </div>
+                          </div>
+                        )}
 
                         {/* Quick Delete Badge (always visible for completed and failed jobs) */}
                         {(job.status === "completed" || job.status === "failed") && (

@@ -696,3 +696,11 @@
 - [x] Změnit na 4 miniatury místo 5 (grid 2x2)
 - [x] Změnit miniatury na kulaté (rounded-full)
 - [x] Přidat náhledovou část pod miniatury (aspect-square, max výška = šířka)
+
+- [x] Přesunout AI Model a Templates do jednoho řádku pod náhled (50:50 poměr)
+- [x] AI Model vlevo, Templates vpravo
+- [x] Odstranit Before/After switch
+- [x] Přidat Before/After badge jako overlay v levém dolním rohu vygenerovaných fotek
+
+- [x] Odstranit náhledovou část úplně (zabírá moc prostoru na výšku)
+- [x] Nechat jen 4 kulaté miniatury + AI Model/Templates řádek
