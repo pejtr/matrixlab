@@ -11,13 +11,17 @@ const upload = multer({
 });
 
 // Handle file upload
-router.post("/api/faceswap/upload/:fileKey", upload.single("file"), async (req, res) => {
+router.post("/api/upload", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No file provided" });
     }
 
-    const fileKey = decodeURIComponent(req.params.fileKey);
+    // Generate unique file key
+    const timestamp = Date.now();
+    const randomSuffix = Math.random().toString(36).substring(7);
+    const extension = req.file.originalname.split('.').pop() || 'bin';
+    const fileKey = `uploads/${timestamp}-${randomSuffix}.${extension}`;
     const contentType = req.file.mimetype;
 
     const result = await storagePut(fileKey, req.file.buffer, contentType);

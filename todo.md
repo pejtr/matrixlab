@@ -298,3 +298,27 @@
 - [x] Skrýt Before/After thumbnails
 - [x] Nezobrazovat poslední výsledek automaticky
 - [x] Uživatel začíná s čistým stavem pro nové generování
+
+
+## Clean State Fix & Batch Generation - User Requested
+- [x] Upravit clean state - zachovat historii jobů (All Jobs grid)
+- [x] Vyčistit pouze formulář (source/target inputs) a zobrazený výsledek
+- [x] Skrýt Before/After thumbnails a hlavní result view
+- [x] Diagnostikovat proč batch generování nefunguje - přidány debug logy
+- [ ] Opravit batch generation pro více target souborů najednou
+- [ ] Testovat batch s 2-5 soubory
+
+
+## Layout Optimization for 100% Zoom - User Requested
+- [x] Zmenšit saved faces miniatury o 30%
+- [x] Zmenšit Before/After miniatury o 30%
+- [x] Redukovat padding a margins v levém sloupci
+- [x] Optimalizovat velikosti cards pro 100% zoom
+- [x] Zajistit že se vše vejde bez scrollování při 100% zoom
+
+
+## Upload & CORS Fixes - User Reported
+- [x] Opravit upload endpoint - vrací nevalidní JSON (SyntaxError)
+- [x] Opravit CORS chyby při načítání saved faces z CloudFront
+- [x] Přidat server-side proxy pro saved faces nebo opravit CORS headers
+- [ ] Testovat batch upload s 2-3 soubory

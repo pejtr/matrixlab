@@ -452,6 +452,35 @@ export const appRouter = router({
         await deleteSavedFace(input.faceId, ctx.user.id);
         return { success: true };
       }),
+
+    // Proxy to fetch saved face image (bypass CORS)
+    getFaceImageBlob: protectedProcedure
+      .input(z.object({
+        imageUrl: z.string().url(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        try {
+          const response = await fetch(input.imageUrl);
+          if (!response.ok) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: `Failed to fetch image: ${response.statusText}`,
+            });
+          }
+          const arrayBuffer = await response.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          return {
+            data: base64,
+            contentType,
+          };
+        } catch (error) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Failed to proxy image: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          });
+        }
+      }),
   }),
 });
 

@@ -124,6 +124,8 @@ export default function FaceSwap() {
   const handleTargetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
+    console.log('Target files selected:', files.length, files.map(f => f.name));
+    
     // Limit to 5 files maximum
     if (files.length > 5) {
       toast.error('Maximum 5 target media files allowed');
@@ -133,16 +135,25 @@ export default function FaceSwap() {
     
     if (files.length > 0) {
       setTargetFiles(files);
-      const previews: string[] = [];
+      const previews: string[] = new Array(files.length);
       let loadedCount = 0;
 
-      files.forEach((file) => {
+      files.forEach((file, index) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          previews.push(reader.result as string);
+          previews[index] = reader.result as string;
           loadedCount++;
+          console.log(`Loaded preview ${loadedCount}/${files.length}`);
           if (loadedCount === files.length) {
             setTargetPreviews(previews);
+            console.log('All previews loaded:', previews.length);
+          }
+        };
+        reader.onerror = () => {
+          console.error('Failed to load preview for:', file.name);
+          loadedCount++;
+          if (loadedCount === files.length) {
+            setTargetPreviews(previews.filter(p => p)); // Filter out undefined
           }
         };
         reader.readAsDataURL(file);
@@ -193,6 +204,7 @@ export default function FaceSwap() {
   };
 
   const saveFaceMutation = trpc.savedFaces.saveFace.useMutation();
+  const getFaceImageBlob = trpc.savedFaces.getFaceImageBlob.useMutation();
 
   const handleSaveCurrentFace = async () => {
     if (!sourceFile || !sourcePreview) {
@@ -240,6 +252,8 @@ export default function FaceSwap() {
   };
 
   const handleSubmit = async () => {
+    console.log('handleSubmit called - sourceFile:', sourceFile?.name, 'targetFiles:', targetFiles.length);
+    
     if (!sourceFile || targetFiles.length === 0) {
       toast.error("Please upload both source face and target media");
       return;
@@ -251,30 +265,37 @@ export default function FaceSwap() {
       return;
     }
 
+    console.log('Starting batch upload for', targetFiles.length, 'files');
     setIsUploading(true);
     setUploadProgress({ current: 0, total: targetFiles.length });
 
     try {
       for (let i = 0; i < targetFiles.length; i++) {
+        console.log(`Processing file ${i + 1}/${targetFiles.length}:`, targetFiles[i]!.name);
         setUploadProgress({ current: i + 1, total: targetFiles.length });
 
         const sourceFormData = new FormData();
         sourceFormData.append("file", sourceFile);
+        console.log('Uploading source file...');
         const sourceUploadRes = await fetch("/api/upload", {
           method: "POST",
           body: sourceFormData,
         });
         const sourceUploadData = await sourceUploadRes.json();
+        console.log('Source uploaded:', sourceUploadData);
 
         const targetFormData = new FormData();
         targetFormData.append("file", targetFiles[i]!);
+        console.log('Uploading target file...');
         const targetUploadRes = await fetch("/api/upload", {
           method: "POST",
           body: targetFormData,
         });
         const targetUploadData = await targetUploadRes.json();
+        console.log('Target uploaded:', targetUploadData);
 
         const targetMediaType = targetFiles[i]!.type.startsWith("video/") ? "video" : "image";
+        console.log('Creating job with type:', targetMediaType);
 
         await createJobMutation.mutateAsync({
           sourceImageKey: sourceUploadData.key || `uploaded-${Date.now()}`,
@@ -283,6 +304,7 @@ export default function FaceSwap() {
           targetMediaUrl: targetUploadData.url,
           targetMediaType,
         });
+        console.log(`Job ${i + 1} created successfully`);
       }
 
       toast.success(`${targetFiles.length} job(s) created successfully!`);
@@ -357,17 +379,17 @@ export default function FaceSwap() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Desktop = Horizontal T (inputs stacked left, results right) */}
-          <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-3">
+                  <CardContent className="p-2">
                     <input
                       ref={sourceInputRef}
                       type="file"
@@ -406,21 +428,23 @@ export default function FaceSwap() {
                         )}
                       </div>
                       {savedFaces && savedFaces.length > 0 ? (
-                        <div className="grid grid-cols-4 gap-1">
+                        <div className="grid grid-cols-5 gap-0.5">
                           {savedFaces.map((face) => (
                             <div
                               key={face.id}
                               onClick={async () => {
                                 try {
-                                  const response = await fetch(face.faceImageUrl, {
-                                    mode: 'cors',
-                                    credentials: 'omit'
-                                  });
-                                  if (!response.ok) {
-                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                  // Use tRPC proxy to bypass CORS
+                                  const result = await getFaceImageBlob.mutateAsync({ imageUrl: face.faceImageUrl });
+                                  // Convert base64 to blob
+                                  const byteCharacters = atob(result.data);
+                                  const byteNumbers = new Array(byteCharacters.length);
+                                  for (let i = 0; i < byteCharacters.length; i++) {
+                                    byteNumbers[i] = byteCharacters.charCodeAt(i);
                                   }
-                                  const blob = await response.blob();
-                                  const file = new File([blob], `saved-face-${face.id}.jpg`, { type: blob.type || 'image/jpeg' });
+                                  const byteArray = new Uint8Array(byteNumbers);
+                                  const blob = new Blob([byteArray], { type: result.contentType });
+                                  const file = new File([blob], `saved-face-${face.id}.jpg`, { type: result.contentType });
                                   setSourceFile(file);
                                   setSourcePreview(face.faceImageUrl);
                                   toast.success('Saved face loaded');
@@ -429,7 +453,7 @@ export default function FaceSwap() {
                                   toast.error(`Failed to load saved face: ${error instanceof Error ? error.message : 'Unknown error'}`);
                                 }
                               }}
-                              className="aspect-square rounded border border-white/20 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                              className="aspect-square rounded border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                             >
                               <img
                                 src={face.faceImageUrl}
@@ -450,7 +474,7 @@ export default function FaceSwap() {
 
                 {/* Target Media */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-3">
+                  <CardContent className="p-2">
                     <input
                       ref={targetInputRef}
                       type="file"
@@ -503,10 +527,10 @@ export default function FaceSwap() {
               {/* Template Gallery */}
               {showTemplateGallery && (
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardHeader className="p-3">
-                    <CardTitle className="text-white text-sm">Template Gallery</CardTitle>
+                  <CardHeader className="p-2">
+                    <CardTitle className="text-white text-xs">Template Gallery</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-3">
+                  <CardContent className="p-2">
                     <TemplateGallery 
                       onSelectTemplate={handleTemplateSelect}
                       selectedTemplates={selectedTemplates}
@@ -527,7 +551,7 @@ export default function FaceSwap() {
               <Button
                 onClick={handleSubmit}
                 disabled={!sourceFile || targetFiles.length === 0 || isUploading}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-10"
+                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-9 text-sm"
               >
                 {isUploading ? (
                   <>
@@ -544,9 +568,9 @@ export default function FaceSwap() {
 
               {/* Before/After Thumbnails - Desktop Only, Below Submit Button */}
               {completedJobs.length > 0 && currentJob && (
-                <div className="hidden md:flex gap-1.5 mt-2">
+                <div className="hidden md:flex gap-1 mt-1.5">
                   {/* Source Face Thumbnail */}
-                  <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-lg relative cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                  <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md relative cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                     onClick={() => {
                       // Open lightbox with source image
                       setLightboxType('source');
@@ -586,7 +610,7 @@ export default function FaceSwap() {
                     </div>
                   </div>
                   {/* Target Media Thumbnail */}
-                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-lg cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
                     onClick={() => {
                       // Open lightbox with target image
                       setLightboxType('target');
