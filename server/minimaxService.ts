@@ -1,74 +1,56 @@
 /**
  * MiniMax Service
  * 
- * Wrapper for MiniMax MCP server tools
- * Provides easy-to-use functions for AI generation tasks
+ * Direct API integration with MiniMax
+ * Uses MiniMax REST API for AI generation tasks
  */
-
-import { exec } from "child_process";
-import { promisify } from "util";
-import * as path from "path";
-import * as fs from "fs";
-
-const execAsync = promisify(exec);
-
-const MCP_SERVER = "minimax";
-const OUTPUT_DIR = process.env.MINIMAX_OUTPUT_DIR || "/tmp/minimax-outputs";
-
-// Ensure output directory exists
-if (!fs.existsSync(OUTPUT_DIR)) {
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-}
 
 interface MCPResult {
   success: boolean;
   data?: any;
   error?: string;
   outputPath?: string;
+  taskId?: string;
 }
 
+const MINIMAX_API_KEY = process.env.MINIMAX_API_KEY;
+const MINIMAX_GROUP_ID = process.env.MINIMAX_GROUP_ID || "1894088139123724547";
+const MINIMAX_BASE_URL = "https://api.minimax.chat/v1";
+
 /**
- * Call MCP tool and parse result
+ * Make API request to MiniMax
  */
-async function callMCPTool(toolName: string, args: Record<string, any>): Promise<MCPResult> {
-  try {
-    const argsJson = JSON.stringify(args);
-    const command = `manus-mcp-cli tool call ${toolName} --server ${MCP_SERVER} --input '${argsJson}'`;
-    
-    console.log(`[MiniMax] Calling tool: ${toolName}`);
-    console.log(`[MiniMax] Args:`, args);
-    
-    const { stdout, stderr } = await execAsync(command, {
-      maxBuffer: 10 * 1024 * 1024, // 10MB buffer for large outputs
-    });
-
-    if (stderr) {
-      console.error(`[MiniMax] Warning:`, stderr);
-    }
-
-    // Parse the output to extract file path or result
-    const output = stdout.trim();
-    console.log(`[MiniMax] Result:`, output.substring(0, 500)); // Log first 500 chars
-
-    // Try to extract file path from output
-    const filePathMatch = output.match(/saved to: (.+?)(?:\n|$)/i) || 
-                         output.match(/output file: (.+?)(?:\n|$)/i) ||
-                         output.match(/path: (.+?)(?:\n|$)/i);
-    
-    const outputPath = filePathMatch ? filePathMatch[1].trim() : undefined;
-
-    return {
-      success: true,
-      data: output,
-      outputPath,
-    };
-  } catch (error: any) {
-    console.error(`[MiniMax] Error calling ${toolName}:`, error);
-    return {
-      success: false,
-      error: error.message || "Unknown error occurred",
-    };
+async function callMinimaxAPI(
+  endpoint: string,
+  method: string = "POST",
+  body?: any
+): Promise<any> {
+  if (!MINIMAX_API_KEY) {
+    throw new Error("MINIMAX_API_KEY not configured");
   }
+
+  const url = `${MINIMAX_BASE_URL}${endpoint}`;
+  
+  console.log(`[MiniMax API] ${method} ${url}`);
+  
+  const headers: Record<string, string> = {
+    "Authorization": `Bearer ${MINIMAX_API_KEY}`,
+    "Content-Type": "application/json",
+  };
+
+  const response = await fetch(url, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`[MiniMax API] Error:`, errorText);
+    throw new Error(`MiniMax API error: ${response.status} ${errorText}`);
+  }
+
+  return await response.json();
 }
 
 /**
@@ -80,13 +62,31 @@ export async function generateImage(params: {
   n?: number;
   promptOptimizer?: boolean;
 }): Promise<MCPResult> {
-  return callMCPTool("text_to_image", {
-    prompt: params.prompt,
-    aspect_ratio: params.aspectRatio || "1:1",
-    n: params.n || 1,
-    prompt_optimizer: params.promptOptimizer !== false,
-    output_directory: OUTPUT_DIR,
-  });
+  try {
+    const result = await callMinimaxAPI("/text_to_image", "POST", {
+      model: "image-01",
+      prompt: params.prompt,
+      aspect_ratio: params.aspectRatio || "1:1",
+      n: params.n || 1,
+    });
+
+    console.log("[MiniMax API] Image generation result:", result);
+
+    // Extract image URL from result
+    const imageUrl = result.images?.[0]?.url || result.data?.[0]?.url;
+
+    return {
+      success: true,
+      data: result,
+      outputPath: imageUrl,
+    };
+  } catch (error: any) {
+    console.error("[MiniMax API] Image generation error:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 }
 
 /**
@@ -94,19 +94,37 @@ export async function generateImage(params: {
  */
 export async function generateVideoFromText(params: {
   prompt: string;
-  model?: "T2V-01" | "T2V-01-Director" | "MiniMax-Hailuo-02" | "MiniMax-Hailuo-2.3";
-  duration?: 6 | 10;
-  resolution?: "720P" | "768P" | "1080P";
+  model?: string;
+  duration?: number;
+  resolution?: string;
   promptOptimizer?: boolean;
 }): Promise<MCPResult> {
-  return callMCPTool("generate_video", {
-    prompt: params.prompt,
-    model: params.model || "MiniMax-Hailuo-02",
-    duration: params.duration || 6,
-    resolution: params.resolution || "768P",
-    output_directory: OUTPUT_DIR,
-    async_mode: false, // Synchronous for now
-  });
+  try {
+    // MiniMax video generation endpoint
+    const result = await callMinimaxAPI("/video_generation", "POST", {
+      model: params.model || "video-01",
+      prompt: params.prompt,
+    });
+
+    console.log("[MiniMax API] Video generation result:", result);
+
+    // MiniMax returns task_id for async processing
+    const taskId = result.task_id || result.id;
+    const videoUrl = result.file_url || result.url;
+
+    return {
+      success: true,
+      data: result,
+      taskId,
+      outputPath: videoUrl,
+    };
+  } catch (error: any) {
+    console.error("[MiniMax API] Video generation error:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 }
 
 /**
@@ -114,20 +132,36 @@ export async function generateVideoFromText(params: {
  */
 export async function generateVideoFromImage(params: {
   prompt: string;
-  firstFrameImage: string; // Path or URL to image
-  model?: "I2V-01" | "I2V-01-Director" | "I2V-01-live";
-  duration?: 6 | 10;
-  resolution?: "720P" | "768P" | "1080P";
+  firstFrameImage: string;
+  model?: string;
+  duration?: number;
+  resolution?: string;
 }): Promise<MCPResult> {
-  return callMCPTool("generate_video", {
-    prompt: params.prompt,
-    first_frame_image: params.firstFrameImage,
-    model: params.model || "I2V-01",
-    duration: params.duration || 6,
-    resolution: params.resolution || "768P",
-    output_directory: OUTPUT_DIR,
-    async_mode: false,
-  });
+  try {
+    const result = await callMinimaxAPI("/video_generation", "POST", {
+      model: params.model || "video-01",
+      prompt: params.prompt,
+      first_frame_image: params.firstFrameImage,
+    });
+
+    console.log("[MiniMax API] I2V generation result:", result);
+
+    const taskId = result.task_id || result.id;
+    const videoUrl = result.file_url || result.url;
+
+    return {
+      success: true,
+      data: result,
+      taskId,
+      outputPath: videoUrl,
+    };
+  } catch (error: any) {
+    console.error("[MiniMax API] I2V generation error:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 }
 
 /**
@@ -136,18 +170,35 @@ export async function generateVideoFromImage(params: {
 export async function generateMusic(params: {
   prompt: string;
   lyrics: string;
-  sampleRate?: 16000 | 24000 | 32000 | 44100;
-  bitrate?: 32000 | 64000 | 128000 | 256000;
-  format?: "mp3" | "wav" | "pcm";
+  sampleRate?: number;
+  bitrate?: number;
+  format?: string;
 }): Promise<MCPResult> {
-  return callMCPTool("music_generation", {
-    prompt: params.prompt,
-    lyrics: params.lyrics,
-    sample_rate: params.sampleRate || 32000,
-    bitrate: params.bitrate || 128000,
-    format: params.format || "mp3",
-    output_directory: OUTPUT_DIR,
-  });
+  try {
+    const result = await callMinimaxAPI("/music_generation", "POST", {
+      model: "music-01",
+      text: params.prompt,
+      lyrics: params.lyrics,
+    });
+
+    console.log("[MiniMax API] Music generation result:", result);
+
+    const taskId = result.task_id || result.id;
+    const audioUrl = result.file_url || result.url || result.audio_file;
+
+    return {
+      success: true,
+      data: result,
+      taskId,
+      outputPath: audioUrl,
+    };
+  } catch (error: any) {
+    console.error("[MiniMax API] Music generation error:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 }
 
 /**
@@ -157,15 +208,32 @@ export async function textToAudio(params: {
   text: string;
   voiceId?: string;
   speed?: number;
-  emotion?: "happy" | "sad" | "angry" | "fearful" | "disgusted" | "surprised" | "neutral";
+  emotion?: string;
 }): Promise<MCPResult> {
-  return callMCPTool("text_to_audio", {
-    text: params.text,
-    voice_id: params.voiceId,
-    speed: params.speed || 1.0,
-    emotion: params.emotion || "neutral",
-    output_directory: OUTPUT_DIR,
-  });
+  try {
+    const result = await callMinimaxAPI("/text_to_speech", "POST", {
+      model: "speech-01",
+      text: params.text,
+      voice_id: params.voiceId || "male-qn-qingse",
+      speed: params.speed || 1.0,
+    });
+
+    console.log("[MiniMax API] TTS result:", result);
+
+    const audioUrl = result.audio_file || result.file_url || result.url;
+
+    return {
+      success: true,
+      data: result,
+      outputPath: audioUrl,
+    };
+  } catch (error: any) {
+    console.error("[MiniMax API] TTS error:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
 }
 
 /**
@@ -173,26 +241,24 @@ export async function textToAudio(params: {
  */
 export async function cloneVoice(params: {
   voiceId: string;
-  audioFile: string; // Path or URL
+  audioFile: string;
   text: string;
   isUrl?: boolean;
 }): Promise<MCPResult> {
-  return callMCPTool("voice_clone", {
-    voice_id: params.voiceId,
-    file: params.audioFile,
-    text: params.text,
-    is_url: params.isUrl || false,
-    output_directory: OUTPUT_DIR,
-  });
+  return {
+    success: false,
+    error: "Voice cloning not yet implemented for direct API",
+  };
 }
 
 /**
  * List available voices
  */
-export async function listVoices(voiceType?: "all" | "system" | "voice_cloning"): Promise<MCPResult> {
-  return callMCPTool("list_voices", {
-    voice_type: voiceType || "all",
-  });
+export async function listVoices(voiceType?: string): Promise<MCPResult> {
+  return {
+    success: false,
+    error: "List voices not yet implemented for direct API",
+  };
 }
 
 /**
@@ -203,10 +269,15 @@ export async function designVoice(params: {
   previewText: string;
   voiceId?: string;
 }): Promise<MCPResult> {
-  return callMCPTool("voice_design", {
-    prompt: params.prompt,
-    preview_text: params.previewText,
-    voice_id: params.voiceId,
-    output_directory: OUTPUT_DIR,
-  });
+  return {
+    success: false,
+    error: "Voice design not yet implemented for direct API",
+  };
+}
+
+/**
+ * Check if MiniMax API is configured
+ */
+export function isMinimaxConfigured(): boolean {
+  return !!MINIMAX_API_KEY;
 }

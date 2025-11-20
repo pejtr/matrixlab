@@ -57,3 +57,12 @@
 - [x] Implementovat Music Generator stránku
 - [ ] Unified job history pro všechny typy úloh
 - [ ] Workflow: "Animate Result" tlačítko na face swap výsledcích
+
+
+## Urgent Fixes - Current Issues
+- [x] Face swap nefunguje - demo worker jen kopíruje soubory
+- [x] Integrovat Replicate API pro skutečný face swap
+- [x] Opravit MiniMax service - manus-mcp-cli tool nenalezen
+- [ ] Testovat video generation s opravou
+- [x] Nastavit REPLICATE_API_TOKEN a MINIMAX_API_KEY
+- [x] Spustit Replicate worker proces
