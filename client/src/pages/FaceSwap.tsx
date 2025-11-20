@@ -420,50 +420,31 @@ export default function FaceSwap() {
           <div className="grid grid-cols-1 md:grid-cols-[1fr_2.5fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+            <div className="space-y-1.5">
+              <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-2">
-                    <input
-                      ref={sourceInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleSourceFileChange}
-                      className="hidden"
-                    />
-                    <div
-                      onClick={() => sourceInputRef.current?.click()}
-                      className="border-2 border-dashed border-white/30 rounded-lg p-4 text-center cursor-pointer hover:border-white/50 transition-colors"
-                    >
-                      {sourcePreview ? (
-                        <img src={sourcePreview} alt="Source" className="w-full h-32 object-cover rounded" />
-                      ) : (
-                        <div className="text-white/70">
-                          <UserCircle className="h-16 w-16 mx-auto text-pink-400" />
-                        </div>
-                      )}
-                    </div>
-                    {/* Saved Faces Inline Thumbnails */}
-                    <div className="mt-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="text-white/70 text-[10px] flex items-center gap-1">
-                          <Bookmark className="h-3 w-3" />
-                          Saved Faces {savedFaces && `(${savedFaces.length}/8)`}
+                  <CardContent className="p-1.5">
+                    {/* Saved Faces Inline Thumbnails - MOVED ABOVE */}
+                    <div className="mb-1.5">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <div className="text-white/70 text-[9px] flex items-center gap-0.5">
+                          <Bookmark className="h-2.5 w-2.5" />
+                          Saved ({savedFaces?.length || 0}/8)
                         </div>
                         {sourceFile && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={handleSaveCurrentFace}
-                            className="text-green-400 hover:text-green-300 hover:bg-white/10 text-[10px] h-5 px-1"
+                            className="text-green-400 hover:text-green-300 hover:bg-white/10 text-[9px] h-4 px-1"
                           >
-                            Save This
+                            Save
                           </Button>
                         )}
                       </div>
                       {savedFaces && savedFaces.length > 0 ? (
-                        <div className="grid grid-cols-5 gap-0.5">
+                        <div className="grid grid-cols-6 gap-0.5">
                           {savedFaces.map((face) => (
                             <div
                               key={face.id}

@@ -387,3 +387,7 @@
 - [x] Udělat miniatury Saved Faces kulaté (rounded-full) a menší (grid-cols-6)
 - [x] Odstranit zbytené mezery - p-1.5, gap-1.5, menší fonty
 - [x] Zmenšit Before/After miniatury (aspect-[4/3], menší text)
+
+
+## UI Cleanup - User Requested
+- [x] Odstranit horní UserCircle ikonu nad Saved Faces (odstraněn duplikátní upload input)
