@@ -3,7 +3,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { createFaceSwapJob, getFaceSwapJobById, getUserFaceSwapJobs, updateFaceSwapJobStatus } from "./db";
+import { createFaceSwapJob, getFaceSwapJobById, getUserFaceSwapJobs, updateFaceSwapJobStatus, createAIJob, getAIJobById, getUserAIJobs } from "./db";
+import * as minimaxService from "./minimaxService";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 
@@ -151,6 +152,222 @@ export const appRouter = router({
         });
 
         return { success: true };
+      }),
+  }),
+
+  // MiniMax AI Tools
+  minimax: router({    
+    // Image Generation
+    generateImage: protectedProcedure
+      .input(z.object({
+        prompt: z.string().min(1).max(2000),
+        aspectRatio: z.enum(["1:1", "16:9", "4:3", "3:2", "2:3", "3:4", "9:16", "21:9"]).optional(),
+        n: z.number().min(1).max(9).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Create AI job record
+        const job = await createAIJob({
+          userId: ctx.user.id,
+          jobType: "image_generation",
+          inputParams: JSON.stringify(input),
+          model: "image-01",
+          status: "pending",
+        });
+
+        // Start generation asynchronously
+        minimaxService.generateImage(input)
+          .then(async (result) => {
+            if (result.success && result.outputPath) {
+              // Upload to S3
+              const fs = await import("fs");
+              const buffer = fs.readFileSync(result.outputPath);
+              const { storagePut } = await import("./storage");
+              const fileKey = `user-${ctx.user.id}/ai-images/${Date.now()}.png`;
+              const uploadResult = await storagePut(fileKey, buffer, "image/png");
+              
+              // Update job
+              const { getDb } = await import("./db");
+              const { aiJobs } = await import("../drizzle/schema");
+              const { eq } = await import("drizzle-orm");
+              const db = await getDb();
+              if (db) {
+                await db.update(aiJobs)
+                  .set({
+                    status: "completed",
+                    outputFileKey: uploadResult.key,
+                    outputFileUrl: uploadResult.url,
+                    completedAt: new Date(),
+                  })
+                  .where(eq(aiJobs.id, job.id));
+              }
+            } else {
+              // Update as failed
+              const { getDb } = await import("./db");
+              const { aiJobs } = await import("../drizzle/schema");
+              const { eq } = await import("drizzle-orm");
+              const db = await getDb();
+              if (db) {
+                await db.update(aiJobs)
+                  .set({
+                    status: "failed",
+                    errorMessage: result.error || "Unknown error",
+                  })
+                  .where(eq(aiJobs.id, job.id));
+              }
+            }
+          })
+          .catch(console.error);
+
+        return job;
+      }),
+
+    // Text to Video
+    generateVideoFromText: protectedProcedure
+      .input(z.object({
+        prompt: z.string().min(1).max(2000),
+        model: z.enum(["T2V-01", "T2V-01-Director", "MiniMax-Hailuo-02", "MiniMax-Hailuo-2.3"]).optional(),
+        duration: z.union([z.literal(6), z.literal(10)]).optional(),
+        resolution: z.enum(["720P", "768P", "1080P"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const job = await createAIJob({
+          userId: ctx.user.id,
+          jobType: "video_text_to_video",
+          inputParams: JSON.stringify(input),
+          model: input.model || "MiniMax-Hailuo-02",
+          status: "processing", // Start processing immediately
+        });
+
+        // Start generation asynchronously (similar pattern as image generation)
+        minimaxService.generateVideoFromText(input)
+          .then(async (result) => {
+            if (result.success && result.outputPath) {
+              const fs = await import("fs");
+              const buffer = fs.readFileSync(result.outputPath);
+              const { storagePut } = await import("./storage");
+              const fileKey = `user-${ctx.user.id}/ai-videos/${Date.now()}.mp4`;
+              const uploadResult = await storagePut(fileKey, buffer, "video/mp4");
+              
+              const { getDb } = await import("./db");
+              const { aiJobs } = await import("../drizzle/schema");
+              const { eq } = await import("drizzle-orm");
+              const db = await getDb();
+              if (db) {
+                await db.update(aiJobs)
+                  .set({
+                    status: "completed",
+                    outputFileKey: uploadResult.key,
+                    outputFileUrl: uploadResult.url,
+                    completedAt: new Date(),
+                  })
+                  .where(eq(aiJobs.id, job.id));
+              }
+            } else {
+              const { getDb } = await import("./db");
+              const { aiJobs } = await import("../drizzle/schema");
+              const { eq } = await import("drizzle-orm");
+              const db = await getDb();
+              if (db) {
+                await db.update(aiJobs)
+                  .set({
+                    status: "failed",
+                    errorMessage: result.error || "Unknown error",
+                  })
+                  .where(eq(aiJobs.id, job.id));
+              }
+            }
+          })
+          .catch(console.error);
+
+        return job;
+      }),
+
+    // Music Generation
+    generateMusic: protectedProcedure
+      .input(z.object({
+        prompt: z.string().min(10).max(300),
+        lyrics: z.string().min(10).max(600),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const job = await createAIJob({
+          userId: ctx.user.id,
+          jobType: "music_generation",
+          inputParams: JSON.stringify(input),
+          status: "processing",
+        });
+
+        minimaxService.generateMusic(input)
+          .then(async (result) => {
+            if (result.success && result.outputPath) {
+              const fs = await import("fs");
+              const buffer = fs.readFileSync(result.outputPath);
+              const { storagePut } = await import("./storage");
+              const fileKey = `user-${ctx.user.id}/ai-music/${Date.now()}.mp3`;
+              const uploadResult = await storagePut(fileKey, buffer, "audio/mpeg");
+              
+              const { getDb } = await import("./db");
+              const { aiJobs } = await import("../drizzle/schema");
+              const { eq } = await import("drizzle-orm");
+              const db = await getDb();
+              if (db) {
+                await db.update(aiJobs)
+                  .set({
+                    status: "completed",
+                    outputFileKey: uploadResult.key,
+                    outputFileUrl: uploadResult.url,
+                    completedAt: new Date(),
+                  })
+                  .where(eq(aiJobs.id, job.id));
+              }
+            } else {
+              const { getDb } = await import("./db");
+              const { aiJobs } = await import("../drizzle/schema");
+              const { eq } = await import("drizzle-orm");
+              const db = await getDb();
+              if (db) {
+                await db.update(aiJobs)
+                  .set({
+                    status: "failed",
+                    errorMessage: result.error || "Unknown error",
+                  })
+                  .where(eq(aiJobs.id, job.id));
+              }
+            }
+          })
+          .catch(console.error);
+
+        return job;
+      }),
+
+    // Get AI job status
+    getJob: protectedProcedure
+      .input(z.object({
+        jobId: z.number(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const job = await getAIJobById(input.jobId);
+        
+        if (!job) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Job not found",
+          });
+        }
+
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to access this job",
+          });
+        }
+
+        return job;
+      }),
+
+    // Get user's AI job history
+    getMyJobs: protectedProcedure
+      .query(async ({ ctx }) => {
+        return getUserAIJobs(ctx.user.id);
       }),
   }),
 });

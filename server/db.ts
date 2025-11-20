@@ -151,3 +151,43 @@ export async function updateFaceSwapJobStatus(
 
   await db.update(faceSwapJobs).set(updateData).where(eq(faceSwapJobs.id, jobId));
 }
+
+// AI job queries
+import { aiJobs, InsertAIJob, AIJob } from "../drizzle/schema";
+
+export async function createAIJob(job: InsertAIJob): Promise<AIJob> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(aiJobs).values(job);
+  const insertedId = Number(result[0].insertId);
+  
+  const inserted = await db.select().from(aiJobs).where(eq(aiJobs.id, insertedId)).limit(1);
+  
+  if (!inserted[0]) {
+    throw new Error("Failed to retrieve inserted AI job");
+  }
+  
+  return inserted[0];
+}
+
+export async function getAIJobById(jobId: number): Promise<AIJob | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(aiJobs).where(eq(aiJobs.id, jobId)).limit(1);
+  return result[0];
+}
+
+export async function getUserAIJobs(userId: number): Promise<AIJob[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(aiJobs).where(eq(aiJobs.userId, userId)).orderBy(desc(aiJobs.createdAt));
+}

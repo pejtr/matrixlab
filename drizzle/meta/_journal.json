@@ -15,6 +15,13 @@
       "when": 1763595049453,
       "tag": "0001_happy_slayback",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1763599356247,
+      "tag": "0002_big_elektra",
+      "breakpoints": true
     }
   ]
 }
