@@ -18,3 +18,9 @@
 - [x] Validace velikosti souborů
 - [x] Error handling a uživatelské zprávy
 - [x] Responsive design pro mobily
+
+
+## Urgent Fixes
+- [x] Implementovat demo/mock režim pro testování bez FaceFusion
+- [x] Přidat simulaci zpracování úloh pro development
+- [x] Dokumentace pro produkční worker proces
