@@ -617,8 +617,10 @@ export default function FaceSwap() {
                                   if (currentJob) {
                                     setIsRegenerateMode(true);
                                     setRegenerateSourceJobId(currentJob.id);
-                                    // Auto-fill target media with current job's original photo
-                                    await loadTargetFromJob(currentJob);
+                                    // Auto-fill target media ONLY if no target files are loaded
+                                    if (targetFiles.length === 0) {
+                                      await loadTargetFromJob(currentJob);
+                                    }
                                   }
                                 } catch (error) {
                                   console.error('Failed to load saved face:', error);
@@ -633,8 +635,10 @@ export default function FaceSwap() {
                                   if (currentJob) {
                                     setIsRegenerateMode(true);
                                     setRegenerateSourceJobId(currentJob.id);
-                                    // Auto-fill target media with current job's original photo
-                                    await loadTargetFromJob(currentJob);
+                                    // Auto-fill target media ONLY if no target files are loaded
+                                    if (targetFiles.length === 0) {
+                                      await loadTargetFromJob(currentJob);
+                                    }
                                   }
                                 }
                               }}
@@ -708,13 +712,19 @@ export default function FaceSwap() {
                       }`}
                     >
                       {targetPreviews.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-1">
-                          {targetPreviews.slice(0, 2).map((preview, idx) => (
-                            <img key={idx} src={preview} alt={`Target ${idx + 1}`} className="w-full h-12 object-cover rounded" />
+                        <div className="grid grid-cols-3 gap-1">
+                          {targetPreviews.map((preview, idx) => (
+                            <div key={idx} className="relative group">
+                              <img 
+                                src={preview} 
+                                alt={`Target ${idx + 1}`} 
+                                className="w-full h-12 object-cover rounded border border-white/20" 
+                              />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
+                                <span className="text-white text-[8px] font-medium">#{idx + 1}</span>
+                              </div>
+                            </div>
                           ))}
-                          {targetPreviews.length > 2 && (
-                            <div className="col-span-2 text-white/70 text-xs mt-1">+{targetPreviews.length - 2} more</div>
-                          )}
                         </div>
                       ) : (
                         <div className="text-white/70">

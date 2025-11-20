@@ -474,3 +474,17 @@
 - [x] Aktualizovat onSave handler v FaceSwap.tsx pro volání backendu
 - [x] Automatická invalidace a refresh zobrazení po uložení
 - [x] Zobrazit nově oříznutý obrázek místo původního
+
+## Batch Upload Issues - User Reported
+- [x] Opravit zobrazování thumbnail preview (byl limit na 2, nyní všechny)
+- [x] Přidat náhledy (thumbnails) pro nahrané target fotky
+- [x] Zobrazit skutečné miniatury místo placeholderů "Target 1", "Target 2"
+- [x] Grid layout 3 sloupce pro zobrazení všech nahraných fotek (max 5)
+- [x] Hover efekt s číslem fotky (#1, #2, atd.)
+- [ ] Batch upload failures - čekají na uživatele pro testování
+
+## Input Independence Issue - User Reported
+- [x] Opravit resetování target files při změně source face
+- [x] loadTargetFromJob se volá pouze pokud targetFiles.length === 0
+- [x] Zajistit nezávislost obou vstupních polí
+- [x] Odstranit nežádoucí reset logiku
