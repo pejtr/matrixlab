@@ -1191,11 +1191,32 @@ export default function FaceSwap() {
                         {(job.status === "pending" || job.status === "processing") && (
                           <>
                             {/* Loading Overlay */}
-                            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center">
+                            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center pointer-events-none">
                               <Loader2 className="h-8 w-8 text-white animate-spin mb-2" />
                               <span className="text-white text-xs font-semibold">
                                 {job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}
                               </span>
+                              {/* Cancel Button */}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (confirm('Cancel this job?')) {
+                                    try {
+                                      await cancelJobMutation.mutateAsync({ jobId: job.id });
+                                      toast.success('Job cancelled');
+                                      await utils.faceSwap.getMyJobs.invalidate();
+                                    } catch (error) {
+                                      toast.error('Failed to cancel job');
+                                    }
+                                  }
+                                }}
+                                className="mt-2 bg-red-500/80 hover:bg-red-600 text-white rounded-lg px-3 py-1.5 text-xs font-semibold pointer-events-auto"
+                              >
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Cancel
+                              </Button>
                             </div>
                             {/* Progress Bar */}
                             <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">

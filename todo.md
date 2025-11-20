@@ -615,3 +615,11 @@
 - [x] Ověřit, jestli API klíč funguje - není zablokovaný
 - [x] Přidat lepší error message pro NSFW detection
 - [x] Implementovat "Retry All" tlačítko v Job History
+
+## CRITICAL - Stuck Processing Jobs + Generation Not Working (User Reported)
+- [x] Zkontrolovat, proč worker nezpracovává joby - worker běží, ale failuje kvůli prázdným souborům
+- [x] Přidat "Cancel" tlačítko pro processing joby
+- [x] Vyčistit stuck joby v databázi
+- [x] Přidat detailní logging do uploadHandler.ts
+- [ ] Uživatel musí otestovat upload - možný problém s prázdnými soubory (0 bytů)
+- [ ] Pokud upload stále selže, zkontrolovat browser console a network tab
