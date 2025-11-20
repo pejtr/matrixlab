@@ -126,3 +126,12 @@
 - [x] Podpora klávesnice (šipky vlevo/vpravo)
 - [x] Thumbnail náhledy všech výsledků v batchi
 - [x] Automatické načítání z history podle batch ID nebo user ID
+
+
+## FaceSwap Page Redesign - User Requested
+- [x] Kompaktnější design (méně padding, menší mezery)
+- [x] Zachovat obrácené T zobrazení i po zpracování (vstupy nahoře, výsledky dole)
+- [x] Vše na jedné stránce - vstupy i výstupy viditelné současně
+- [x] Carousel navigace pro výsledky (šipky vlevo/vpravo)
+- [x] Zobrazit všechny dokončené joby inline pod vstupy
+- [x] Odstranit přesměrování na history/detail stránku

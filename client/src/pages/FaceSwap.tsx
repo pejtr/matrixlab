@@ -1,13 +1,15 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Upload, Sparkles, Loader2, UserCircle, Users, Library } from "lucide-react";
-import { useState, useRef } from "react";
+import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import TemplateGallery, { Template } from "@/components/TemplateGallery";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 
 export default function FaceSwap() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -21,81 +23,51 @@ export default function FaceSwap() {
   const [uploadProgress, setUploadProgress] = useState<{current: number, total: number}>({current: 0, total: 0});
   const [showTemplateGallery, setShowTemplateGallery] = useState(false);
   const [selectedTemplates, setSelectedTemplates] = useState<Template[]>([]);
+  const [currentResultIndex, setCurrentResultIndex] = useState(0);
+  const [showComparison, setShowComparison] = useState(true);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
 
-  const createJobMutation = trpc.faceSwap.createJob.useMutation({
-    onSuccess: (job) => {
-      toast.success("Face swap job created successfully!");
-      setLocation(`/job/${job.id}`);
-    },
-    onError: (error) => {
-      toast.error(`Failed to create job: ${error.message}`);
-      setIsUploading(false);
+  // Fetch user's jobs
+  const { data: jobs, refetch } = trpc.faceSwap.getMyJobs.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchInterval: (query: any) => {
+      const hasIncompleteJobs = query.state.data?.some(
+        (job: any) => job.status !== "completed" && job.status !== "failed"
+      );
+      return hasIncompleteJobs ? 3000 : false;
     },
   });
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    );
-  }
+  const completedJobs = jobs?.filter((job: any) => job.status === "completed" && job.resultMediaUrl) || [];
+  const currentJob = completedJobs[currentResultIndex];
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Sign In Required</CardTitle>
-            <CardDescription>Please sign in to use face swap</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => window.location.href = getLoginUrl()} className="w-full">
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Keyboard navigation for results
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (completedJobs.length === 0) return;
+      if (e.key === "ArrowLeft" && currentResultIndex > 0) {
+        setCurrentResultIndex(currentResultIndex - 1);
+      } else if (e.key === "ArrowRight" && currentResultIndex < completedJobs.length - 1) {
+        setCurrentResultIndex(currentResultIndex + 1);
+      }
+    };
 
-  const handleSourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSourceFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSourcePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentResultIndex, completedJobs.length]);
 
-  const handleTargetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      setTargetFiles(files);
-      
-      // Generate previews for all files
-      const previews: string[] = [];
-      let loadedCount = 0;
-      
-      files.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          previews[index] = reader.result as string;
-          loadedCount++;
-          if (loadedCount === files.length) {
-            setTargetPreviews([...previews]);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  };
+  const createJobMutation = trpc.faceSwap.createJob.useMutation({
+    onSuccess: () => {
+      toast.success("Face swap job created!");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(`Failed: ${error.message}`);
+      setIsUploading(false);
+    },
+  });
 
   const handleTemplateSelect = (template: Template) => {
     const isAlreadySelected = selectedTemplates.some(t => t.id === template.id);
@@ -108,7 +80,6 @@ export default function FaceSwap() {
   };
 
   const handleUseTemplates = async () => {
-    // Convert template URLs to File objects
     toast.info(`Loading ${selectedTemplates.length} template(s)...`);
     
     try {
@@ -127,7 +98,7 @@ export default function FaceSwap() {
       setTargetPreviews(previews);
       setShowTemplateGallery(false);
       setSelectedTemplates([]);
-      toast.success(`${files.length} template(s) loaded successfully!`);
+      toast.success(`${files.length} template(s) loaded!`);
     } catch (error) {
       console.error('Failed to load templates:', error);
       toast.error('Failed to load templates');
@@ -157,97 +128,144 @@ export default function FaceSwap() {
     }
 
     setIsUploading(true);
-    setUploadProgress({current: 0, total: targetFiles.length});
+    setUploadProgress({ current: 0, total: targetFiles.length });
 
     try {
-      // Upload source image
-      toast.info("Uploading source image...");
-      const sourceResult = await uploadFile(
-        sourceFile,
-        `/api/faceswap/upload/user-${user!.id}-source-${Date.now()}-${sourceFile.name}`
-      );
+      // Upload source
+      const sourceUpload = await uploadFile(sourceFile, "/api/faceswap/upload-source");
 
-      // Process each target file
-      const createdJobs = [];
+      // Upload and create jobs for each target
       for (let i = 0; i < targetFiles.length; i++) {
         const targetFile = targetFiles[i];
-        setUploadProgress({current: i + 1, total: targetFiles.length});
-        
-        toast.info(`Processing ${i + 1}/${targetFiles.length}...`);
-        
-        // Upload target media
-        const targetResult = await uploadFile(
-          targetFile,
-          `/api/faceswap/upload/user-${user!.id}-target-${Date.now()}-${targetFile.name}`
-        );
+        setUploadProgress({ current: i + 1, total: targetFiles.length });
 
-        // Determine media type
-        const isVideo = targetFile.type.startsWith("video/");
-        const targetMediaType = isVideo ? "video" : "image";
+        const targetUpload = await uploadFile(targetFile, "/api/faceswap/upload-target");
+        const targetMediaType = targetFile.type.startsWith("video/") ? "video" : "image";
 
-        // Create job
-        const job = await createJobMutation.mutateAsync({
-          sourceImageKey: sourceResult.key,
-          sourceImageUrl: sourceResult.url,
-          targetMediaKey: targetResult.key,
-          targetMediaUrl: targetResult.url,
-          targetMediaType: targetMediaType as "image" | "video",
+        await createJobMutation.mutateAsync({
+          sourceImageKey: sourceUpload.key,
+          sourceImageUrl: sourceUpload.url,
+          targetMediaKey: targetUpload.key,
+          targetMediaUrl: targetUpload.url,
+          targetMediaType,
         });
-        
-        createdJobs.push(job);
       }
-      
-      toast.success(`Successfully created ${createdJobs.length} face swap job(s)!`);
-      
-      // Navigate to history if multiple jobs, or to the single job if only one
-      if (createdJobs.length === 1) {
-        setLocation(`/job/${createdJobs[0].id}`);
-      } else {
-        setLocation("/history");
-      }
+
+      toast.success(`${targetFiles.length} job(s) created successfully!`);
+      setIsUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
     } catch (error) {
-      console.error("Upload error:", error);
-      toast.error("Failed to upload files");
+      console.error("Upload failed:", error);
+      toast.error("Failed to create jobs");
       setIsUploading(false);
     }
   };
 
+  const handleSourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSourceFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSourcePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleTargetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setTargetFiles(files);
+      const previews: string[] = [];
+      
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          previews.push(reader.result as string);
+          if (previews.length === files.length) {
+            setTargetPreviews(previews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "completed":
+        return <Badge className="bg-green-500 text-xs"><CheckCircle className="mr-1 h-3 w-3" />Done</Badge>;
+      case "processing":
+        return <Badge className="bg-blue-500 text-xs"><Loader2 className="mr-1 h-3 w-3 animate-spin" />Processing</Badge>;
+      case "failed":
+        return <Badge className="bg-red-500 text-xs"><XCircle className="mr-1 h-3 w-3" />Failed</Badge>;
+      default:
+        return <Badge className="bg-yellow-500 text-xs"><Clock className="mr-1 h-3 w-3" />Pending</Badge>;
+    }
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+        <Loader2 className="h-12 w-12 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+        <Card className="max-w-md bg-white/10 backdrop-blur-lg border-white/20">
+          <CardHeader>
+            <CardTitle className="text-white">Sign In Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => window.location.href = getLoginUrl()} className="w-full">
+              Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Header */}
-      <header className="container mx-auto py-6 px-4">
+      {/* Compact Header */}
+      <header className="container mx-auto py-3 px-4">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => setLocation("/")}
-            className="text-white hover:bg-white/10"
+            className="text-white hover:bg-white/10 h-8 px-2"
+            size="sm"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft className="mr-1 h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-2xl font-bold text-white">{APP_TITLE}</h1>
-          <div className="w-20" />
+          <h1 className="text-lg font-bold text-white">{APP_TITLE}</h1>
+          <div className="w-16" />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold text-white mb-3">Create Face Swap</h2>
-            <p className="text-white/70">Upload a source face and target media to begin</p>
+      <main className="container mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Title */}
+          <div className="text-center mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">Create Face Swap</h2>
+            <p className="text-white/70 text-sm">Upload source and target media</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-            {/* Source Image Upload */}
+          {/* Inverted T Layout - Inputs */}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {/* Source Face */}
             <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-              <CardHeader className="p-4 md:p-6">
-                <CardTitle className="text-white text-sm md:text-lg">1. Source Face</CardTitle>
-                <CardDescription className="text-white/70 text-xs md:text-sm hidden md:block">
-                  Upload an image with the face you want to use
-                </CardDescription>
+              <CardHeader className="p-3">
+                <CardTitle className="text-white text-sm">1. Source Face</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 md:p-6">
+              <CardContent className="p-3">
                 <input
                   ref={sourceInputRef}
                   type="file"
@@ -257,33 +275,26 @@ export default function FaceSwap() {
                 />
                 <div
                   onClick={() => sourceInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/30 rounded-lg p-4 md:p-8 text-center cursor-pointer hover:border-white/50 transition-colors"
+                  className="border-2 border-dashed border-white/30 rounded-lg p-4 text-center cursor-pointer hover:border-white/50 transition-colors"
                 >
                   {sourcePreview ? (
-                    <img src={sourcePreview} alt="Source" className="max-h-48 mx-auto rounded" />
+                    <img src={sourcePreview} alt="Source" className="w-full h-32 object-cover rounded" />
                   ) : (
                     <div className="text-white/70">
-                      <UserCircle className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-2 md:mb-3 text-pink-400" />
-                      <p className="text-xs md:text-base">Click to upload</p>
-                      <p className="text-xs mt-1 md:mt-2 hidden md:block">JPG, PNG, or WEBP</p>
+                      <UserCircle className="h-12 w-12 mx-auto mb-2 text-pink-400" />
+                      <p className="text-xs">Click to upload</p>
                     </div>
                   )}
                 </div>
-                {sourceFile && (
-                  <p className="text-white/70 text-sm mt-2 text-center">{sourceFile.name}</p>
-                )}
               </CardContent>
             </Card>
 
-            {/* Target Media Upload */}
+            {/* Target Media */}
             <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-              <CardHeader className="p-4 md:p-6">
-                <CardTitle className="text-white text-sm md:text-lg">2. Target Media</CardTitle>
-                <CardDescription className="text-white/70 text-xs md:text-sm hidden md:block">
-                  Upload a video or image to apply the face swap
-                </CardDescription>
+              <CardHeader className="p-3">
+                <CardTitle className="text-white text-sm">2. Target Media</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 md:p-6">
+              <CardContent className="p-3">
                 <input
                   ref={targetInputRef}
                   type="file"
@@ -294,110 +305,217 @@ export default function FaceSwap() {
                 />
                 <div
                   onClick={() => targetInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/30 rounded-lg p-4 md:p-8 text-center cursor-pointer hover:border-white/50 transition-colors"
+                  className="border-2 border-dashed border-white/30 rounded-lg p-4 text-center cursor-pointer hover:border-white/50 transition-colors"
                 >
                   {targetPreviews.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {targetPreviews.slice(0, 4).map((preview, idx) => (
-                        <div key={idx} className="relative">
-                          {targetFiles[idx]?.type.startsWith("video/") ? (
-                            <video src={preview} className="w-full h-24 object-cover rounded" />
-                          ) : (
-                            <img src={preview} alt={`Target ${idx + 1}`} className="w-full h-24 object-cover rounded" />
-                          )}
-                        </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {targetPreviews.slice(0, 2).map((preview, idx) => (
+                        <img key={idx} src={preview} alt={`Target ${idx + 1}`} className="w-full h-14 object-cover rounded" />
                       ))}
-                      {targetPreviews.length > 4 && (
-                        <div className="flex items-center justify-center bg-white/10 rounded h-24">
-                          <p className="text-white/70 text-sm">+{targetPreviews.length - 4} more</p>
-                        </div>
+                      {targetPreviews.length > 2 && (
+                        <div className="col-span-2 text-white/70 text-xs mt-1">+{targetPreviews.length - 2} more</div>
                       )}
                     </div>
                   ) : (
                     <div className="text-white/70">
-                      <Users className="h-12 w-12 md:h-16 md:w-16 mx-auto mb-2 md:mb-3 text-purple-400" />
-                      <p className="text-xs md:text-base">Click to upload (multi-select)</p>
-                      <p className="text-xs mt-1 md:mt-2 hidden md:block">Video: MP4, MOV, WEBM</p>
-                      <p className="text-xs hidden md:block">Image: JPG, PNG, WEBP</p>
+                      <Users className="h-12 w-12 mx-auto mb-2 text-purple-400" />
+                      <p className="text-xs">Multi-select</p>
                     </div>
                   )}
                 </div>
                 {targetFiles.length > 0 && (
-                  <p className="text-white/70 text-sm mt-2 text-center">
-                    {targetFiles.length} file{targetFiles.length > 1 ? 's' : ''} selected
-                  </p>
+                  <p className="text-white/70 text-xs mt-2 text-center">{targetFiles.length} file(s)</p>
                 )}
-                
-                {/* Template Gallery Button */}
-                <div className="mt-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowTemplateGallery(!showTemplateGallery);
-                    }}
-                    className="w-full bg-transparent border-white/30 text-white hover:bg-white/10"
-                  >
-                    <Library className="mr-2 h-4 w-4" />
-                    {showTemplateGallery ? 'Hide' : 'Browse'} Template Gallery
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTemplateGallery(!showTemplateGallery);
+                  }}
+                  className="w-full mt-2 bg-transparent border-white/30 text-white hover:bg-white/10 text-xs h-7"
+                >
+                  <Library className="mr-1 h-3 w-3" />
+                  {showTemplateGallery ? 'Hide' : 'Templates'}
+                </Button>
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Template Gallery */}
           {showTemplateGallery && (
-            <div className="mb-6">
-              <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                <CardHeader className="p-4 md:p-6">
-                  <CardTitle className="text-white text-lg md:text-xl">Template Gallery</CardTitle>
-                  <CardDescription className="text-white/70 text-sm">
-                    Select pre-made templates for quick testing
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 md:p-6">
-                  <TemplateGallery 
-                    onSelectTemplate={handleTemplateSelect}
-                    selectedTemplates={selectedTemplates}
-                  />
-                  {selectedTemplates.length > 0 && (
-                    <div className="mt-4">
-                      <Button
-                        onClick={handleUseTemplates}
-                        className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
-                      >
-                        Use {selectedTemplates.length} Selected Template{selectedTemplates.length > 1 ? 's' : ''}
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="bg-white/10 backdrop-blur-lg border-white/20 mb-4">
+              <CardHeader className="p-3">
+                <CardTitle className="text-white text-sm">Template Gallery</CardTitle>
+              </CardHeader>
+              <CardContent className="p-3">
+                <TemplateGallery 
+                  onSelectTemplate={handleTemplateSelect}
+                  selectedTemplates={selectedTemplates}
+                />
+                {selectedTemplates.length > 0 && (
+                  <Button
+                    onClick={handleUseTemplates}
+                    className="w-full mt-3 bg-gradient-to-r from-purple-500 to-blue-500 h-8 text-sm"
+                  >
+                    Use {selectedTemplates.length} Template{selectedTemplates.length > 1 ? 's' : ''}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           )}
 
           {/* Submit Button */}
-          <div className="w-full md:text-center">
+          <div className="mb-4">
             <Button
-              size="lg"
               onClick={handleSubmit}
               disabled={!sourceFile || targetFiles.length === 0 || isUploading}
-              className="w-full md:w-auto bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-base md:text-lg px-8 md:px-12 py-4 md:py-6 h-auto"
+              className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-10"
             >
               {isUploading ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Processing {uploadProgress.current}/{uploadProgress.total}...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating {uploadProgress.current}/{uploadProgress.total}...
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Start Face Swap {targetFiles.length > 1 ? `(${targetFiles.length} files)` : ''}
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Start Face Swap
                 </>
               )}
             </Button>
           </div>
+
+          {/* Results Section */}
+          {completedJobs.length > 0 && (
+            <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+              <CardHeader className="p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-white text-lg">Results</CardTitle>
+                    <Badge className="bg-white/20 text-white text-xs mt-1">
+                      {currentResultIndex + 1} / {completedJobs.length}
+                    </Badge>
+                  </div>
+                  <div className="flex gap-2">
+                    {currentJob?.targetMediaType === "image" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowComparison(!showComparison)}
+                        className="bg-white/10 text-white border-white/20 hover:bg-white/20 text-xs h-7"
+                      >
+                        {showComparison ? 'Result' : 'Compare'}
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      onClick={() => window.open(currentJob?.resultMediaUrl!, "_blank")}
+                      className="bg-gradient-to-r from-pink-500 to-purple-500 text-xs h-7"
+                    >
+                      <Download className="mr-1 h-3 w-3" />
+                      Download
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-3 relative">
+                {/* Navigation Arrows */}
+                {completedJobs.length > 1 && (
+                  <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-2">
+                    <Button
+                      onClick={() => setCurrentResultIndex(Math.max(0, currentResultIndex - 1))}
+                      disabled={currentResultIndex === 0}
+                      className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-10 w-10 p-0"
+                      size="sm"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      onClick={() => setCurrentResultIndex(Math.min(completedJobs.length - 1, currentResultIndex + 1))}
+                      disabled={currentResultIndex === completedJobs.length - 1}
+                      className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-10 w-10 p-0"
+                      size="sm"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Result Display */}
+                {currentJob?.targetMediaType === "video" ? (
+                  <video
+                    src={currentJob.resultMediaUrl!}
+                    className="w-full rounded-lg"
+                    controls
+                  />
+                ) : showComparison ? (
+                  <BeforeAfterSlider
+                    beforeImage={currentJob?.targetMediaUrl || ""}
+                    afterImage={currentJob?.resultMediaUrl || ""}
+                    beforeLabel="Original"
+                    afterLabel="Swapped"
+                  />
+                ) : (
+                  <img
+                    src={currentJob?.resultMediaUrl || ""}
+                    alt="Result"
+                    className="w-full rounded-lg"
+                  />
+                )}
+
+                {/* Job Info */}
+                <div className="mt-2 flex items-center justify-between text-xs text-white/70">
+                  <span>Job #{currentJob?.id}</span>
+                  {getStatusBadge(currentJob?.status || "")}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* All Jobs List (Compact) */}
+          {jobs && jobs.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-white text-sm font-semibold">All Jobs ({jobs.length})</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation("/history")}
+                  className="text-white/70 hover:text-white text-xs h-6"
+                >
+                  View All
+                </Button>
+              </div>
+              <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                {jobs.slice(0, 8).map((job: any, idx: number) => (
+                  <div
+                    key={job.id}
+                    className={`relative rounded overflow-hidden cursor-pointer transition-all ${
+                      job.status === "completed" && job.resultMediaUrl
+                        ? 'opacity-100 hover:scale-105'
+                        : 'opacity-50'
+                    }`}
+                    onClick={() => {
+                      if (job.status === "completed" && job.resultMediaUrl) {
+                        const jobIndex = completedJobs.findIndex((j: any) => j.id === job.id);
+                        if (jobIndex !== -1) setCurrentResultIndex(jobIndex);
+                      }
+                    }}
+                  >
+                    <img
+                      src={job.resultMediaUrl || job.targetMediaUrl}
+                      alt={`Job ${job.id}`}
+                      className="w-full aspect-square object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] py-0.5 text-center">
+                      {getStatusBadge(job.status)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
