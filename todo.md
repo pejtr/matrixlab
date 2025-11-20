@@ -73,3 +73,15 @@
 - [x] Najít správnou verzi Replicate face swap modelu (codeplugtech/face-swap)
 - [x] Video Generator selhává - dočasně vypnuto, zaměření na face swap
 - [x] Otestovat face swap s reálnými obrázky - připraven k testování uživatelem
+
+
+## New Features - User Requested
+- [x] Progress indikátor - zobrazit real-time průběh (0-100%)
+- [x] Retry mechanismus - automaticky opakovat selhané úlohy až 3x
+- [x] Vyřešit Replicate API credit problém - nový API token
+
+
+## Critical Bug - API Parameters
+- [x] Replicate API validation error - špatné názvy parametrů (swap_image vs source_image)
+- [x] Zkontrolovat dokumentaci codeplugtech/face-swap modelu
+- [x] Opravit názvy parametrů v replicateService.ts

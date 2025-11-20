@@ -34,8 +34,11 @@ async function processJob(jobId: number) {
       return;
     }
 
-    // Update status to processing
-    await updateFaceSwapJobStatus(jobId, "processing");
+    // Update status to processing with initial progress
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 10 });
+
+    // Update progress: preparing
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 30 });
 
     // Perform face swap using Replicate
     const result = await performFaceSwap({
@@ -44,13 +47,31 @@ async function processJob(jobId: number) {
       targetMediaType: job.targetMediaType,
     });
 
+    // Update progress: face swap completed
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 70 });
+
     if (!result.success || !result.outputUrl) {
+      // Retry logic: retry up to 3 times
+      const maxRetries = 3;
+      if (job.retryCount < maxRetries) {
+        console.log(`[Replicate Worker] Job #${jobId} failed, retrying (${job.retryCount + 1}/${maxRetries})`);
+        await updateFaceSwapJobStatus(jobId, "pending", {
+          retryCount: job.retryCount + 1,
+          progress: 0,
+        });
+        return;
+      }
+      
       await updateFaceSwapJobStatus(jobId, "failed", {
         errorMessage: result.error || "Face swap failed",
+        progress: 0,
       });
-      console.error(`[Replicate Worker] Job #${jobId} failed:`, result.error);
+      console.error(`[Replicate Worker] Job #${jobId} failed after ${maxRetries} retries:`, result.error);
       return;
     }
+
+    // Update progress: downloading result
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 80 });
 
     // Download the result from Replicate
     console.log(`[Replicate Worker] Downloading result from ${result.outputUrl}`);
@@ -61,14 +82,18 @@ async function processJob(jobId: number) {
     const fileExtension = job.targetMediaType === "video" ? "mp4" : "png";
     const resultKey = `user-${job.userId}/results/${Date.now()}.${fileExtension}`;
 
+    // Update progress: uploading to S3
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 90 });
+
     console.log(`[Replicate Worker] Uploading result to S3: ${resultKey}`);
     const uploadResult = await storagePut(resultKey, resultBuffer, contentType);
 
-    // Update job as completed
+    // Update job as completed with 100% progress
     await updateFaceSwapJobStatus(jobId, "completed", {
       resultMediaKey: uploadResult.key,
       resultMediaUrl: uploadResult.url,
       completedAt: new Date(),
+      progress: 100,
     });
 
     console.log(`[Replicate Worker] Job #${jobId} completed successfully`);

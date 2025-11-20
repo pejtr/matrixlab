@@ -188,12 +188,31 @@ export default function JobDetail() {
                     <p className="text-white text-xl mb-2">
                       {job.status === "pending" ? "Job is queued..." : "Processing your face swap..."}
                     </p>
-                    <p className="text-white/70">
+                    
+                    {/* Progress Bar */}
+                    {job.status === "processing" && (
+                      <div className="max-w-md mx-auto mt-6">
+                        <div className="flex justify-between text-white/70 text-sm mb-2">
+                          <span>Progress</span>
+                          <span>{job.progress || 0}%</span>
+                        </div>
+                        <div className="w-full bg-white/20 rounded-full h-3 overflow-hidden">
+                          <div
+                            className="bg-gradient-to-r from-pink-500 to-purple-500 h-full transition-all duration-500 ease-out"
+                            style={{ width: `${job.progress || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <p className="text-white/70 mt-4">
                       This may take a few minutes depending on the media size.
                     </p>
-                    <p className="text-white/50 text-sm mt-4">
-                      Note: Face swap processing requires FaceFusion to be installed and running.
-                    </p>
+                    {job.retryCount > 0 && (
+                      <p className="text-yellow-400 text-sm mt-2">
+                        Retry attempt {job.retryCount}/3
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               )}

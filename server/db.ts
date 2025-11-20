@@ -135,6 +135,8 @@ export async function updateFaceSwapJobStatus(
     resultMediaUrl?: string;
     errorMessage?: string;
     completedAt?: Date;
+    progress?: number;
+    retryCount?: number;
   }
 ): Promise<void> {
   const db = await getDb();
@@ -148,6 +150,8 @@ export async function updateFaceSwapJobStatus(
   if (updates?.resultMediaUrl) updateData.resultMediaUrl = updates.resultMediaUrl;
   if (updates?.errorMessage) updateData.errorMessage = updates.errorMessage;
   if (updates?.completedAt) updateData.completedAt = updates.completedAt;
+  if (updates?.progress !== undefined) updateData.progress = updates.progress;
+  if (updates?.retryCount !== undefined) updateData.retryCount = updates.retryCount;
 
   await db.update(faceSwapJobs).set(updateData).where(eq(faceSwapJobs.id, jobId));
 }

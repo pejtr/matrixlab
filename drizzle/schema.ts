@@ -47,6 +47,8 @@ export const faceSwapJobs = mysqlTable("faceSwapJobs", {
   targetMediaType: mysqlEnum("targetMediaType", ["image", "video"]).notNull(),
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed"]).default("pending").notNull(),
   errorMessage: text("errorMessage"),
+  progress: int("progress").default(0).notNull(), // 0-100
+  retryCount: int("retryCount").default(0).notNull(), // Number of retry attempts
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

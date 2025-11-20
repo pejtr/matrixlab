@@ -45,8 +45,8 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
       "codeplugtech/face-swap:278a81e7ebb22db98bcba54de985d22cc1abeead2754eb1f2af717247be69b34",
       {
         input: {
-          source_image: input.sourceImageUrl,
-          target_image: input.targetMediaUrl,
+          swap_image: input.sourceImageUrl,
+          input_image: input.targetMediaUrl,
         },
       }
     );
