@@ -704,3 +704,5 @@
 
 - [x] Odstranit náhledovou část úplně (zabírá moc prostoru na výšku)
 - [x] Nechat jen 4 kulaté miniatury + AI Model/Templates řádek
+
+- [x] Opravit zobrazení nejnovější fotky - po vygenerování se zobrazuje poslední místo nejnovější

@@ -112,8 +112,8 @@ export default function FaceSwap() {
     if (completedJobs.length > previousCompletedCount && previousCompletedCount > 0) {
       const newCount = completedJobs.length - previousCompletedCount;
       
-      // Automatically switch to the newest result
-      setCurrentResultIndex(completedJobs.length - 1);
+      // Automatically switch to the newest result (first in list)
+      setCurrentResultIndex(0);
       
       toast.success(`${newCount} new result(s) ready!`, {
         duration: 5000,
