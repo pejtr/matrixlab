@@ -761,3 +761,9 @@
 - [x] LocalStorage pro ukládání favorites (přetrvává po reloadu)
 - [x] Responsive tab design (4 hlavní kategorie na mobilu, 9 na desktopu)
 - [x] Ikony pro každou kategorii (Star, Zap, Briefcase, Coffee, Dumbbell, atd.)
+
+
+## Layout Adjustment - User Requested
+- [x] Přesunout AI Model selector a Templates button z Source Face sekce
+- [x] Umístit AI Model + Templates pod Target Media sekci (pod text "Max 5 files")
+- [x] Zachovat 50:50 layout pro oba prvky

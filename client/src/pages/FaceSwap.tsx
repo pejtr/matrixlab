@@ -718,33 +718,6 @@ export default function FaceSwap() {
                         );
                       })}
                     </div>
-                    
-                    {/* AI Model + Templates Row (50:50) */}
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* AI Model Select */}
-                      <select
-                        value={modelPreference}
-                        onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
-                        className="h-7 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      >
-                        <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
-                        <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
-                      </select>
-                      
-                      {/* Templates Button */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowTemplateGallery(!showTemplateGallery);
-                        }}
-                        className="h-7 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-2"
-                      >
-                        <Library className="mr-1 h-3 w-3" />
-                        {showTemplateGallery ? 'Hide' : 'Templates'}
-                      </Button>
-                    </div>
                   </CardContent>
                 </Card>
 
@@ -812,6 +785,33 @@ export default function FaceSwap() {
                     {targetFiles.length === 0 && (
                       <p className="text-white/50 text-[9px] mt-0.5 text-center">Max 5 files</p>
                     )}
+                    
+                    {/* AI Model + Templates Row (50:50) */}
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {/* AI Model Select */}
+                      <select
+                        value={modelPreference}
+                        onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
+                        className="h-7 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      >
+                        <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
+                        <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
+                      </select>
+                      
+                      {/* Templates Button */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowTemplateGallery(!showTemplateGallery);
+                        }}
+                        className="h-7 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-2"
+                      >
+                        <Library className="mr-1 h-3 w-3" />
+                        {showTemplateGallery ? 'Hide' : 'Templates'}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
