@@ -391,3 +391,11 @@
 
 ## UI Cleanup - User Requested
 - [x] Odstranit horní UserCircle ikonu nad Saved Faces (odstraněn duplikátní upload input)
+
+
+## Drag & Drop Feature - User Requested
+- [x] Přidat drag & drop pro source face upload
+- [x] Přidat drag & drop pro target media upload
+- [x] Vizuální feedback při přetáhování (border highlight + scale + bg color)
+- [x] Validace file types při drop (images pro source, images/videos pro target)
+- [ ] Testovat s různými file types (images, videos)

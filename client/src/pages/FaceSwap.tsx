@@ -60,6 +60,8 @@ export default function FaceSwap() {
   const [visibleJobsCount, setVisibleJobsCount] = useState(20);
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
+  const [isDraggingSource, setIsDraggingSource] = useState(false);
+  const [isDraggingTarget, setIsDraggingTarget] = useState(false);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -134,24 +136,65 @@ export default function FaceSwap() {
   const handleSourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSourceFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSourcePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      processSourceFile(file);
     }
+  };
+
+  const processSourceFile = (file: File) => {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    setSourceFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSourcePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSourceDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingSource(false);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processSourceFile(file);
+    }
+  };
+
+  const handleSourceDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingSource(true);
+  };
+
+  const handleSourceDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingSource(false);
   };
 
   const handleTargetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+    processTargetFiles(files);
+  };
 
-    
+  const processTargetFiles = (files: File[]) => {
     // Limit to 5 files maximum
     if (files.length > 5) {
       toast.error('Maximum 5 target media files allowed');
       if (targetInputRef.current) targetInputRef.current.value = '';
+      return;
+    }
+    
+    // Validate file types
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
+    const invalidFiles = files.filter(f => !validTypes.includes(f.type));
+    if (invalidFiles.length > 0) {
+      toast.error('Invalid file type. Please select images or videos.');
       return;
     }
     
@@ -168,7 +211,6 @@ export default function FaceSwap() {
 
           if (loadedCount === files.length) {
             setTargetPreviews(previews);
-
           }
         };
         reader.onerror = () => {
@@ -181,6 +223,29 @@ export default function FaceSwap() {
         reader.readAsDataURL(file);
       });
     }
+  };
+
+  const handleTargetDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingTarget(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      processTargetFiles(files);
+    }
+  };
+
+  const handleTargetDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingTarget(true);
+  };
+
+  const handleTargetDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingTarget(false);
   };
 
   const handleTemplateSelect = (template: Template) => {
@@ -505,7 +570,14 @@ export default function FaceSwap() {
                     />
                     <div
                       onClick={() => sourceInputRef.current?.click()}
-                      className="border-2 border-dashed border-white/30 rounded-lg p-2 text-center cursor-pointer hover:border-white/50 transition-colors"
+                      onDrop={handleSourceDrop}
+                      onDragOver={handleSourceDragOver}
+                      onDragLeave={handleSourceDragLeave}
+                      className={`border-2 border-dashed rounded-lg p-2 text-center cursor-pointer transition-all ${
+                        isDraggingSource 
+                          ? 'border-pink-400 bg-pink-500/20 scale-105' 
+                          : 'border-white/30 hover:border-white/50'
+                      }`}
                     >
                       {sourcePreview ? (
                         <img src={sourcePreview} alt="Source" className="w-full h-24 object-cover rounded" />
@@ -531,7 +603,14 @@ export default function FaceSwap() {
                     />
                     <div
                       onClick={() => targetInputRef.current?.click()}
-                      className="border-2 border-dashed border-white/30 rounded-lg p-2 text-center cursor-pointer hover:border-white/50 transition-colors"
+                      onDrop={handleTargetDrop}
+                      onDragOver={handleTargetDragOver}
+                      onDragLeave={handleTargetDragLeave}
+                      className={`border-2 border-dashed rounded-lg p-2 text-center cursor-pointer transition-all ${
+                        isDraggingTarget 
+                          ? 'border-purple-400 bg-purple-500/20 scale-105' 
+                          : 'border-white/30 hover:border-white/50'
+                      }`}
                     >
                       {targetPreviews.length > 0 ? (
                         <div className="grid grid-cols-2 gap-1">
