@@ -99,32 +99,11 @@ export async function generateVideoFromText(params: {
   resolution?: string;
   promptOptimizer?: boolean;
 }): Promise<MCPResult> {
-  try {
-    // MiniMax video generation endpoint
-    const result = await callMinimaxAPI("/video_generation", "POST", {
-      model: params.model || "video-01",
-      prompt: params.prompt,
-    });
-
-    console.log("[MiniMax API] Video generation result:", result);
-
-    // MiniMax returns task_id for async processing
-    const taskId = result.task_id || result.id;
-    const videoUrl = result.file_url || result.url;
-
-    return {
-      success: true,
-      data: result,
-      taskId,
-      outputPath: videoUrl,
-    };
-  } catch (error: any) {
-    console.error("[MiniMax API] Video generation error:", error);
-    return {
-      success: false,
-      error: error.message,
-    };
-  }
+  // Temporarily disabled - MiniMax API endpoints need verification
+  return {
+    success: false,
+    error: "MiniMax video generation is temporarily unavailable. Please use face swap feature instead.",
+  };
 }
 
 /**

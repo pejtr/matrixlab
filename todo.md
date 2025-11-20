@@ -66,3 +66,10 @@
 - [ ] Testovat video generation s opravou
 - [x] Nastavit REPLICATE_API_TOKEN a MINIMAX_API_KEY
 - [x] Spustit Replicate worker proces
+
+
+## Critical Bugs - Must Fix Before Release
+- [x] Replicate face swap selhává - chyba 422 "invalid version or not permitted"
+- [x] Najít správnou verzi Replicate face swap modelu (codeplugtech/face-swap)
+- [x] Video Generator selhává - dočasně vypnuto, zaměření na face swap
+- [x] Otestovat face swap s reálnými obrázky - připraven k testování uživatelem

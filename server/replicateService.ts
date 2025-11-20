@@ -40,12 +40,12 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     console.log("[Replicate] Target:", input.targetMediaUrl);
     console.log("[Replicate] Type:", input.targetMediaType);
 
-    // Use yan-ops/face_swap model for both images and videos
+    // Use codeplugtech/face-swap model (reliable and well-maintained)
     const output = await replicate.run(
-      "yan-ops/face_swap:d5900f9ebed33e7ae6f0f50b10a1c207bb8169e4ba8516d50c7fd3e45d3e0e", // Latest version
+      "codeplugtech/face-swap:278a81e7ebb22db98bcba54de985d22cc1abeead2754eb1f2af717247be69b34",
       {
         input: {
-          swap_image: input.sourceImageUrl,
+          source_image: input.sourceImageUrl,
           target_image: input.targetMediaUrl,
         },
       }
