@@ -61,16 +61,16 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         }
       );
     } else {
-      // For images, use codeplugtech/face-swap (cheapest and fastest for images)
-      // Cost: $0.00031 per run, ~27 seconds
-      modelUsed = "codeplugtech/face-swap (image)";
-      console.log("[Replicate] Using model: codeplugtech/face-swap for IMAGE (cost: $0.00031, ~27s)");
+      // For images, use yan-ops/face_swap (most popular and reliable)
+      // Cost: $0.00041 per run, proven with 595K+ runs
+      modelUsed = "yan-ops/face_swap (image)";
+      console.log("[Replicate] Using model: yan-ops/face_swap for IMAGE (cost: $0.00041, proven)");
       output = await replicate.run(
-        "codeplugtech/face-swap:278a81e7ebb22db98bcba54de985d22cc1abeead2754eb1f2af717247be69b34",
+        "yan-ops/face_swap",
         {
           input: {
-            swap_image: input.sourceImageUrl,
-            input_image: input.targetMediaUrl,
+            target_image: input.sourceImageUrl,
+            swap_image: input.targetMediaUrl,
           },
         }
       );

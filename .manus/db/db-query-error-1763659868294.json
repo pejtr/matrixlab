@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, status, createdAt FROM face_swap_jobs WHERE status IN ('pending', 'processing') ORDER BY createdAt DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, status, createdAt FROM face_swap_jobs WHERE status IN ('pending', 'processing') ORDER BY createdAt DESC LIMIT 5",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'up5rwigvfnmp6m7a4q94aj.face_swap_jobs' doesn't exist"
+  ]
+}

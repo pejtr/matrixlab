@@ -518,11 +518,12 @@
 - [ ] Zkontrolovat, proč se deleteJobMutation nevolá nebo selhává
 - [ ] Opravit delete logiku a otestovat
 
-## Generation Not Working - CRITICAL BUG - FIXED
-- [x] Identifikována příčina: Worker proces nebyl spuštěný
-- [x] Zkontrolovat REPLICATE_API_TOKEN - nakonfigurováno
-- [x] Spustit Replicate worker proces (pnpm worker:replicate)
-- [x] Worker běží a zpracovává pending joby každé 3 sekundy
-- [x] Přidat worker auto-start do server/_core/index.ts
-- [x] Worker se nyní automaticky spouští při startu serveru
-- [ ] Testovat generování - čeká na uživatele
+## Generation Still Failing - CRITICAL BUG
+- [x] Worker spuštěný, ale všechny joby selhaly (Failed)
+- [x] Zkontrolovat worker logy - Replicate vrací null output
+- [x] Identifikována příčina - codeplugtech/face-swap model nefunguje
+- [x] Změněn model na yan-ops/face_swap (595K+ runs, osvědčený)
+- [x] Opraveny input parametry (target_image, swap_image)
+- [x] Restartovat server a worker pro aplikaci změn
+- [x] Worker běží s novým modelem
+- [ ] Čeká na uživatele - vytvořit nový testovací job a ověřit, že funguje
