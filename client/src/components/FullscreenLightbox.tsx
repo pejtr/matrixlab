@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Download, Trash2 } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Download, Trash2, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FullscreenLightboxProps {
@@ -11,6 +11,8 @@ interface FullscreenLightboxProps {
   onClose: () => void;
   onNavigate: (index: number) => void;
   onDelete?: (id: number) => void;
+  onSave?: (imageUrl: string) => void;
+  showSave?: boolean;
 }
 
 export default function FullscreenLightbox({
@@ -19,6 +21,8 @@ export default function FullscreenLightbox({
   onClose,
   onNavigate,
   onDelete,
+  onSave,
+  showSave = false,
 }: FullscreenLightboxProps) {
   const currentImage = images[currentIndex];
 
@@ -135,6 +139,21 @@ export default function FullscreenLightbox({
           className="absolute top-4 right-28 z-10 text-red-500 hover:bg-red-500/20 h-10 w-10 p-0"
         >
           <Trash2 className="h-5 w-5" />
+        </Button>
+      )}
+
+      {/* Save Button (only for source faces) */}
+      {showSave && onSave && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSave(currentImage.url);
+          }}
+          className="absolute top-4 right-40 z-10 text-green-400 hover:bg-green-500/20 h-10 w-10 p-0"
+        >
+          <Bookmark className="h-5 w-5" />
         </Button>
       )}
 

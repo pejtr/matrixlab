@@ -399,3 +399,11 @@
 - [x] Vizuální feedback při přetáhování (border highlight + scale + bg color)
 - [x] Validace file types při drop (images pro source, images/videos pro target)
 - [ ] Testovat s různými file types (images, videos)
+
+
+## Lightbox Save Feature - User Requested
+- [x] Přidat Save ikonu do lightbox toolbar (Bookmark icon, zelená barva)
+- [x] Implementovat save face funkcionalitu z lightbox (handleSaveFaceFromLightbox)
+- [x] Zobrazit pouze pro "source" type lightbox (Before obrázky)
+- [x] Toast notification po úspěšném uložení
+- [x] Automatická invalidace saved faces seznamu po uložení

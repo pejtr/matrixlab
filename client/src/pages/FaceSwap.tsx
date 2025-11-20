@@ -338,6 +338,40 @@ export default function FaceSwap() {
     }
   };
 
+  const handleSaveFaceFromLightbox = async (imageUrl: string) => {
+    const faceName = prompt("Enter a name for this face:");
+    if (!faceName) return;
+
+    try {
+      // Fetch the image and convert to File
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], "source-face.jpg", { type: blob.type });
+
+      // Upload the file
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const uploadData = await uploadRes.json();
+
+      // Save to database
+      await saveFaceMutation.mutateAsync({
+        faceImageKey: uploadData.key || `saved-${Date.now()}`,
+        faceImageUrl: uploadData.url,
+        name: faceName,
+      });
+
+      toast.success(`Face "${faceName}" saved successfully!`);
+      await utils.savedFaces.getMySavedFaces.invalidate();
+    } catch (error) {
+      console.error("Failed to save face from lightbox:", error);
+      toast.error("Failed to save face");
+    }
+  };
+
   const handleSubmit = async () => {
 
     
@@ -1048,6 +1082,8 @@ export default function FaceSwap() {
               toast.error('Failed to delete job');
             }
           }}
+          onSave={lightboxType === 'source' ? handleSaveFaceFromLightbox : undefined}
+          showSave={lightboxType === 'source'}
         />
       )}
 
