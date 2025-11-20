@@ -1,4 +1,4 @@
-# FaceSwap Web - AI-Powered Face Swap Application
+# FaceSwap AI - AI-Powered Face Swap Application
 
 Modern web application for face swapping in videos and photos, powered by FaceFusion.
 

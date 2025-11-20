@@ -45,6 +45,40 @@ export default function FullscreenLightbox({
     };
   }, []);
 
+  // Touch/swipe support for mobile
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.changedTouches[0]!.screenX;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      touchEndX = e.changedTouches[0]!.screenX;
+      handleSwipe();
+    };
+
+    const handleSwipe = () => {
+      const swipeThreshold = 50;
+      if (touchStartX - touchEndX > swipeThreshold && currentIndex < images.length - 1) {
+        // Swipe left - next image
+        onNavigate(currentIndex + 1);
+      } else if (touchEndX - touchStartX > swipeThreshold && currentIndex > 0) {
+        // Swipe right - previous image
+        onNavigate(currentIndex - 1);
+      }
+    };
+
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [currentIndex, images.length, onNavigate]);
+
   const handlePrevious = () => {
     if (currentIndex > 0) {
       onNavigate(currentIndex - 1);

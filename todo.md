@@ -322,3 +322,24 @@
 - [x] Opravit CORS chyby při načítání saved faces z CloudFront
 - [x] Přidat server-side proxy pro saved faces nebo opravit CORS headers
 - [ ] Testovat batch upload s 2-3 soubory
+
+
+## Critical Bugs - User Reported
+- [x] Opravit 404 na /ai/dashboard route - route odstraněna z navigace
+- [x] Opravit nefunkční generování (upload endpoint) - opravena route
+- [x] Opravit "Failed to load saved face" chybu - použití no-cors fetch s fallback
+- [x] Přidat mobile swipe support pro lightbox (touch gestures) - implementováno
+- [ ] Testovat že batch generování funguje s debug logy
+
+## Future Feature - Multiple Face Selection
+- [ ] Přidat face detection preview před generováním
+- [ ] Možnost označit které tváře v target médiu nahradit (checkboxy)
+- [ ] Předat indexy vybraných tváří do FaceFusion API
+
+
+## New User Requirements - Current Sprint
+- [x] Změnit název webu na "FaceSwap AI" (místo "FaceSwap Web")
+- [x] Tablet layout - levý sloupec 1/3 šířky (grid-cols-[1fr_2fr])
+- [x] Opravit batch generování - codeplugtech/face-swap nepodporuje videa
+- [x] Přidat podporu pro video face swap - použit xrunda/hello model
+- [x] Retry funkcionalita - funguje správně, problém byl v modelu

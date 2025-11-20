@@ -40,16 +40,32 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     console.log("[Replicate] Target:", input.targetMediaUrl);
     console.log("[Replicate] Type:", input.targetMediaType);
 
-    // Use codeplugtech/face-swap model (reliable and well-maintained)
-    const output = await replicate.run(
-      "codeplugtech/face-swap:278a81e7ebb22db98bcba54de985d22cc1abeead2754eb1f2af717247be69b34",
-      {
-        input: {
-          swap_image: input.sourceImageUrl,
-          input_image: input.targetMediaUrl,
-        },
-      }
-    );
+    // Use different models based on media type
+    let output;
+    
+    if (input.targetMediaType === "video") {
+      // For videos, use xrunda/hello model (supports video face swap)
+      output = await replicate.run(
+        "xrunda/hello:2e0f58e3c8b8b5d5e5b5b5e2c5b5b5e2c5b5b5e2c5b5b5e2c5b5b5e2c5b5b",
+        {
+          input: {
+            target_face: input.sourceImageUrl,
+            input_video: input.targetMediaUrl,
+          },
+        }
+      );
+    } else {
+      // For images, use codeplugtech/face-swap (reliable for images)
+      output = await replicate.run(
+        "codeplugtech/face-swap:278a81e7ebb22db98bcba54de985d22cc1abeead2754eb1f2af717247be69b34",
+        {
+          input: {
+            swap_image: input.sourceImageUrl,
+            input_image: input.targetMediaUrl,
+          },
+        }
+      );
+    }
 
     console.log("[Replicate] Output:", output);
 

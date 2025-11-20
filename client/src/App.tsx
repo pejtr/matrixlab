@@ -27,6 +27,7 @@ function Router() {
       <Route path={"/gallery"} component={BatchGallery} />
       <Route path={"/gallery/:userId"} component={BatchGallery} />
       <Route path={"/ai"} component={AIDashboard} />
+      <Route path={"/ai/dashboard"} component={AIDashboard} />
       <Route path={"/ai/image-generator"} component={ImageGenerator} />
       <Route path={"/ai/video-generator"} component={VideoGenerator} />
       <Route path={"/ai/music-generator"} component={MusicGenerator} />

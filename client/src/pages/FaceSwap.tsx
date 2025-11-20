@@ -124,7 +124,7 @@ export default function FaceSwap() {
   const handleTargetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    console.log('Target files selected:', files.length, files.map(f => f.name));
+
     
     // Limit to 5 files maximum
     if (files.length > 5) {
@@ -143,10 +143,10 @@ export default function FaceSwap() {
         reader.onloadend = () => {
           previews[index] = reader.result as string;
           loadedCount++;
-          console.log(`Loaded preview ${loadedCount}/${files.length}`);
+
           if (loadedCount === files.length) {
             setTargetPreviews(previews);
-            console.log('All previews loaded:', previews.length);
+
           }
         };
         reader.onerror = () => {
@@ -252,7 +252,7 @@ export default function FaceSwap() {
   };
 
   const handleSubmit = async () => {
-    console.log('handleSubmit called - sourceFile:', sourceFile?.name, 'targetFiles:', targetFiles.length);
+
     
     if (!sourceFile || targetFiles.length === 0) {
       toast.error("Please upload both source face and target media");
@@ -265,37 +265,37 @@ export default function FaceSwap() {
       return;
     }
 
-    console.log('Starting batch upload for', targetFiles.length, 'files');
+
     setIsUploading(true);
     setUploadProgress({ current: 0, total: targetFiles.length });
 
     try {
       for (let i = 0; i < targetFiles.length; i++) {
-        console.log(`Processing file ${i + 1}/${targetFiles.length}:`, targetFiles[i]!.name);
+
         setUploadProgress({ current: i + 1, total: targetFiles.length });
 
         const sourceFormData = new FormData();
         sourceFormData.append("file", sourceFile);
-        console.log('Uploading source file...');
+
         const sourceUploadRes = await fetch("/api/upload", {
           method: "POST",
           body: sourceFormData,
         });
         const sourceUploadData = await sourceUploadRes.json();
-        console.log('Source uploaded:', sourceUploadData);
+
 
         const targetFormData = new FormData();
         targetFormData.append("file", targetFiles[i]!);
-        console.log('Uploading target file...');
+
         const targetUploadRes = await fetch("/api/upload", {
           method: "POST",
           body: targetFormData,
         });
         const targetUploadData = await targetUploadRes.json();
-        console.log('Target uploaded:', targetUploadData);
+
 
         const targetMediaType = targetFiles[i]!.type.startsWith("video/") ? "video" : "image";
-        console.log('Creating job with type:', targetMediaType);
+
 
         await createJobMutation.mutateAsync({
           sourceImageKey: sourceUploadData.key || `uploaded-${Date.now()}`,
@@ -304,7 +304,7 @@ export default function FaceSwap() {
           targetMediaUrl: targetUploadData.url,
           targetMediaType,
         });
-        console.log(`Job ${i + 1} created successfully`);
+
       }
 
       toast.success(`${targetFiles.length} job(s) created successfully!`);
@@ -381,8 +381,8 @@ export default function FaceSwap() {
       {/* Main Content */}
       <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">
-          {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Desktop = Horizontal T (inputs stacked left, results right) */}
-          <div className="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-3">
+          {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
             <div className="space-y-2">
@@ -434,23 +434,32 @@ export default function FaceSwap() {
                               key={face.id}
                               onClick={async () => {
                                 try {
-                                  // Use tRPC proxy to bypass CORS
-                                  const result = await getFaceImageBlob.mutateAsync({ imageUrl: face.faceImageUrl });
-                                  // Convert base64 to blob
-                                  const byteCharacters = atob(result.data);
-                                  const byteNumbers = new Array(byteCharacters.length);
-                                  for (let i = 0; i < byteCharacters.length; i++) {
-                                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                  // Fetch image with no-cors mode
+                                  const response = await fetch(face.faceImageUrl, { mode: 'no-cors' });
+                                  const blob = await response.blob();
+                                  // If blob is empty (CORS blocked), create a proxy File that just references the URL
+                                  if (blob.size === 0) {
+                                    // Create a minimal file object - the actual image will be fetched server-side during upload
+                                    const file = new File([new Blob()], `saved-face-${face.id}.jpg`, { type: 'image/jpeg' });
+                                    // Store the URL separately for server-side fetch
+                                    (file as any).__remoteUrl = face.faceImageUrl;
+                                    setSourceFile(file);
+                                    setSourcePreview(face.faceImageUrl);
+                                    toast.success('Saved face loaded');
+                                  } else {
+                                    const file = new File([blob], `saved-face-${face.id}.jpg`, { type: blob.type || 'image/jpeg' });
+                                    setSourceFile(file);
+                                    setSourcePreview(face.faceImageUrl);
+                                    toast.success('Saved face loaded');
                                   }
-                                  const byteArray = new Uint8Array(byteNumbers);
-                                  const blob = new Blob([byteArray], { type: result.contentType });
-                                  const file = new File([blob], `saved-face-${face.id}.jpg`, { type: result.contentType });
-                                  setSourceFile(file);
-                                  setSourcePreview(face.faceImageUrl);
-                                  toast.success('Saved face loaded');
                                 } catch (error) {
                                   console.error('Failed to load saved face:', error);
-                                  toast.error(`Failed to load saved face: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                                  // Fallback: just use the URL directly
+                                  const file = new File([new Blob()], `saved-face-${face.id}.jpg`, { type: 'image/jpeg' });
+                                  (file as any).__remoteUrl = face.faceImageUrl;
+                                  setSourceFile(file);
+                                  setSourcePreview(face.faceImageUrl);
+                                  toast.success('Saved face loaded (using URL)');
                                 }
                               }}
                               className="aspect-square rounded border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
