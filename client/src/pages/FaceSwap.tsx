@@ -703,7 +703,10 @@ export default function FaceSwap() {
                         ) : (
                           <div
                             key={`empty-${idx}`}
-                            onClick={() => sourceInputRef.current?.click()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              sourceInputRef.current?.click();
+                            }}
                             onDrop={handleSourceDrop}
                             onDragOver={handleSourceDragOver}
                             onDragLeave={handleSourceDragLeave}

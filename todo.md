@@ -791,3 +791,8 @@
 ## Button Text Change - User Requested
 - [x] Změnit text tlačítka "Regenerate" na "Generate" v celé aplikaci
 - [x] Zkontrolovat všechny výskyty v UI komponentách
+
+
+## Saved Faces Upload Fix - User Reported Bug
+- [x] Opravit nefunkční nahrávání přes prázdnou pozici v saved faces grid
+- [x] Přidat onClick handler na prázdný slot pro otevření file pickeru
