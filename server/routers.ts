@@ -580,6 +580,49 @@ export const appRouter = router({
         }
       }),
   }),
+
+  customTemplates: router({
+    // Get user's custom templates
+    getMyTemplates: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getUserCustomTemplates } = await import("./db");
+        return getUserCustomTemplates(ctx.user.id);
+      }),
+
+    // Upload custom template
+    uploadTemplate: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1).max(128),
+        mediaKey: z.string(),
+        mediaUrl: z.string(),
+        thumbnailUrl: z.string(),
+        mediaType: z.enum(["image", "video"]),
+        category: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createCustomTemplate } = await import("./db");
+        return createCustomTemplate({
+          userId: ctx.user.id,
+          name: input.name,
+          mediaKey: input.mediaKey,
+          mediaUrl: input.mediaUrl,
+          thumbnailUrl: input.thumbnailUrl,
+          mediaType: input.mediaType,
+          category: input.category,
+        });
+      }),
+
+    // Delete custom template
+    deleteTemplate: protectedProcedure
+      .input(z.object({
+        templateId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { deleteCustomTemplate } = await import("./db");
+        await deleteCustomTemplate(input.templateId, ctx.user.id);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

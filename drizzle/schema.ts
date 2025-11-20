@@ -126,3 +126,32 @@ export const savedFaces = mysqlTable("savedFaces", {
 
 export type SavedFace = typeof savedFaces.$inferSelect;
 export type InsertSavedFace = typeof savedFaces.$inferInsert;
+
+/**
+ * Custom Templates table - User-uploaded images as templates for face swap
+ * Users can upload their own photos to use as target templates
+ */
+export const customTemplates = mysqlTable("customTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  
+  // Template name
+  name: varchar("name", { length: 128 }).notNull(),
+  
+  // Template image references
+  thumbnailUrl: text("thumbnailUrl").notNull(),
+  mediaUrl: text("mediaUrl").notNull(),
+  mediaKey: varchar("mediaKey", { length: 512 }).notNull(),
+  
+  // Media type
+  mediaType: mysqlEnum("mediaType", ["image", "video"]).default("image").notNull(),
+  
+  // Category (optional, user can categorize their templates)
+  category: varchar("category", { length: 64 }),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  deletedAt: timestamp("deletedAt"), // Soft delete timestamp
+});
+
+export type CustomTemplate = typeof customTemplates.$inferSelect;
+export type InsertCustomTemplate = typeof customTemplates.$inferInsert;

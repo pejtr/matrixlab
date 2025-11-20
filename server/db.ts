@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -270,4 +270,48 @@ export async function softDeleteSourceImage(jobId: number): Promise<void> {
   await db.update(faceSwapJobs)
     .set({ sourceDeletedAt: new Date() })
     .where(eq(faceSwapJobs.id, jobId));
+}
+
+// Custom templates queries
+import { customTemplates, InsertCustomTemplate, CustomTemplate } from "../drizzle/schema";
+
+export async function createCustomTemplate(template: InsertCustomTemplate): Promise<CustomTemplate> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(customTemplates).values(template);
+  const insertedId = Number(result[0].insertId);
+  
+  const inserted = await db.select().from(customTemplates).where(eq(customTemplates.id, insertedId)).limit(1);
+  
+  if (!inserted[0]) {
+    throw new Error("Failed to retrieve inserted custom template");
+  }
+  
+  return inserted[0];
+}
+
+export async function getUserCustomTemplates(userId: number): Promise<CustomTemplate[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(customTemplates)
+    .where(and(eq(customTemplates.userId, userId), isNull(customTemplates.deletedAt)))
+    .orderBy(desc(customTemplates.createdAt));
+}
+
+export async function deleteCustomTemplate(templateId: number, userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Soft delete
+  await db.update(customTemplates)
+    .set({ deletedAt: new Date() })
+    .where(and(eq(customTemplates.id, templateId), eq(customTemplates.userId, userId)));
 }

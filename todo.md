@@ -569,3 +569,12 @@
 - [x] Přidat více šablon - 20 celkem (60% ženy, 40% muži)
 - [x] Různé zajímavé typy přitažlivých lidí
 - [x] Přesunout tlačítko Templates nad ikonu (zarovnání s prvním sloupcem)
+
+## Custom Template Upload - User Requested
+- [x] Vytvořit databázové schéma pro customTemplates (userId, name, thumbnailUrl, mediaUrl, mediaType)
+- [x] Backend API - upload custom template (file upload + S3)
+- [x] Backend API - list user's custom templates
+- [x] Backend API - delete custom template
+- [x] Frontend - tlačítko "Upload Custom" v Template Gallery
+- [x] Frontend - zobrazit custom templates společně s vestavěnými
+- [x] Frontend - možnost smazat vlastní šablony (delete badge)

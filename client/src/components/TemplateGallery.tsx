@@ -1,16 +1,21 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Film, Image as ImageIcon, Laugh } from "lucide-react";
+import { Film, Image as ImageIcon, Laugh, Upload, Trash2, Loader2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
 
 export interface Template {
   id: string;
   name: string;
-  category: "celebrity" | "meme" | "scene";
+  category: "celebrity" | "meme" | "scene" | "custom";
   type: "image" | "video";
   thumbnailUrl: string;
   mediaUrl: string;
   description?: string;
+  isCustom?: boolean;
+  customId?: number;
 }
 
 // Expanded templates - 60% women, 40% men, diverse attractive types
@@ -208,11 +213,120 @@ interface TemplateGalleryProps {
 }
 
 export default function TemplateGallery({ onSelectTemplate, selectedTemplates = [] }: TemplateGalleryProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { data: customTemplates = [], refetch: refetchCustom } = trpc.customTemplates.getMyTemplates.useQuery();
+  const uploadTemplateMutation = trpc.customTemplates.uploadTemplate.useMutation();
+  const deleteTemplateMutation = trpc.customTemplates.deleteTemplate.useMutation();
+  
   const isSelected = (template: Template) => 
     selectedTemplates.some(t => t.id === template.id);
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('Invalid file type. Please upload an image (JPG, PNG, WEBP) or video (MP4, MOV, WEBM).');
+      return;
+    }
+
+    // Validate file size (max 50MB)
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('File too large. Maximum size is 50MB.');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Upload file to S3
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substring(7);
+      const fileKey = `custom-templates/${timestamp}-${randomSuffix}-${file.name}`;
+      
+      const uploadUrl = `/api/faceswap/upload/${encodeURIComponent(fileKey)}`;
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'POST',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const { url: mediaUrl } = await uploadResponse.json();
+
+      // Prompt for template name
+      const name = prompt('Enter a name for this template:');
+      if (!name) {
+        toast.error('Template name is required');
+        setIsUploading(false);
+        return;
+      }
+
+      // Create template record
+      await uploadTemplateMutation.mutateAsync({
+        name,
+        mediaKey: fileKey,
+        mediaUrl,
+        thumbnailUrl: mediaUrl, // Use same URL for thumbnail (could be optimized)
+        mediaType: file.type.startsWith('video/') ? 'video' : 'image',
+        category: 'custom',
+      });
+
+      toast.success('Template uploaded successfully!');
+      await refetchCustom();
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload template');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDeleteCustom = async (templateId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm('Delete this custom template?')) return;
+
+    try {
+      await deleteTemplateMutation.mutateAsync({ templateId });
+      toast.success('Template deleted');
+      await refetchCustom();
+    } catch (error) {
+      toast.error('Failed to delete template');
+    }
+  };
+
+  // Convert custom templates to Template format
+  const customTemplatesFormatted: Template[] = customTemplates.map(ct => ({
+    id: `custom-${ct.id}`,
+    name: ct.name,
+    category: "custom" as const,
+    type: ct.mediaType,
+    thumbnailUrl: ct.thumbnailUrl,
+    mediaUrl: ct.mediaUrl,
+    description: "Your custom template",
+    isCustom: true,
+    customId: ct.id,
+  }));
+
   const renderTemplateGrid = (category: Template["category"]) => {
-    const templates = sampleTemplates.filter(t => t.category === category);
+    const templates = category === "custom" 
+      ? customTemplatesFormatted
+      : sampleTemplates.filter(t => t.category === category);
     
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -247,6 +361,18 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
                     </div>
                   </div>
                 )}
+                {template.isCustom && (
+                  <div className="absolute top-1 right-1 z-10">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleDeleteCustom(template.customId!, e)}
+                      className="h-6 w-6 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
               <h4 className="text-white text-sm font-medium truncate">{template.name}</h4>
               {template.description && (
@@ -262,7 +388,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
   return (
     <div className="w-full">
       <Tabs defaultValue="celebrity" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-white/10 backdrop-blur-lg">
+        <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-lg">
           <TabsTrigger value="celebrity" className="data-[state=active]:bg-pink-500">
             <ImageIcon className="h-4 w-4 mr-2" />
             <span className="hidden md:inline">Celebrities</span>
@@ -277,6 +403,11 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
             <span className="hidden md:inline">Scenes</span>
             <span className="md:hidden">Scenes</span>
           </TabsTrigger>
+          <TabsTrigger value="custom" className="data-[state=active]:bg-green-500">
+            <Upload className="h-4 w-4 mr-2" />
+            <span className="hidden md:inline">Custom</span>
+            <span className="md:hidden">Mine</span>
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="celebrity" className="mt-4">
@@ -289,6 +420,44 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
         
         <TabsContent value="scene" className="mt-4">
           {renderTemplateGrid("scene")}
+        </TabsContent>
+        
+        <TabsContent value="custom" className="mt-4">
+          <div className="mb-4">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Custom Template
+                </>
+              )}
+            </Button>
+          </div>
+          {customTemplatesFormatted.length === 0 ? (
+            <div className="text-center py-12 text-white/60">
+              <Upload className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No custom templates yet.</p>
+              <p className="text-sm">Upload your own images or videos to use as templates.</p>
+            </div>
+          ) : (
+            renderTemplateGrid("custom")
+          )}
         </TabsContent>
       </Tabs>
       
