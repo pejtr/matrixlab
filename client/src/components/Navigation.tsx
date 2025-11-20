@@ -44,11 +44,11 @@ export function Navigation() {
       {/* Desktop & Mobile Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-purple-900/80 backdrop-blur-lg border-b border-white/10">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-12">
-            {/* Logo */}
+          <div className="flex items-center justify-between md:justify-center h-12 relative">
+            {/* Logo - Absolute Left on Desktop */}
             <button
               onClick={() => handleNavClick("/")}
-              className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-80 transition-opacity md:absolute md:left-4"
             >
               <Sparkles className="h-5 w-5 text-yellow-400" />
               <span className="hidden sm:inline">{APP_TITLE}</span>
@@ -77,9 +77,9 @@ export function Navigation() {
                 );
               })}
 
-              {/* User Menu - Compact */}
+              {/* User Menu - Compact - Absolute Right on Desktop */}
               {isAuthenticated ? (
-                <div className="flex items-center gap-2 pl-2 ml-2 border-l border-white/20">
+                <div className="flex items-center gap-2 pl-2 ml-2 border-l border-white/20 md:absolute md:right-4">
                   <div className="text-white/70 text-xs hidden lg:block">
                     {user?.name || user?.email}
                   </div>

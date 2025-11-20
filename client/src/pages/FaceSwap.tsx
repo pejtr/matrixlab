@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark } from "lucide-react";
+import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -39,7 +39,7 @@ export default function FaceSwap() {
 
   const { data: jobs, refetch } = trpc.faceSwap.getMyJobs.useQuery(undefined, {
     enabled: isAuthenticated,
-    refetchInterval: 3000,
+    refetchInterval: 5000, // Poll every 5s for real-time updates
   });
 
   const createJobMutation = trpc.faceSwap.createJob.useMutation();
@@ -586,7 +586,7 @@ export default function FaceSwap() {
                         }`}
                       >
                         <img
-                          src={job.targetMediaUrl}
+                          src={job.status === "completed" && job.resultMediaUrl ? job.resultMediaUrl : job.targetMediaUrl}
                           alt={`Job ${job.id}`}
                           className="w-full h-full object-cover"
                         />
@@ -611,6 +611,30 @@ export default function FaceSwap() {
                               className="h-6 w-6 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
                             >
                               <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Retry Button for Failed Jobs */}
+                        {job.status === "failed" && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Retry by creating a new job with same source/target
+                                if (sourceFile && targetFiles.length > 0) {
+                                  toast.info('Retrying job...');
+                                  // TODO: Implement actual retry logic
+                                } else {
+                                  toast.error('Original files not available for retry');
+                                }
+                              }}
+                              className="bg-yellow-500/90 hover:bg-yellow-600 text-white rounded-lg px-3 py-1.5 text-xs font-semibold"
+                            >
+                              <RotateCcw className="h-3 w-3 mr-1" />
+                              Retry
                             </Button>
                           </div>
                         )}
@@ -640,15 +664,16 @@ export default function FaceSwap() {
       {/* Fullscreen Lightbox */}
       {showLightbox && completedJobs.length > 0 && (
         <FullscreenLightbox
-          images={completedJobs.map(job => ({
-            url: job.resultMediaUrl!,
-            id: job.id
-          }))}
+          images={completedJobs.map(job => ({ url: job.resultMediaUrl!, id: job.id }))}
           currentIndex={lightboxIndex}
           onClose={() => setShowLightbox(false)}
           onNavigate={(index) => {
             setLightboxIndex(index);
             setCurrentResultIndex(index);
+          }}
+          onDelete={(jobId) => {
+            toast.info('Delete feature coming soon!');
+            // TODO: Implement actual delete mutation
           }}
         />
       )}

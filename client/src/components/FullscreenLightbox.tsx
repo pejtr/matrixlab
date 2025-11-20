@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FullscreenLightboxProps {
@@ -10,6 +10,7 @@ interface FullscreenLightboxProps {
   currentIndex: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
+  onDelete?: (id: number) => void;
 }
 
 export default function FullscreenLightbox({
@@ -17,6 +18,7 @@ export default function FullscreenLightbox({
   currentIndex,
   onClose,
   onNavigate,
+  onDelete,
 }: FullscreenLightboxProps) {
   const currentImage = images[currentIndex];
 
@@ -80,6 +82,27 @@ export default function FullscreenLightbox({
       <div className="absolute top-4 left-4 z-10 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
         {currentIndex + 1} / {images.length}
       </div>
+
+      {/* Delete Button */}
+      {onDelete && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            if (confirm('Delete this result?')) {
+              onDelete(currentImage.id);
+              // Close lightbox if it was the last image
+              if (images.length === 1) {
+                onClose();
+              }
+            }
+          }}
+          className="absolute top-4 right-28 z-10 text-red-500 hover:bg-red-500/20 h-10 w-10 p-0"
+        >
+          <Trash2 className="h-5 w-5" />
+        </Button>
+      )}
 
       {/* Download Button */}
       <Button

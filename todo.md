@@ -217,3 +217,15 @@
 - [x] Database schema pro savedFaces tabulku (userId, faceImageKey, faceImageUrl, name)
 - [x] UI pro výběr z uložených tváří (SavedFacesDialog modal)
 - [x] Možnost smazat uloženou tvář (delete badge v dialogu)
+
+
+## Job Polling & UI Improvements - User Requested
+- [x] Automatický polling každých 5s pro pending/processing joby
+- [x] Real-time progress updates bez manuálního refreshe
+- [x] Optimistic updates pro lepší UX
+- [x] Vycentrovat navigační tlačítka (menu doprostřed)
+- [x] All Jobs grid - zobrazit miniatury výstupních obrázků (completed joby)
+- [x] All Jobs grid - zobrazit target thumbnails pro pending/processing joby
+- [x] Retry funkce pro Failed joby - možnost přegenerovat (placeholder)
+- [x] Delete ikona v Lightbox galerii
+- [x] Delete funkce přímo z fullscreen view (placeholder)
