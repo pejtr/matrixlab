@@ -613,10 +613,10 @@ export default function FaceSwap() {
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
                   <CardContent className="p-1.5">
-                    {/* 2-Column Layout: 10% thumbnails / 90% preview */}
+                    {/* 2-Column Layout: 20% thumbnails / 80% preview */}
                     <div className="flex gap-1.5">
-                      {/* Left Column: Saved Faces Thumbnails (10%) */}
-                      <div className="w-[10%] flex flex-col gap-1">
+                      {/* Left Column: Saved Faces Thumbnails (20%) */}
+                      <div className="w-[20%] flex flex-col gap-1">
                         {/* Render 5 slots */}
                         {Array.from({ length: 5 }).map((_, idx) => {
                           const face = savedFaces?.[idx];

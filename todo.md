@@ -683,3 +683,5 @@
 - [x] Přidat Cancel tlačítko na pending joby v thumbnail gridu
 - [x] Přidat Retry tlačítko na pending joby v thumbnail gridu
 - [x] Opravit Replicate API chybu pro permissive model (character_image parametr)
+
+- [x] Změnit Source Face layout ratio z 10:90 na 20:80 (větší levý sloupec pro lepší viditelnost miniatur)
