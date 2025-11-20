@@ -613,39 +613,26 @@ export default function FaceSwap() {
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
                   <CardContent className="p-1.5">
-                    {/* Saved Faces Inline Thumbnails - MOVED ABOVE */}
-                    <div className="mb-0">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <div className="text-white/70 text-[9px] flex items-center gap-0.5">
-                          <Bookmark className="h-2.5 w-2.5" />
-                          Saved ({savedFaces?.length || 0}/8)
+                    {/* 2-Column Layout: 10% thumbnails / 90% preview */}
+                    <div className="flex gap-1.5">
+                      {/* Left Column: Saved Faces Thumbnails (10%) */}
+                      <div className="w-[10%] flex flex-col gap-0.5">
+                        {/* Header */}
+                        <div className="text-white/70 text-[8px] text-center mb-0.5">
+                          <Bookmark className="h-2.5 w-2.5 mx-auto" />
                         </div>
-                        {sourceFile && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleSaveCurrentFace}
-                            className="text-green-400 hover:text-green-300 hover:bg-white/10 text-[9px] h-4 px-1"
-                          >
-                            Save
-                          </Button>
-                        )}
-                      </div>
-                      {savedFaces && savedFaces.length > 0 ? (
-                        <div className="flex flex-col gap-0.5 max-h-32 overflow-y-auto">
-                          {savedFaces.map((face) => (
+                        {/* Render 8 slots */}
+                        {Array.from({ length: 8 }).map((_, idx) => {
+                          const face = savedFaces?.[idx];
+                          return face ? (
                             <div
                               key={face.id}
                               onClick={async () => {
                                 try {
-                                  // Fetch image with no-cors mode
                                   const response = await fetch(face.faceImageUrl, { mode: 'no-cors' });
                                   const blob = await response.blob();
-                                  // If blob is empty (CORS blocked), create a proxy File that just references the URL
                                   if (blob.size === 0) {
-                                    // Create a minimal file object - the actual image will be fetched server-side during upload
                                     const file = new File([new Blob()], `saved-face-${face.id}.jpg`, { type: 'image/jpeg' });
-                                    // Store the URL separately for server-side fetch
                                     (file as any).__remoteUrl = face.faceImageUrl;
                                     setSourceFile(file);
                                     setSourcePreview(face.faceImageUrl);
@@ -656,37 +643,29 @@ export default function FaceSwap() {
                                     setSourcePreview(face.faceImageUrl);
                                     toast.success('Saved face loaded');
                                   }
-                                  
-                                  // Enable regenerate mode if viewing a result
                                   if (currentJob) {
                                     setIsRegenerateMode(true);
                                     setRegenerateSourceJobId(currentJob.id);
-                                    // Auto-fill target media ONLY if no target files are loaded
                                     if (targetFiles.length === 0) {
                                       await loadTargetFromJob(currentJob);
                                     }
                                   }
                                 } catch (error) {
-                                  console.error('Failed to load saved face:', error);
-                                  // Fallback: just use the URL directly
                                   const file = new File([new Blob()], `saved-face-${face.id}.jpg`, { type: 'image/jpeg' });
                                   (file as any).__remoteUrl = face.faceImageUrl;
                                   setSourceFile(file);
                                   setSourcePreview(face.faceImageUrl);
-                                  toast.success('Saved face loaded (using URL)');
-                                  
-                                  // Enable regenerate mode if viewing a result
+                                  toast.success('Saved face loaded');
                                   if (currentJob) {
                                     setIsRegenerateMode(true);
                                     setRegenerateSourceJobId(currentJob.id);
-                                    // Auto-fill target media ONLY if no target files are loaded
                                     if (targetFiles.length === 0) {
                                       await loadTargetFromJob(currentJob);
                                     }
                                   }
                                 }
                               }}
-                              className="w-12 h-12 flex-shrink-0 rounded-full border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                              className="aspect-square rounded-full border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                             >
                               <img
                                 src={face.faceImageUrl}
@@ -694,44 +673,64 @@ export default function FaceSwap() {
                                 className="w-full h-full object-cover scale-110"
                               />
                             </div>
-                          ))}
+                          ) : (
+                            <div
+                              key={`empty-${idx}`}
+                              onClick={() => sourceInputRef.current?.click()}
+                              className="aspect-square rounded-full border border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-pink-400 hover:bg-pink-500/10 transition-all"
+                            >
+                              <UserCircle className="h-4 w-4 text-white/30" />
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Right Column: Large Preview (90%) */}
+                      <div className="flex-1">
+                        {/* Save Button */}
+                        {sourceFile && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleSaveCurrentFace}
+                            className="text-green-400 hover:text-green-300 hover:bg-white/10 text-[9px] h-4 px-1 mb-0.5 w-full"
+                          >
+                            Save
+                          </Button>
+                        )}
+                        {/* Hidden file input */}
+                        <input
+                          ref={sourceInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleSourceFileChange}
+                          className="hidden"
+                        />
+                        {/* Large preview */}
+                        <div
+                          onClick={() => sourceInputRef.current?.click()}
+                          onDrop={handleSourceDrop}
+                          onDragOver={handleSourceDragOver}
+                          onDragLeave={handleSourceDragLeave}
+                          className={`border-2 border-dashed rounded-lg p-2 text-center cursor-pointer transition-all ${
+                            isDraggingSource 
+                              ? 'border-pink-400 bg-pink-500/20 scale-105' 
+                              : 'border-white/30 hover:border-white/50'
+                          }`}
+                        >
+                          {sourcePreview ? (
+                            <img src={sourcePreview} alt="Source" className="w-full aspect-[3/4] object-cover rounded" />
+                          ) : (
+                            <div className="text-white/70 aspect-[3/4] flex items-center justify-center">
+                              <UserCircle className="h-16 w-16 text-pink-400" />
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <div className="text-white/50 text-[9px] text-center py-1">
-                          No saved faces
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Upload Input - MOVED BELOW Saved Faces */}
-                    <input
-                      ref={sourceInputRef}
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      onChange={handleSourceFileChange}
-                      className="hidden"
-                    />
-                    <div
-                      onClick={() => sourceInputRef.current?.click()}
-                      onDrop={handleSourceDrop}
-                      onDragOver={handleSourceDragOver}
-                      onDragLeave={handleSourceDragLeave}
-                      className={`border-2 border-dashed rounded-lg p-2 text-center cursor-pointer transition-all ${
-                        isDraggingSource 
-                          ? 'border-pink-400 bg-pink-500/20 scale-105' 
-                          : 'border-white/30 hover:border-white/50'
-                      }`}
-                    >
-                      {sourcePreview ? (
-                        <img src={sourcePreview} alt="Source" className="w-full aspect-[3/4] object-cover rounded" />
-                      ) : (
-                        <div className="text-white/70">
-                          <UserCircle className="h-12 w-12 mx-auto text-pink-400" />
-                        </div>
-                      )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
+
 
                 {/* Target Media */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">

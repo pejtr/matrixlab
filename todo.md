@@ -655,3 +655,20 @@
 - [x] Změnit velký preview - aspect-[3/4] portrait
 - [x] Zmenšit celou Source Face sekci - 0.8fr (z 1fr)
 - [x] Zvětšit Target Media preview - 3fr (z 2.5fr)
+
+## 2-Column Source Face Layout (User Requested)
+- [ ] Změnit layout na 2 sloupce vedle sebe (flex row)
+- [ ] Levý sloupec (10%) - vertikální miniatury
+- [ ] Pravý sloupec (90%) - velký preview
+- [ ] Přidat prázdné placeholder sloty (8 celkem pro saved faces)
+- [ ] Prázdné sloty zobrazují UserCircle ikonu
+- [ ] Kliknutí na prázdný slot otevře file picker
+
+
+## 2-Column Source Face Layout - User Requested
+- [x] Změnit layout na 2 sloupce vedle sebe (flex row)
+- [x] Levý sloupec (10%) - vertikální miniatury
+- [x] Pravý sloupec (90%) - velký preview
+- [x] Přidat prázdné placeholder sloty (8 celkem pro saved faces)
+- [x] Prázdné sloty zobrazují UserCircle ikonu
+- [x] Kliknutí na prázdný slot otevře file picker
