@@ -135,3 +135,14 @@
 - [x] Carousel navigace pro výsledky (šipky vlevo/vpravo)
 - [x] Zobrazit všechny dokončené joby inline pod vstupy
 - [x] Odstranit přesměrování na history/detail stránku
+
+
+## UI Cleanup - User Requested
+- [x] Odstranit nadpis "Create Face Swap" a popisek
+- [x] Results sekce - obrázek na plnou šířku (odstranit padding)
+- [x] Odstranit "Results" nadpis
+- [x] Odstranit counter badge "5 / 19"
+- [x] Odstranit "Result" toggle tlačítko
+- [x] Odstranit "Original" a "Swapped" labely (použití pouze result view)
+- [x] Odstranit "Job #30007" a "Done" badge
+- [x] Nechat pouze Download tlačítko a navigační šipky

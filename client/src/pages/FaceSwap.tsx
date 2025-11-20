@@ -252,11 +252,6 @@ export default function FaceSwap() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-4">
         <div className="max-w-7xl mx-auto">
-          {/* Title */}
-          <div className="text-center mb-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">Create Face Swap</h2>
-            <p className="text-white/70 text-sm">Upload source and target media</p>
-          </div>
 
           {/* Inverted T Layout - Inputs */}
           <div className="grid grid-cols-2 gap-3 mb-4">
@@ -388,56 +383,38 @@ export default function FaceSwap() {
 
           {/* Results Section */}
           {completedJobs.length > 0 && (
-            <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-              <CardHeader className="p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-white text-lg">Results</CardTitle>
-                    <Badge className="bg-white/20 text-white text-xs mt-1">
-                      {currentResultIndex + 1} / {completedJobs.length}
-                    </Badge>
-                  </div>
-                  <div className="flex gap-2">
-                    {currentJob?.targetMediaType === "image" && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowComparison(!showComparison)}
-                        className="bg-white/10 text-white border-white/20 hover:bg-white/20 text-xs h-7"
-                      >
-                        {showComparison ? 'Result' : 'Compare'}
-                      </Button>
-                    )}
-                    <Button
-                      size="sm"
-                      onClick={() => window.open(currentJob?.resultMediaUrl!, "_blank")}
-                      className="bg-gradient-to-r from-pink-500 to-purple-500 text-xs h-7"
-                    >
-                      <Download className="mr-1 h-3 w-3" />
-                      Download
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-3 relative">
+            <div className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-4">
+              {/* Download Button - Floating */}
+              <div className="absolute top-3 right-3 z-20">
+                <Button
+                  size="sm"
+                  onClick={() => window.open(currentJob?.resultMediaUrl!, "_blank")}
+                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-xs h-8 shadow-lg"
+                >
+                  <Download className="mr-1 h-3 w-3" />
+                  Download
+                </Button>
+              </div>
+              
+              <div className="relative">
                 {/* Navigation Arrows */}
                 {completedJobs.length > 1 && (
-                  <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-2">
+                  <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-3">
                     <Button
                       onClick={() => setCurrentResultIndex(Math.max(0, currentResultIndex - 1))}
                       disabled={currentResultIndex === 0}
-                      className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-10 w-10 p-0"
+                      className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-12 w-12 p-0 shadow-lg"
                       size="sm"
                     >
-                      <ChevronLeft className="h-5 w-5" />
+                      <ChevronLeft className="h-6 w-6" />
                     </Button>
                     <Button
                       onClick={() => setCurrentResultIndex(Math.min(completedJobs.length - 1, currentResultIndex + 1))}
                       disabled={currentResultIndex === completedJobs.length - 1}
-                      className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-10 w-10 p-0"
+                      className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-12 w-12 p-0 shadow-lg"
                       size="sm"
                     >
-                      <ChevronRight className="h-5 w-5" />
+                      <ChevronRight className="h-6 w-6" />
                     </Button>
                   </div>
                 )}
@@ -446,31 +423,18 @@ export default function FaceSwap() {
                 {currentJob?.targetMediaType === "video" ? (
                   <video
                     src={currentJob.resultMediaUrl!}
-                    className="w-full rounded-lg"
+                    className="w-full"
                     controls
-                  />
-                ) : showComparison ? (
-                  <BeforeAfterSlider
-                    beforeImage={currentJob?.targetMediaUrl || ""}
-                    afterImage={currentJob?.resultMediaUrl || ""}
-                    beforeLabel="Original"
-                    afterLabel="Swapped"
                   />
                 ) : (
                   <img
                     src={currentJob?.resultMediaUrl || ""}
                     alt="Result"
-                    className="w-full rounded-lg"
+                    className="w-full"
                   />
                 )}
-
-                {/* Job Info */}
-                <div className="mt-2 flex items-center justify-between text-xs text-white/70">
-                  <span>Job #{currentJob?.id}</span>
-                  {getStatusBadge(currentJob?.status || "")}
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* All Jobs List (Compact) */}
