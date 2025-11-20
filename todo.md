@@ -245,3 +245,19 @@
 - [x] Přidat delete ikonu vedle Download tlačítka v hlavním results view
 - [x] Umožnit mazání i neúspěšných generování (failed jobs)
 - [x] Delete badge i na failed jobs v thumbnail gridu
+
+
+## Before/After Thumbnails & UI Improvements - User Requested
+- [x] Zmenšit padding u Before/After miniatur pro kompaktnější zobrazení
+- [x] Přidat možnost otevřít Before/After miniatury v lightboxu po kliknutí
+- [x] Přidat Save to Faces badge na Before miniaturách
+- [x] Redukovat Download tlačítko pouze na ikonu (bez textu)
+- [x] Omezit Saved Faces na maximálně 8 uložených tváří
+
+
+## All Jobs Grid & Retry Fixes - User Requested
+- [x] Přesunout All Jobs grid na celou šířku (pod Before/After miniatury)
+- [x] Zmenšit náhledy o 10% pro kompaktnější zobrazení
+- [x] Přidat "Load More" tlačítko pro načítání dalších jobů (pagination)
+- [x] Opravit Retry funkcionalitu - implementovat skutečný retry mechanismus
+- [x] Opravit delete badge na failed jobs - není klikatelný kvůli overlay

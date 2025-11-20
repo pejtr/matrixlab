@@ -89,7 +89,15 @@ export default function SavedFacesDialog({ open, onOpenChange, onSelectFace }: S
 
           <div className="pt-4 border-t border-white/20">
             <p className="text-sm text-white/70 mb-2">
-              Tip: After uploading a source face, you can save it by clicking the "Save This Face" button
+              {savedFaces && savedFaces.length > 0 && (
+                <span className="font-semibold">{savedFaces.length} / 8 saved faces</span>
+              )}
+              {savedFaces && savedFaces.length >= 8 && (
+                <span className="text-yellow-400 block mt-1">⚠️ Maximum limit reached. Delete a face to add new ones.</span>
+              )}
+            </p>
+            <p className="text-xs text-white/60">
+              Tip: After uploading a source face, you can save it by clicking the bookmark icon
             </p>
           </div>
         </div>

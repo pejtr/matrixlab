@@ -33,6 +33,7 @@ export default function FaceSwap() {
   const [showLightbox, setShowLightbox] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [showSavedFaces, setShowSavedFaces] = useState(false);
+  const [visibleJobsCount, setVisibleJobsCount] = useState(20);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +49,8 @@ export default function FaceSwap() {
 
   const completedJobs = jobs?.filter(job => job.status === "completed") || [];
   const currentJob = completedJobs[currentResultIndex];
+  const visibleJobs = jobs?.slice(0, visibleJobsCount) || [];
+  const hasMoreJobs = jobs && jobs.length > visibleJobsCount;
 
   // Auto-refresh notification when new results are ready
   useEffect(() => {
@@ -479,19 +482,55 @@ export default function FaceSwap() {
 
               {/* Before/After Thumbnails - Desktop Only, Below Submit Button */}
               {completedJobs.length > 0 && currentJob && (
-                <div className="hidden md:flex gap-2 mt-3">
+                <div className="hidden md:flex gap-1.5 mt-2">
                   {/* Source Face Thumbnail */}
-                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
-                    <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Before</div>
+                  <div className="group flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-lg relative cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                    onClick={() => {
+                      // Open lightbox with source image
+                      setShowLightbox(true);
+                      setLightboxIndex(currentResultIndex);
+                    }}
+                  >
+                    <div className="text-[9px] font-semibold text-gray-700 mb-0.5 text-center">Before</div>
                     <img
                       src={currentJob.sourceImageUrl}
                       alt="Source"
                       className="w-full aspect-square object-cover rounded"
                     />
+                    {/* Save to Faces Badge */}
+                    <div className="absolute top-1 right-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            await saveFaceMutation.mutateAsync({
+                              faceImageUrl: currentJob.sourceImageUrl,
+                              faceImageKey: currentJob.sourceImageKey,
+                              name: `Face ${new Date().toLocaleString()}`
+                            });
+                            toast.success('Face saved successfully');
+                            await utils.savedFaces.getMySavedFaces.invalidate();
+                          } catch (error) {
+                            toast.error('Failed to save face');
+                          }
+                        }}
+                        className="h-5 w-5 p-0 bg-pink-500/80 hover:bg-pink-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Bookmark className="h-2.5 w-2.5" />
+                      </Button>
+                    </div>
                   </div>
                   {/* Target Media Thumbnail */}
-                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1.5 shadow-lg">
-                    <div className="text-[10px] font-semibold text-gray-700 mb-1 text-center">Original</div>
+                  <div className="flex-1 bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-lg cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+                    onClick={() => {
+                      // Open lightbox with target image
+                      setShowLightbox(true);
+                      setLightboxIndex(currentResultIndex);
+                    }}
+                  >
+                    <div className="text-[9px] font-semibold text-gray-700 mb-0.5 text-center">Original</div>
                     <img
                       src={currentJob.targetMediaUrl}
                       alt="Target"
@@ -512,10 +551,9 @@ export default function FaceSwap() {
                     <Button
                       size="sm"
                       onClick={() => window.open(currentJob?.resultMediaUrl!, "_blank")}
-                      className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-xs h-8 shadow-lg"
+                      className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"
                     >
-                      <Download className="mr-1 h-3 w-3" />
-                      Download
+                      <Download className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
@@ -587,15 +625,17 @@ export default function FaceSwap() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
 
-              {/* All Jobs List (Compact) */}
-              {jobs && jobs.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-white text-sm font-semibold">All Jobs ({jobs.length})</h3>
-                  </div>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
-                    {jobs.map((job, idx) => (
+          {/* All Jobs List (Full Width) */}
+          {jobs && jobs.length > 0 && (
+            <div className="mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-white text-sm font-semibold">All Jobs ({jobs.length})</h3>
+              </div>
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2">
+                {visibleJobs.map((job, idx) => (
                       <div
                         key={job.id}
                         onClick={() => {
@@ -607,7 +647,7 @@ export default function FaceSwap() {
                             }
                           }
                         }}
-                        className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all ${
+                        className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all scale-90 ${
                           job.status === "completed" && currentJob?.id === job.id
                             ? "ring-2 ring-pink-500"
                             : "hover:ring-2 hover:ring-white/50"
@@ -626,7 +666,7 @@ export default function FaceSwap() {
 
                         {/* Quick Delete Badge (always visible for completed and failed jobs) */}
                         {(job.status === "completed" || job.status === "failed") && (
-                          <div className="absolute top-1 right-1">
+                          <div className="absolute top-1 right-1 z-10">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -651,21 +691,28 @@ export default function FaceSwap() {
 
                         {/* Retry Button for Failed Jobs */}
                         {job.status === "failed" && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2">
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 pointer-events-none">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.stopPropagation();
-                                // Retry by creating a new job with same source/target
-                                if (sourceFile && targetFiles.length > 0) {
-                                  toast.info('Retrying job...');
-                                  // TODO: Implement actual retry logic
-                                } else {
-                                  toast.error('Original files not available for retry');
+                                try {
+                                  // Create new job with same source/target from failed job
+                                  await createJobMutation.mutateAsync({
+                                    sourceImageKey: job.sourceImageKey,
+                                    sourceImageUrl: job.sourceImageUrl,
+                                    targetMediaKey: job.targetMediaKey,
+                                    targetMediaUrl: job.targetMediaUrl,
+                                    targetMediaType: job.targetMediaType,
+                                  });
+                                  toast.success('Job retried successfully');
+                                  await utils.faceSwap.getMyJobs.invalidate();
+                                } catch (error) {
+                                  toast.error('Failed to retry job');
                                 }
                               }}
-                              className="bg-yellow-500/90 hover:bg-yellow-600 text-white rounded-lg px-3 py-1.5 text-xs font-semibold"
+                              className="bg-yellow-500/90 hover:bg-yellow-600 text-white rounded-lg px-3 py-1.5 text-xs font-semibold pointer-events-auto"
                             >
                               <RotateCcw className="h-3 w-3 mr-1" />
                               Retry
@@ -686,12 +733,22 @@ export default function FaceSwap() {
 
 
                       </div>
-                    ))}
-                  </div>
+                ))}
+              </div>
+              
+              {/* Load More Button */}
+              {hasMoreJobs && (
+                <div className="flex justify-center mt-4">
+                  <Button
+                    onClick={() => setVisibleJobsCount(prev => prev + 20)}
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                  >
+                    Load More ({jobs.length - visibleJobsCount} remaining)
+                  </Button>
                 </div>
               )}
             </div>
-          </div>
+          )}
         </div>
       </main>
 

@@ -421,7 +421,19 @@ export const appRouter = router({
         name: z.string().min(1).max(128),
       }))
       .mutation(async ({ ctx, input }) => {
-        const { createSavedFace } = await import("./db");
+        const { getUserSavedFaces, createSavedFace, deleteSavedFace } = await import("./db");
+        
+        // Check current count
+        const existingFaces = await getUserSavedFaces(ctx.user.id);
+        
+        // Limit to 8 saved faces
+        if (existingFaces.length >= 8) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Maximum 8 saved faces allowed. Please delete an old face first.',
+          });
+        }
+        
         return createSavedFace({
           userId: ctx.user.id,
           faceImageKey: input.faceImageKey,
