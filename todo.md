@@ -773,3 +773,9 @@
 - [x] Rozdělit tab menu do dvou řádků místo jednoho
 - [x] Zlepšit čitelnost názvů kategorií (odstranit překrývání textu)
 - [x] Zachovat responsive design (mobil vs desktop)
+
+
+## Template Gallery & Thumbnail Improvements - User Requested
+- [x] Zvětšit Template Gallery dialog okno (větší modal)
+- [x] Zvětšit miniatury šablon v galerii (větší thumbnails)
+- [x] Přidat hover zoom efekt na kulaté saved faces thumbnails (scale-105)

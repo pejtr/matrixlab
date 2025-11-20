@@ -668,7 +668,7 @@ export default function FaceSwap() {
                                 }
                               }
                             }}
-                            className="group relative aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                            className="group relative aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 hover:scale-105 transition-all"
                           >
                             <img
                               src={face.faceImageUrl}
@@ -1484,7 +1484,7 @@ export default function FaceSwap() {
       {/* Template Gallery */}
       {showTemplateGallery && (
         <Dialog open={showTemplateGallery} onOpenChange={setShowTemplateGallery}>
-          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-lg border-white/20 text-white">
+          <DialogContent className="max-w-6xl max-h-[90vh] flex flex-col bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-lg border-white/20 text-white">
             <DialogHeader className="flex-shrink-0">
               <DialogTitle className="text-white">Template Gallery</DialogTitle>
             </DialogHeader>

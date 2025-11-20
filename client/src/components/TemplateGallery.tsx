@@ -520,7 +520,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
     }
     
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
         {templates.map((template) => (
           <Card 
             key={template.id} 
@@ -531,7 +531,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
             } backdrop-blur-lg border-white/20`}
             onClick={() => onSelectTemplate(template)}
           >
-            <CardContent className="p-3">
+            <CardContent className="p-4">
               <div className="relative aspect-square mb-2">
                 <img 
                   src={template.thumbnailUrl} 
