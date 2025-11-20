@@ -343,3 +343,7 @@
 - [x] Opravit batch generování - codeplugtech/face-swap nepodporuje videa
 - [x] Přidat podporu pro video face swap - použit xrunda/hello model
 - [x] Retry funkcionalita - funguje správně, problém byl v modelu
+
+
+## Layout Adjustment - User Requested
+- [x] Zvětšit vygenerovaný obrázek v pravém sloupci (změnit grid ratio z 1:2 na 1:2.5)

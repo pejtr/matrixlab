@@ -382,7 +382,7 @@ export default function FaceSwap() {
       <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2.5fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
             <div className="space-y-2">
