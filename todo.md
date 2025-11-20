@@ -691,3 +691,8 @@
 -- [x] Odstranit velký preview z Source Face karty
 - [x] Nechat pouze větší miniatury v grid layoutu
 - [x] Kompaktnější design bez zbyteného preview
+
+- [x] Odstranit "Save Current Face" tlačítko
+- [x] Změnit na 4 miniatury místo 5 (grid 2x2)
+- [x] Změnit miniatury na kulaté (rounded-full)
+- [x] Přidat náhledovou část pod miniatury (aspect-square, max výška = šířka)

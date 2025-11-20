@@ -622,22 +622,10 @@ export default function FaceSwap() {
                       className="hidden"
                     />
                     
-                    {/* Save Button */}
-                    {sourceFile && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleSaveCurrentFace}
-                        className="text-green-400 hover:text-green-300 hover:bg-white/10 text-xs h-6 px-2 mb-2 w-full"
-                      >
-                        Save Current Face
-                      </Button>
-                    )}
-                    
-                    {/* Grid of Saved Faces + Upload Slots */}
-                    <div className="grid grid-cols-3 gap-2">
-                      {/* Render 5 slots */}
-                      {Array.from({ length: 5 }).map((_, idx) => {
+                    {/* Grid of Saved Faces (2x2) */}
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      {/* Render 4 slots */}
+                      {Array.from({ length: 4 }).map((_, idx) => {
                         const face = savedFaces?.[idx];
                         return face ? (
                           <div
@@ -680,7 +668,7 @@ export default function FaceSwap() {
                                 }
                               }
                             }}
-                            className="relative aspect-square rounded-lg border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                            className="relative aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                           >
                             <img
                               src={face.faceImageUrl}
@@ -699,7 +687,7 @@ export default function FaceSwap() {
                             onDrop={handleSourceDrop}
                             onDragOver={handleSourceDragOver}
                             onDragLeave={handleSourceDragLeave}
-                            className={`aspect-square rounded-lg border-2 border-dashed flex items-center justify-center cursor-pointer transition-all ${
+                            className={`aspect-square rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer transition-all ${
                               isDraggingSource
                                 ? 'border-pink-400 bg-pink-500/20 scale-105'
                                 : 'border-white/20 hover:border-pink-400 hover:bg-pink-500/10'
@@ -709,6 +697,43 @@ export default function FaceSwap() {
                           </div>
                         );
                       })}
+                    </div>
+                    
+                    {/* Preview Area (Square aspect ratio) */}
+                    <div
+                      onClick={() => !sourcePreview && sourceInputRef.current?.click()}
+                      onDrop={handleSourceDrop}
+                      onDragOver={handleSourceDragOver}
+                      onDragLeave={handleSourceDragLeave}
+                      className={`border-2 border-dashed rounded-lg overflow-hidden transition-all ${
+                        isDraggingSource
+                          ? 'border-pink-400 bg-pink-500/20 scale-105'
+                          : sourcePreview
+                          ? 'border-white/10 cursor-default'
+                          : 'border-white/30 hover:border-white/50 cursor-pointer'
+                      }`}
+                    >
+                      {sourcePreview ? (
+                        <div className="relative aspect-square">
+                          <img src={sourcePreview} alt="Source" className="w-full h-full object-cover" />
+                          {/* Save button overlay */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSaveCurrentFace();
+                            }}
+                            className="absolute top-1 right-1 text-green-400 hover:text-green-300 bg-black/50 hover:bg-black/70 text-xs h-6 px-2"
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="aspect-square flex items-center justify-center text-white/70">
+                          <UserCircle className="h-12 w-12 text-pink-400" />
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
