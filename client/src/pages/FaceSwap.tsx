@@ -605,7 +605,7 @@ export default function FaceSwap() {
       <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_2.5fr] gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-[0.8fr_3fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
             <div className="space-y-1.5">
@@ -632,7 +632,7 @@ export default function FaceSwap() {
                         )}
                       </div>
                       {savedFaces && savedFaces.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-0.5">
+                        <div className="flex flex-col gap-0.5 max-h-32 overflow-y-auto">
                           {savedFaces.map((face) => (
                             <div
                               key={face.id}
@@ -686,7 +686,7 @@ export default function FaceSwap() {
                                   }
                                 }
                               }}
-                              className="aspect-square rounded-full border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                              className="w-12 h-12 flex-shrink-0 rounded-full border border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                             >
                               <img
                                 src={face.faceImageUrl}
@@ -723,7 +723,7 @@ export default function FaceSwap() {
                       }`}
                     >
                       {sourcePreview ? (
-                        <img src={sourcePreview} alt="Source" className="w-full h-24 object-cover rounded" />
+                        <img src={sourcePreview} alt="Source" className="w-full aspect-[3/4] object-cover rounded" />
                       ) : (
                         <div className="text-white/70">
                           <UserCircle className="h-12 w-12 mx-auto text-pink-400" />

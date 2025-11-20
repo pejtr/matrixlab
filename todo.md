@@ -648,3 +648,10 @@
 ## Vertical Portrait Layout (User Requested)
 - [x] Změnit Saved Faces layout - grid-cols-2 (hlavy pod sebou)
 - [x] Změnit Target Media preview - aspect-[3/4] (portrait orientace)
+
+## Source Face Section Redesign (User Requested)
+- [x] Zmenšit saved faces thumbnails - 48x48px (w-12 h-12)
+- [x] Změnit saved faces layout - vertikální sloupec s scrollem
+- [x] Změnit velký preview - aspect-[3/4] portrait
+- [x] Zmenšit celou Source Face sekci - 0.8fr (z 1fr)
+- [x] Zvětšit Target Media preview - 3fr (z 2.5fr)
