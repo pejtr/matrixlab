@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -343,21 +343,8 @@ export default function FaceSwap() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Compact Header */}
-      <header className="container mx-auto py-2 px-4">
-        <Button
-          variant="ghost"
-          onClick={() => setLocation("/")}
-          className="text-white hover:bg-white/10 h-8 px-2"
-          size="sm"
-        >
-          <ArrowLeft className="mr-1 h-4 w-4" />
-          Back
-        </Button>
-      </header>
-
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-4">
+      <main className="container mx-auto px-4 py-6">
         <div className="max-w-7xl mx-auto">
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Desktop = Horizontal T (inputs stacked left, results right) */}
           <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-4">

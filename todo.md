@@ -277,3 +277,8 @@
 - [x] Přidat limit 5 target médií maximálně
 - [x] Frontend validace - zobrazit chybu při výběru více než 5 souborů
 - [x] Backend validace - zabránit vytvoření více než 5 jobů najednou
+
+
+## Layout Optimization - User Requested
+- [x] Odstranit Back tlačítko a celý horní řádek
+- [x] Optimalizovat layout pro 100% zoom na desktopu
