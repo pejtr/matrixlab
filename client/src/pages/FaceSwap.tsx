@@ -860,7 +860,7 @@ export default function FaceSwap() {
                     {isRegenerateMode ? (
                       <>
                         <RotateCcw className="mr-2 h-4 w-4" />
-                        Regenerate
+                        Generate
                       </>
                     ) : (
                       <>
@@ -1055,7 +1055,7 @@ export default function FaceSwap() {
                         setShowRegenerateDialog(true);
                       }}
                       className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-8 w-8 p-0 shadow-lg"
-                      title="Regenerate with different face"
+                      title="Generate with different face"
                     >
                       <RotateCcw className="h-4 w-4" />
                     </Button>

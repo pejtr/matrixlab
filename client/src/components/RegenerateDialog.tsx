@@ -113,7 +113,7 @@ export default function RegenerateDialog({ open, onOpenChange, job, onRegenerate
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-3xl bg-gradient-to-br from-purple-900/95 via-indigo-900/95 to-blue-900/95 backdrop-blur-lg border-white/20 text-white">
         <DialogHeader>
-          <DialogTitle className="text-white">Regenerate with Different Face</DialogTitle>
+          <DialogTitle className="text-white">Generate with Different Face</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -242,7 +242,7 @@ export default function RegenerateDialog({ open, onOpenChange, job, onRegenerate
                   Uploading...
                 </>
               ) : (
-                "Regenerate"
+                "Generate"
               )}
             </Button>
           </div>

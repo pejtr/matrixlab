@@ -786,3 +786,8 @@
 - [x] Přidat lightbox preview pro nahrané target media fotky
 - [x] Přidat upload ikonu/tlačítko do target media lightboxu pro nahrání nové fotky
 - [x] Kliknutí na nahranou fotku otevře lightbox s preview
+
+
+## Button Text Change - User Requested
+- [x] Změnit text tlačítka "Regenerate" na "Generate" v celé aplikaci
+- [x] Zkontrolovat všechny výskyty v UI komponentách
