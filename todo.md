@@ -729,3 +729,6 @@
 
 - [- [x] Změnit default model na Permissive (reálištější výstupy)
 - [x] Zjistit ceny obou modelů (High Quality: $0.05/img, Permissive: $0.11/run)
+
+- [x] Zafixovat výšku hlavního obrázku na desktopu aby neskákal při listování šipkami (h-[70vh])
+- [x] Ustálit horizontal layout All Jobs pásu (fixed height)

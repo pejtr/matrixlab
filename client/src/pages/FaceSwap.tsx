@@ -933,7 +933,7 @@ export default function FaceSwap() {
                       <img 
                         src={targetPreviews[0]} 
                         alt="Target preview" 
-                        className="w-full h-auto object-contain max-h-[80vh]"
+                        className="w-full h-[70vh] object-contain"
                       />
                       {/* Loading overlay */}
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
@@ -1100,14 +1100,14 @@ export default function FaceSwap() {
                     {currentJob?.targetMediaType === "video" ? (
                       <video
                         src={currentJob.resultMediaUrl!}
-                        className="w-full object-contain max-h-[80vh]"
+                        className="w-full h-[70vh] object-contain"
                         controls
                       />
                     ) : (
                       <img
                         src={currentJob?.resultMediaUrl || ""}
                         alt="Result"
-                        className="w-full object-contain max-h-[80vh] cursor-pointer hover:opacity-90 transition-opacity"
+                        className="w-full h-[70vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => {
                           setLightboxIndex(currentResultIndex);
                           setShowLightbox(true);
