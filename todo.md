@@ -713,3 +713,10 @@
 - [x] Přidat Delete tlačítko na Pending joby
 
 - [x] Opravit viditelnost Retry/Cancel/Delete tlačítek na pending thumbnails (nejsou zobrazená)
+
+-- [x] Vygenerovat nové template obrázky v bombshell lifestyle stylu (glamour, luxusní prostředí, sexy pózy)
+- [x] Vrátit Before/After thumbnails zpět pod Submit tlačítko
+- [x] Omezit maximální výšku velkého obrázku aby byl vždy viditelný pás miniatur na desktopu
+
+- [x] Opravit 4. prázdnou pozici - neotvírá file picker při kliknutí
+- [x] Přidat delete ikonu (X tlačítko) na saved face miniatury pro smazání

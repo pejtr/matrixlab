@@ -20,51 +20,51 @@ export interface Template {
 
 // Expanded templates - 60% women, 40% men, diverse attractive types
 const sampleTemplates: Template[] = [
-  // CELEBRITIES (60% women, 40% men)
+  // CELEBRITIES (60% women, 40% men) - Bombshell Lifestyle
   {
     id: "celeb-w1",
-    name: "Elegant Woman",
+    name: "Penthouse Elegance",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=800&fit=crop",
-    description: "Professional businesswoman"
+    thumbnailUrl: "/templates/bombshell-1.jpg",
+    mediaUrl: "/templates/bombshell-1.jpg",
+    description: "Luxurious city skyline"
   },
   {
     id: "celeb-w2",
-    name: "Fashion Model",
+    name: "Art Deco Glamour",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=800&fit=crop",
-    description: "Runway beauty"
+    thumbnailUrl: "/templates/bombshell-2.jpg",
+    mediaUrl: "/templates/bombshell-2.jpg",
+    description: "Hollywood waves & chandeliers"
   },
   {
     id: "celeb-w3",
-    name: "Glamorous Star",
+    name: "Ferrari Lifestyle",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=800&fit=crop",
-    description: "Red carpet ready"
+    thumbnailUrl: "/templates/bombshell-3.jpg",
+    mediaUrl: "/templates/bombshell-3.jpg",
+    description: "Luxury sports car & mansion"
   },
   {
     id: "celeb-w4",
-    name: "Natural Beauty",
+    name: "Grand Staircase",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&h=800&fit=crop",
-    description: "Fresh and radiant"
+    thumbnailUrl: "/templates/bombshell-4.jpg",
+    mediaUrl: "/templates/bombshell-4.jpg",
+    description: "Sequined gown & gold railings"
   },
   {
     id: "celeb-w5",
-    name: "Sophisticated Lady",
+    name: "Infinity Pool Paradise",
     category: "celebrity",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop",
-    description: "Classy and elegant"
+    thumbnailUrl: "/templates/bombshell-5.jpg",
+    mediaUrl: "/templates/bombshell-5.jpg",
+    description: "Tropical resort & ocean views"
   },
   {
     id: "celeb-w6",

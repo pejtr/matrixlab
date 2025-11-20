@@ -668,7 +668,7 @@ export default function FaceSwap() {
                                 }
                               }
                             }}
-                            className="relative aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                            className="group relative aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                           >
                             <img
                               src={face.faceImageUrl}
@@ -679,6 +679,26 @@ export default function FaceSwap() {
                             {sourcePreview === face.faceImageUrl && (
                               <div className="absolute inset-0 ring-2 ring-pink-500 bg-pink-500/20" />
                             )}
+                            {/* Delete button */}
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                  await trpc.savedFaces.deleteFace.useMutation().mutateAsync({ faceId: face.id });
+                                  utils.savedFaces.getMySavedFaces.invalidate();
+                                  if (sourcePreview === face.faceImageUrl) {
+                                    setSourceFile(null);
+                                    setSourcePreview(null);
+                                  }
+                                  toast.success('Saved face deleted');
+                                } catch (error) {
+                                  toast.error('Failed to delete saved face');
+                                }
+                              }}
+                              className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-3 w-3 text-white" />
+                            </button>
                           </div>
                         ) : (
                           <div
@@ -832,6 +852,57 @@ export default function FaceSwap() {
                 )}
               </Button>
 
+              {/* Before/After Thumbnails */}
+              {currentJob && (
+                <div className="grid grid-cols-2 gap-2 mt-4">
+                  {/* Before (Source) */}
+                  <div 
+                    className="relative aspect-video rounded-lg overflow-hidden border border-white/20 cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                    onClick={() => {
+                      setLightboxIndex(currentResultIndex);
+                      setLightboxType('source');
+                      setShowLightbox(true);
+                    }}
+                  >
+                    <img
+                      src={currentJob.sourceImageUrl}
+                      alt="Before"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                      <span className="text-white text-xs font-semibold">Before</span>
+                    </div>
+                  </div>
+                  {/* After (Result) */}
+                  <div 
+                    className="relative aspect-video rounded-lg overflow-hidden border border-white/20 cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
+                    onClick={() => {
+                      setLightboxIndex(currentResultIndex);
+                      setLightboxType('result');
+                      setShowLightbox(true);
+                    }}
+                  >
+                    {currentJob.targetMediaType === "video" ? (
+                      <video
+                        src={currentJob.resultMediaUrl || ''}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    ) : (
+                      <img
+                        src={currentJob.resultMediaUrl || ''}
+                        alt="After"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                      <span className="text-white text-xs font-semibold">After</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
             </div>
 
@@ -847,7 +918,7 @@ export default function FaceSwap() {
                       <img 
                         src={targetPreviews[0]} 
                         alt="Target preview" 
-                        className="w-full h-auto object-contain max-h-[600px]"
+                        className="w-full h-auto object-contain max-h-[calc(100vh-350px)]"
                       />
                       {/* Loading overlay */}
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
