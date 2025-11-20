@@ -520,14 +520,22 @@ export default function FaceSwap() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, errorMessage?: string | null) => {
     switch (status) {
       case "completed":
         return <Badge className="bg-green-500 text-xs p-1"><CheckCircle className="h-3 w-3" /></Badge>;
       case "processing":
         return <Badge className="bg-blue-500 text-xs"><Loader2 className="mr-1 h-3 w-3 animate-spin" />Processing</Badge>;
       case "failed":
-        return <Badge className="bg-red-500 text-xs"><XCircle className="mr-1 h-3 w-3" />Failed</Badge>;
+        return (
+          <Badge 
+            className="bg-red-500 text-xs cursor-help" 
+            title={errorMessage || "Unknown error"}
+          >
+            <XCircle className="mr-1 h-3 w-3" />
+            Failed
+          </Badge>
+        );
       default:
         return <Badge className="bg-yellow-500 text-xs"><Clock className="mr-1 h-3 w-3" />Pending</Badge>;
     }
@@ -694,7 +702,21 @@ export default function FaceSwap() {
 
                 {/* Target Media */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-1.5">
+                  <CardContent className="p-1.5 space-y-1.5">
+                    {/* Templates Button - Above Icon */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowTemplateGallery(!showTemplateGallery);
+                      }}
+                      className="w-full bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] h-6"
+                    >
+                      <Library className="mr-1 h-3 w-3" />
+                      {showTemplateGallery ? 'Hide' : 'Templates'}
+                    </Button>
+                    
                     <input
                       ref={targetInputRef}
                       type="file"
@@ -741,18 +763,6 @@ export default function FaceSwap() {
                     {targetFiles.length === 0 && (
                       <p className="text-white/50 text-[9px] mt-0.5 text-center">Max 5 files</p>
                     )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowTemplateGallery(!showTemplateGallery);
-                      }}
-                      className="w-full mt-1 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] h-6"
-                    >
-                      <Library className="mr-1 h-3 w-3" />
-                      {showTemplateGallery ? 'Hide' : 'Templates'}
-                    </Button>
                   </CardContent>
                 </Card>
               </div>
@@ -910,6 +920,19 @@ export default function FaceSwap() {
                           ? "Video processing may take 1-2 minutes"
                           : "This usually takes 10-30 seconds"}
                       </p>
+                    </div>
+                  )}
+                  {/* Job Queue Visualization */}
+                  {jobs.filter(j => j.status === "pending" || j.status === "processing").length > 0 && (
+                    <div className="px-8 pb-2">
+                      <div className="w-full max-w-md mx-auto bg-white/5 rounded-lg p-2 mb-2">
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-pink-400" />
+                          <span className="text-white/90 text-sm font-medium">
+                            Processing {jobs.filter(j => j.status === "processing").length || 1} / {jobs.filter(j => j.status === "pending" || j.status === "processing").length} jobs
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                   {/* Progress bars */}
@@ -1093,7 +1116,7 @@ export default function FaceSwap() {
                         
                         {/* Status Badge */}
                         <div className="absolute top-1 left-1 scale-75 origin-top-left">
-                          {getStatusBadge(job.status)}
+                          {getStatusBadge(job.status, job.errorMessage)}
                         </div>
 
                         {/* Quick Delete Badge (always visible for completed and failed jobs) */}

@@ -1,6 +1,7 @@
 /**
  * Replicate API Service for Face Swap
- * Uses yan-ops/face_swap model for high-quality face swapping
+ * Uses easel/advanced-face-swap for images (commercial-grade quality)
+ * Uses xrunda/hello for videos (only video-capable model)
  */
 
 import Replicate from "replicate";
@@ -61,16 +62,16 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         }
       );
     } else {
-      // For images, use yan-ops/face_swap (most popular and reliable)
-      // Cost: $0.00041 per run, proven with 595K+ runs
-      modelUsed = "yan-ops/face_swap (image)";
-      console.log("[Replicate] Using model: yan-ops/face_swap for IMAGE (cost: $0.00041, proven)");
+      // For images, use easel/advanced-face-swap (commercial-grade, most reliable)
+      // According to Replicate docs: "outputs highly polished, commercial-grade swaps"
+      modelUsed = "easel/advanced-face-swap (image)";
+      console.log("[Replicate] Using model: easel/advanced-face-swap for IMAGE (commercial-grade quality)");
       output = await replicate.run(
-        "yan-ops/face_swap",
+        "easel/advanced-face-swap",
         {
           input: {
-            target_image: input.sourceImageUrl,
-            swap_image: input.targetMediaUrl,
+            target_image: input.targetMediaUrl,
+            source_image: input.sourceImageUrl,
           },
         }
       );

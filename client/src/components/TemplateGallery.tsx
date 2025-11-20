@@ -13,61 +13,192 @@ export interface Template {
   description?: string;
 }
 
-// Sample templates - in production, these would come from a database or API
+// Expanded templates - 60% women, 40% men, diverse attractive types
 const sampleTemplates: Template[] = [
+  // CELEBRITIES (60% women, 40% men)
   {
-    id: "celeb-1",
-    name: "Elon Musk",
-    category: "celebrity",
-    type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop",
-    description: "Business portrait"
-  },
-  {
-    id: "celeb-2",
-    name: "Business Woman",
+    id: "celeb-w1",
+    name: "Elegant Woman",
     category: "celebrity",
     type: "image",
     thumbnailUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop",
     mediaUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=800&fit=crop",
-    description: "Professional headshot"
+    description: "Professional businesswoman"
   },
   {
-    id: "meme-1",
-    name: "Surprised Face",
-    category: "meme",
+    id: "celeb-w2",
+    name: "Fashion Model",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=800&fit=crop",
+    description: "Runway beauty"
+  },
+  {
+    id: "celeb-w3",
+    name: "Glamorous Star",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=800&fit=crop",
+    description: "Red carpet ready"
+  },
+  {
+    id: "celeb-w4",
+    name: "Natural Beauty",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&h=800&fit=crop",
+    description: "Fresh and radiant"
+  },
+  {
+    id: "celeb-w5",
+    name: "Sophisticated Lady",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop",
+    description: "Classy and elegant"
+  },
+  {
+    id: "celeb-w6",
+    name: "Athletic Beauty",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&h=800&fit=crop",
+    description: "Sporty and fit"
+  },
+  {
+    id: "celeb-m1",
+    name: "Handsome Actor",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&h=800&fit=crop",
+    description: "Leading man"
+  },
+  {
+    id: "celeb-m2",
+    name: "Dapper Gentleman",
+    category: "celebrity",
     type: "image",
     thumbnailUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
     mediaUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop",
-    description: "Classic meme expression"
+    description: "Suave and stylish"
   },
   {
-    id: "meme-2",
-    name: "Laughing Person",
+    id: "celeb-m3",
+    name: "Rugged Hero",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=800&fit=crop",
+    description: "Masculine charm"
+  },
+  {
+    id: "celeb-m4",
+    name: "Business Executive",
+    category: "celebrity",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&h=800&fit=crop",
+    description: "Power and confidence"
+  },
+
+  // MEMES (60% women, 40% men)
+  {
+    id: "meme-w1",
+    name: "Surprised Girl",
+    category: "meme",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=800&h=800&fit=crop",
+    description: "Shocked expression"
+  },
+  {
+    id: "meme-w2",
+    name: "Laughing Beauty",
+    category: "meme",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=800&h=800&fit=crop",
+    description: "Pure joy"
+  },
+  {
+    id: "meme-w3",
+    name: "Sassy Woman",
+    category: "meme",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1551843073-4a9a5b6fcd5f?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1551843073-4a9a5b6fcd5f?w=800&h=800&fit=crop",
+    description: "Attitude and confidence"
+  },
+  {
+    id: "meme-m1",
+    name: "Funny Guy",
     category: "meme",
     type: "image",
     thumbnailUrl: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400&h=400&fit=crop",
     mediaUrl: "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=800&h=800&fit=crop",
-    description: "Happy expression"
+    description: "Comedy gold"
   },
   {
-    id: "scene-1",
-    name: "Office Meeting",
+    id: "meme-m2",
+    name: "Confused Man",
+    category: "meme",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=800&h=800&fit=crop",
+    description: "What just happened?"
+  },
+
+  // SCENES (60% women, 40% men)
+  {
+    id: "scene-w1",
+    name: "Office Professional",
+    category: "scene",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=800&fit=crop",
+    description: "Corporate setting"
+  },
+  {
+    id: "scene-w2",
+    name: "Outdoor Adventure",
+    category: "scene",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=800&fit=crop",
+    description: "Nature lover"
+  },
+  {
+    id: "scene-w3",
+    name: "Casual Portrait",
+    category: "scene",
+    type: "image",
+    thumbnailUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=800&h=800&fit=crop",
+    description: "Relaxed and natural"
+  },
+  {
+    id: "scene-m1",
+    name: "Business Meeting",
     category: "scene",
     type: "image",
     thumbnailUrl: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=400&fit=crop",
     mediaUrl: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=800&fit=crop",
-    description: "Professional setting"
+    description: "Professional environment"
   },
   {
-    id: "scene-2",
-    name: "Casual Portrait",
+    id: "scene-m2",
+    name: "Casual Style",
     category: "scene",
     type: "image",
-    thumbnailUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-    mediaUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=800&fit=crop",
-    description: "Outdoor scene"
+    thumbnailUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&h=400&fit=crop",
+    mediaUrl: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=800&h=800&fit=crop",
+    description: "Everyday look"
   },
 ];
 

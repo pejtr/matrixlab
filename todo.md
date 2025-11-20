@@ -527,3 +527,45 @@
 - [x] Restartovat server a worker pro aplikaci změn
 - [x] Worker běží s novým modelem
 - [ ] Čeká na uživatele - vytvořit nový testovací job a ověřit, že funguje
+
+## CRITICAL: Generation Fails at 30% - User Reported
+- [ ] Zkontrolovat worker logy pro 30% freeze
+- [ ] Identifikovat příčinu selhání yan-ops/face_swap modelu
+- [ ] Opravit generování ASAP
+
+## Error Recovery UI - User Requested
+- [ ] Přidat zobrazení konkrétní chybové zprávy u failed jobů
+- [ ] Místo jen "Failed" badge zobrazit error message
+- [ ] Tooltip nebo expandable sekce s detaily chyby
+
+## Job Queue Visualization - User Requested
+- [ ] Implementovat progress bar ukazující pozici ve frontě
+- [ ] Zobrazit "Processing 2/5 jobs" text
+- [ ] Lepší UX při batch operacích
+
+## Templates Expansion - User Requested
+- [ ] Přidat více šablon - 60% ženy, 40% muži
+- [ ] Různé zajímavé typy přitažlivých lidí
+- [ ] Přesunout tlačítko Templates nad ikonu (zarovnání s prvním sloupcem)
+
+## CRITICAL FIX - Model Change (User Reported)
+- [x] Zkontrolovat worker logy pro 30% freeze
+- [x] Identifikovat příčinu selhání - yan-ops/face_swap model neexistuje (404)
+- [x] Změnit model na easel/advanced-face-swap (komerční kvalita)
+- [x] Restartovat worker proces s novým modelem
+- [x] Opravit generování ASAP
+
+## Error Recovery UI - User Requested
+- [x] Přidat zobrazení konkrétní chybové zprávy u failed jobů
+- [x] Tooltip na Failed badge s error message
+- [x] Lepší debugging pro uživatele
+
+## Job Queue Visualization - User Requested
+- [x] Implementovat progress bar ukazující pozici ve frontě
+- [x] Zobrazit "Processing X / Y jobs" text
+- [x] Lepší UX při batch operacích
+
+## Templates Expansion - User Requested
+- [x] Přidat více šablon - 20 celkem (60% ženy, 40% muži)
+- [x] Různé zajímavé typy přitažlivých lidí
+- [x] Přesunout tlačítko Templates nad ikonu (zarovnání s prvním sloupcem)
