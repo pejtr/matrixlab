@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
 import { Loader2, RotateCcw } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 interface CropDialogProps {
   open: boolean;
@@ -19,13 +20,17 @@ export default function CropDialog({ open, onOpenChange, imageUrl, onSave }: Cro
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
 
+  const getFaceImageBlobMutation = trpc.savedFaces.getFaceImageBlob.useMutation();
+
   // Load image when dialog opens
   useEffect(() => {
     if (open && imageUrl) {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        setImage(img);
+      // Use tRPC proxy to bypass CORS
+      getFaceImageBlobMutation.mutateAsync({ imageUrl })
+        .then(({ data, contentType }) => {
+          const img = new Image();
+          img.onload = () => {
+            setImage(img);
         
         // Calculate canvas size to fit in dialog (max 800x600)
         const maxWidth = 800;
@@ -47,14 +52,18 @@ export default function CropDialog({ open, onOpenChange, imageUrl, onSave }: Cro
         // Initialize crop area to center 80% of image
         const cropWidth = width * 0.8;
         const cropHeight = height * 0.8;
-        setCropArea({
-          x: (width - cropWidth) / 2,
-          y: (height - cropHeight) / 2,
-          width: cropWidth,
-          height: cropHeight,
+            setCropArea({
+              x: (width - cropWidth) / 2,
+              y: (height - cropHeight) / 2,
+              width: cropWidth,
+              height: cropHeight,
+            });
+          };
+          img.src = `data:${contentType};base64,${data}`;
+        })
+        .catch((error) => {
+          console.error('Failed to load image:', error);
         });
-      };
-      img.src = imageUrl;
     }
   }, [open, imageUrl]);
 

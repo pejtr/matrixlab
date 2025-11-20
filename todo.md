@@ -451,3 +451,9 @@
 - [x] Reset funkce pro vrácení k původnímu crop area
 - [ ] Aktualizace job v databázi s cropped URL (backend)
 - [ ] Undo funkce - uložit původní URL před cropem
+
+## CORS Fix for CropDialog - User Reported
+- [x] Opravit CORS chybu při načítání obrázku v CropDialog
+- [x] Použít existující server-side proxy endpoint (savedFaces.getFaceImageBlob)
+- [x] Aktualizovat CropDialog pro použití tRPC proxy místo přímého načítání
+- [ ] Testovat crop s proxy endpointem (uživatel otestuje)
