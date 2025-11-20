@@ -93,3 +93,8 @@
 - [x] Přidat ikony a textové názvy do bottom menu
 - [x] Integrovat navigaci do všech stránek
 - [x] Responsive design - skrýt bottom nav na desktopu
+
+
+## UI Icon Updates - User Requested
+- [x] Změnit Source Face ikonu na ikonu hlavy/portrétu (UserCircle)
+- [x] Změnit Target Media ikonu na ikonu celé postavy (Users)

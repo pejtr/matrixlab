@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { ArrowLeft, Upload, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, Upload, Sparkles, Loader2, UserCircle, Users } from "lucide-react";
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -192,7 +192,7 @@ export default function FaceSwap() {
                     <img src={sourcePreview} alt="Source" className="max-h-48 mx-auto rounded" />
                   ) : (
                     <div className="text-white/70">
-                      <Upload className="h-12 w-12 mx-auto mb-3" />
+                      <UserCircle className="h-16 w-16 mx-auto mb-3 text-pink-400" />
                       <p>Click to upload source image</p>
                       <p className="text-sm mt-2">JPG, PNG, or WEBP</p>
                     </div>
@@ -232,7 +232,7 @@ export default function FaceSwap() {
                     )
                   ) : (
                     <div className="text-white/70">
-                      <Upload className="h-12 w-12 mx-auto mb-3" />
+                      <Users className="h-16 w-16 mx-auto mb-3 text-purple-400" />
                       <p>Click to upload target media</p>
                       <p className="text-sm mt-2">Video: MP4, MOV, WEBM</p>
                       <p className="text-sm">Image: JPG, PNG, WEBP</p>
