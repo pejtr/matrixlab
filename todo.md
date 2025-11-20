@@ -514,10 +514,15 @@
 ## Retry Auto-Delete - User Requested
 - [x] Najít Retry button handler v All Jobs gridu
 - [x] Přidat automatické smazání failed jobu po úspěšném vytvoření retry jobu
-- [x] Zajistit, že se failed job smaže pouze pokud retry úspěšně vytvoří nový job
-- [ ] Testovat retry flow - čeká na uživatele
+- [ ] BUG: Auto-delete nefunguje - failed joby zůstávají po kliknutí na Retry
+- [ ] Zkontrolovat, proč se deleteJobMutation nevolá nebo selhává
+- [ ] Opravit delete logiku a otestovat
 
-## Generation Not Working - User Reported
-- [x] Zkontrolovat console errors - žádné chyby
-- [x] Zkontrolovat browser - stránka funguje, zobrazují se výsledky
-- [ ] Čeká na zpřesnění od uživatele - co přesně nefunguje?
+## Generation Not Working - CRITICAL BUG - FIXED
+- [x] Identifikována příčina: Worker proces nebyl spuštěný
+- [x] Zkontrolovat REPLICATE_API_TOKEN - nakonfigurováno
+- [x] Spustit Replicate worker proces (pnpm worker:replicate)
+- [x] Worker běží a zpracovává pending joby každé 3 sekundy
+- [x] Přidat worker auto-start do server/_core/index.ts
+- [x] Worker se nyní automaticky spouští při startu serveru
+- [ ] Testovat generování - čeká na uživatele

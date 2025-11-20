@@ -1130,22 +1130,30 @@ export default function FaceSwap() {
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 try {
+                                  console.log('[Retry] Starting retry for job:', job.id);
+                                  
                                   // Create new job with same source/target from failed job
-                                  await createJobMutation.mutateAsync({
+                                  const newJob = await createJobMutation.mutateAsync({
                                     sourceImageKey: job.sourceImageKey,
                                     sourceImageUrl: job.sourceImageUrl,
                                     targetMediaKey: job.targetMediaKey,
                                     targetMediaUrl: job.targetMediaUrl,
                                     targetMediaType: job.targetMediaType,
                                   });
+                                  console.log('[Retry] New job created:', newJob);
                                   
                                   // Delete the failed job after successful retry
+                                  console.log('[Retry] Deleting failed job:', job.id);
                                   await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                  console.log('[Retry] Failed job deleted successfully');
                                   
-                                  toast.success('Job retried successfully');
+                                  // Refresh job list
                                   await utils.faceSwap.getMyJobs.invalidate();
+                                  
+                                  toast.success('Job retried and old job deleted');
                                 } catch (error) {
-                                  toast.error('Failed to retry job');
+                                  console.error('[Retry] Error:', error);
+                                  toast.error('Failed to retry job: ' + (error instanceof Error ? error.message : 'Unknown error'));
                                 }
                               }}
                               className="bg-yellow-500/90 hover:bg-yellow-600 text-white rounded-lg px-3 py-1.5 text-xs font-semibold pointer-events-auto"

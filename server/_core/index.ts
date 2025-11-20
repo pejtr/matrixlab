@@ -63,6 +63,16 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+  
+  // Start Replicate worker process for face swap job processing
+  if (process.env.REPLICATE_API_TOKEN) {
+    console.log('[Server] Starting Replicate worker process...');
+    import('../replicateWorker.js').catch((error) => {
+      console.error('[Server] Failed to start Replicate worker:', error);
+    });
+  } else {
+    console.warn('[Server] REPLICATE_API_TOKEN not configured - face swap generation will not work');
+  }
 }
 
 startServer().catch(console.error);
