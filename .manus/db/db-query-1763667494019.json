@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO faceSwapJobs (userId, sourceImageKey, sourceImageUrl, targetMediaKey, targetMediaUrl, targetMediaType, status, progress) VALUES (1, 'test-source', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop', 'test-target', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop', 'image', 'pending', 0)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute INSERT INTO faceSwapJobs (userId, sourceImageKey, sourceImageUrl, targetMediaKey, targetMediaUrl, targetMediaType, status, progress) VALUES (1, 'test-source', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop', 'test-target', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop', 'image', 'pending', 0)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 52
+}

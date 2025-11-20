@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, status, progress, sourceImageUrl, targetMediaUrl, errorMessage FROM faceSwapJobs WHERE sourceImageKey = 'test-source' LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, status, progress, sourceImageUrl, targetMediaUrl, errorMessage FROM faceSwapJobs WHERE sourceImageKey = 'test-source' LIMIT 1",
+  "rows": [
+    {
+      "id": "90045",
+      "status": "completed",
+      "progress": "100",
+      "sourceImageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop",
+      "targetMediaUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop",
+      "errorMessage": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tprogress\tsourceImageUrl\ttargetMediaUrl\terrorMessage\n90045\tcompleted\t100\thttps://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop\thttps://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 48
+}

@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM faceSwapJobs WHERE status IN ('failed', 'processing', 'pending')",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute DELETE FROM faceSwapJobs WHERE status IN ('failed', 'processing', 'pending')",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 53
+}

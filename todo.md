@@ -623,3 +623,14 @@
 - [x] Přidat detailní logging do uploadHandler.ts
 - [ ] Uživatel musí otestovat upload - možný problém s prázdnými soubory (0 bytů)
 - [ ] Pokud upload stále selže, zkontrolovat browser console a network tab
+
+## CRITICAL - Empty Files Fixed (Ready for User Testing)
+- [x] Identifikovat příčinu prázdných souborů - __remoteUrl proxy files
+- [x] Opravit handleSubmit - zkontrolovat __remoteUrl před uploadem
+- [x] Opravit handleUseTemplates - přidat __remoteUrl fallback pro CORS
+- [x] Opravit loadTargetFromJob - už měl fallback
+- [x] Opravit TypeScript chyby
+- [x] Vyčistit failed joby z databáze
+- [ ] Uživatel musí otestovat: Nový upload (ne template/regenerate)
+- [ ] Uživatel musí otestovat: Regenerate s existujícím jobem
+- [ ] Uživatel musí otestovat: Templates (vestavěné i custom)

@@ -285,9 +285,20 @@ export default function FaceSwap() {
       const blobs = await Promise.all(
         responses.map(r => r.blob())
       );
-      const files = blobs.map((blob, idx) => 
-        new File([blob], `template-${idx + 1}.jpg`, { type: blob.type })
-      );
+      const files = blobs.map((blob, idx) => {
+        const template = selectedTemplates[idx]!;
+        const extension = template.type === 'video' ? 'mp4' : 'jpg';
+        const mimeType = template.type === 'video' ? 'video/mp4' : 'image/jpeg';
+        
+        // If blob is empty (CORS blocked), create proxy file with URL
+        if (blob.size === 0) {
+          const file = new File([new Blob()], `template-${idx + 1}.${extension}`, { type: mimeType });
+          (file as any).__remoteUrl = template.mediaUrl;
+          return file;
+        }
+        
+        return new File([blob], `template-${idx + 1}.${extension}`, { type: blob.type || mimeType });
+      });
 
       setTargetFiles(files);
       setTargetPreviews(templateUrls);
@@ -461,28 +472,48 @@ export default function FaceSwap() {
 
         setUploadProgress({ current: i + 1, total: targetFiles.length });
 
-        const sourceFormData = new FormData();
-        sourceFormData.append("file", sourceFile);
+        // Check if source has remote URL (from regenerate/saved face)
+        let sourceUploadData;
+        if ((sourceFile as any).__remoteUrl) {
+          // Use existing URL instead of uploading
+          sourceUploadData = {
+            key: `remote-${Date.now()}`,
+            url: (sourceFile as any).__remoteUrl,
+          };
+        } else {
+          // Upload source file
+          const sourceFormData = new FormData();
+          sourceFormData.append("file", sourceFile);
 
-        const sourceUploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: sourceFormData,
-        });
-        const sourceUploadData = await sourceUploadRes.json();
+          const sourceUploadRes = await fetch("/api/upload", {
+            method: "POST",
+            body: sourceFormData,
+          });
+          sourceUploadData = await sourceUploadRes.json();
+        }
 
+        // Check if target has remote URL (from template/regenerate)
+        let targetUploadData;
+        const targetFile = targetFiles[i]!;
+        if ((targetFile as any).__remoteUrl) {
+          // Use existing URL instead of uploading
+          targetUploadData = {
+            key: `remote-${Date.now()}-${i}`,
+            url: (targetFile as any).__remoteUrl,
+          };
+        } else {
+          // Upload target file
+          const targetFormData = new FormData();
+          targetFormData.append("file", targetFile);
 
-        const targetFormData = new FormData();
-        targetFormData.append("file", targetFiles[i]!);
+          const targetUploadRes = await fetch("/api/upload", {
+            method: "POST",
+            body: targetFormData,
+          });
+          targetUploadData = await targetUploadRes.json();
+        }
 
-        const targetUploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: targetFormData,
-        });
-        const targetUploadData = await targetUploadRes.json();
-
-
-        const targetMediaType = targetFiles[i]!.type.startsWith("video/") ? "video" : "image";
-
+        const targetMediaType = targetFile.type.startsWith("video/") ? "video" : "image";
 
         await createJobMutation.mutateAsync({
           sourceImageKey: sourceUploadData.key || `uploaded-${Date.now()}`,
