@@ -587,3 +587,10 @@
 - [x] Přidat retry strategii (již existovala, zachována)
 - [x] Automatické označení jako failed při timeoutu
 - [x] Monitoring délky jednotlivých kroků (timestamp logging)
+
+## tRPC Client Error - HTML Instead of JSON (User Reported)
+- [x] Zkontrolovat server logy pro chyby při API voláních - našel jsem ECONNRESET
+- [x] Identifikovat příčinu - MySQL connection timeout/reset
+- [x] Přidat withDbRetry wrapper pro automatické zotavení z connection errors
+- [x] Upravit worker pro použití withDbRetry
+- [x] Testovat - worker běží bez chyb

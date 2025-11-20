@@ -219,23 +219,19 @@ async function processJob(jobId: number) {
 
 async function pollJobs() {
   try {
-    // Import getDb and faceSwapJobs dynamically to avoid circular dependencies
-    const { getDb } = await import("./db.js");
+    // Import withDbRetry and faceSwapJobs dynamically to avoid circular dependencies
+    const { withDbRetry } = await import("./db.js");
     const { faceSwapJobs } = await import("../drizzle/schema.js");
     const { eq } = await import("drizzle-orm");
 
-    const db = await getDb();
-    if (!db) {
-      console.warn("[Worker] Database not available, skipping poll");
-      return;
-    }
-
-    // Find pending jobs
-    const pendingJobs = await db
-      .select()
-      .from(faceSwapJobs)
-      .where(eq(faceSwapJobs.status, "pending"))
-      .limit(5); // Process up to 5 jobs at a time
+    // Find pending jobs with retry logic
+    const pendingJobs = await withDbRetry(async (db) => {
+      return await db
+        .select()
+        .from(faceSwapJobs)
+        .where(eq(faceSwapJobs.status, "pending"))
+        .limit(5); // Process up to 5 jobs at a time
+    });
 
     if (pendingJobs.length > 0) {
       console.log(`[Worker] Found ${pendingJobs.length} pending job(s)`);

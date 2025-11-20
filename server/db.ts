@@ -1,21 +1,58 @@
-import { eq, desc, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
+// Create the drizzle instance once
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
       _db = drizzle(process.env.DATABASE_URL);
+      console.log("[Database] Connection established");
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
     }
   }
   return _db;
+}
+
+// Wrapper for database operations with retry logic
+export async function withDbRetry<T>(operation: (db: ReturnType<typeof drizzle>) => Promise<T>, maxRetries = 3): Promise<T> {
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const db = await getDb();
+      if (!db) {
+        throw new Error("Database not available");
+      }
+      return await operation(db);
+    } catch (error: any) {
+      lastError = error;
+      
+      // Check if it's a connection error
+      const isConnectionError = error.code === 'ECONNRESET' || 
+                               error.code === 'ETIMEDOUT' ||
+                               error.code === 'ENOTFOUND' ||
+                               error.message?.includes('Connection');
+      
+      if (isConnectionError && attempt < maxRetries) {
+        console.warn(`[Database] Connection error on attempt ${attempt}/${maxRetries}, retrying...`);
+        // Reset connection and retry
+        _db = null;
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Exponential backoff
+        continue;
+      }
+      
+      // Not a connection error or max retries reached
+      throw error;
+    }
+  }
+  
+  throw lastError || new Error("Database operation failed");
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {
