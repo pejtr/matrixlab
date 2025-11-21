@@ -841,8 +841,8 @@ export default function FaceSwap() {
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
                         className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
-                        <option value="high_quality" className="bg-gray-900">High Quality</option>
-                        <option value="permissive" className="bg-gray-900">Permissive</option>
+                        <option value="high_quality" className="bg-gray-900">Nude declined</option>
+                        <option value="permissive" className="bg-gray-900">Nude allowed</option>
                       </select>
                       
                       {/* Generate Button - 40% (4/10) */}
@@ -1240,8 +1240,8 @@ export default function FaceSwap() {
                         </button>
                       </div>
                       
-                      {/* AI Model Selector - Bottom Center (Mobile only) */}
-                      <div className="md:hidden absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
+                      {/* AI Model Selector + Keep Body - Bottom Center (Mobile only) */}
+                      <div className="md:hidden absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex flex-col gap-1 items-center">
                         <select
                           value={modelPreference}
                           onChange={(e) => {
@@ -1251,9 +1251,29 @@ export default function FaceSwap() {
                           className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <option value="high_quality" className="bg-gray-900">HQ</option>
-                          <option value="permissive" className="bg-gray-900">Fast</option>
+                          <option value="high_quality" className="bg-gray-900">Nude declined</option>
+                          <option value="permissive" className="bg-gray-900">Nude allowed</option>
                         </select>
+                        
+                        {/* Keep Body Checkbox */}
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreserveBody(!preserveBody);
+                          }}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 cursor-pointer hover:bg-white/20 transition-colors shadow-lg"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={preserveBody}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              setPreserveBody(e.target.checked);
+                            }}
+                            className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
+                          />
+                          <span className="text-white text-[9px] font-semibold whitespace-nowrap">Keep Body</span>
+                        </div>
                       </div>
                     </div>
 

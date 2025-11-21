@@ -1072,3 +1072,9 @@
 - [x] Dole uprostřed: AI model selector badge (HQ/Fast dropdown)
 - [x] Všechny badges jako overlay na výsledné fotce
 - [x] Desktop zůstává beze změny (původní layout)
+
+
+## Mobile Overlay Enhancements - Current Sprint
+- [x] Přidat Keep Body checkbox vedle AI model selectoru (dole uprostřed)
+- [x] Změnit model labels: "High Quality" → "Nude declined", "Permissive" → "Nude allowed"
+- [x] Upravit layout pro 2 prvky vedle sebe (model + checkbox ve flex-col)
