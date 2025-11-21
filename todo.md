@@ -1,6 +1,6 @@
 # Project TODO
 
-## Replicate Webhook Implementation - User Requested
+## Replicate Webhook Implementation - Completed
 - [x] Vytvořit webhook endpoint /api/replicate-webhook
 - [x] Přidat predictionId do database schema
 - [x] Implementovat webhook signature validation pro bezpečnost
@@ -12,21 +12,23 @@
 - [ ] Otestovat webhook s reálným Replicate API voláním
 
 ## Upscale Feature - User Requested (CURRENT)
-- [ ] Přidat Upscale tlačítko vedle Download/Crop/Animate
+- [ ] Přidat Upscale tlačítko vedle Download/Crop/Animate na výsledcích
 - [ ] Vytvořit upscaleService.ts pro Replicate upscale modely
-- [ ] Implementovat image upscale (4x zvětšení)
-- [ ] Implementovat video upscale pomocí Wan modelu
+- [ ] Implementovat image upscale pomocí Real-ESRGAN (4x zvětšení)
+- [ ] Implementovat video upscale pomocí vhodného modelu
 - [ ] Přidat UI pro upscale progress a výsledky
+- [ ] Uložit upscalované výsledky jako nové joby
 - [ ] Otestovat upscale na obrázcích i videích
 
-## New AI Models Integration - User Requested
-- [ ] Integrovat Wan model pro video upscaling
+## Text-to-Video Models Integration - User Requested
+- [ ] Integrovat Wan model pro text-to-video generování
 - [ ] Integrovat Flux model pro text-to-video generování
-- [ ] Vytvořit novou sekci "Video Generator" s Flux
-- [ ] Přidat UI pro text-to-video s preview
-- [ ] Otestovat oba modely s reálnými daty
+- [ ] Vytvořit novou sekci "Text to Video" s oběma modely
+- [ ] Přidat UI pro text prompt input a model selection
+- [ ] Přidat preview a download pro vygenerovaná videa
+- [ ] Otestovat oba modely s reálnými prompty
 
-## Vercel Integration API Key
+## API Keys Setup
 - [ ] Přidat Vercel Integration API key (r8_0AII45zb3ibrKU4UojdwbVc8ZOwd1Tq2LKBb9) do Settings
 
 ## Previous Features (All Completed)
