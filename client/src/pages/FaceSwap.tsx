@@ -621,13 +621,6 @@ export default function FaceSwap() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
-      {/* Mobile Header - Sticky */}
-      <header className="md:hidden sticky top-0 z-50 bg-purple-900/95 backdrop-blur-lg border-b border-white/10">
-        <div className="container mx-auto px-4 py-3">
-          <h1 className="text-white text-lg font-semibold text-center">AI FaceSwap</h1>
-        </div>
-      </header>
-      
       {/* Main Content */}
       <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">

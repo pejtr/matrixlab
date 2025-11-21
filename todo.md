@@ -1094,3 +1094,9 @@
 - [x] Změnit model labels: "Nude declined" → "HQ (no nude)", "Nude allowed" → "LQ (nude allowed)"
 - [x] Zkrátit checkbox: "Keep body proportions" → "Keep proportions"
 - [x] Přidat název "AI FaceSwap" do horního sticky menu na mobilu
+
+
+## Mobile Header Relocation - Current Sprint
+- [x] Odstranit samostatný sticky header z FaceSwap.tsx
+- [x] Přidat název "AI FaceSwap" do úzkého horního pruhu (Navigation komponenta)
+- [x] Umístit vedle ikony hvězdy (text-sm na mobilu, text-lg na desktopu)
