@@ -888,3 +888,10 @@
 - [x] Move badges from separate thumbnails to main result image bottom-left corner
 - [x] Make badges occupy ~10% of main image area
 - [x] Fix add face button - auto-save after file selection with name prompt
+
+
+## Preserve Body Bug & Badge Order - User Reported
+- [x] Fix Preserve Body checkbox - not applying body preservation during generation
+- [x] Swap badge order - put FACE badge above SOURCE badge (vertical stack)
+- [x] Debug why preserveBody parameter isn't being processed correctly
+- [x] Fixed node-fetch buffer() incompatibility - use arrayBuffer() instead

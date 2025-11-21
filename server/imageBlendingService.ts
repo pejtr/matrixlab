@@ -77,10 +77,13 @@ export async function blendFaceWithOriginalBody(
       throw new Error("Failed to fetch images");
     }
 
-    const [originalBuffer, swappedBuffer] = await Promise.all([
-      originalResponse.buffer(),
-      swappedResponse.buffer(),
+    const [originalArrayBuffer, swappedArrayBuffer] = await Promise.all([
+      originalResponse.arrayBuffer(),
+      swappedResponse.arrayBuffer(),
     ]);
+    
+    const originalBuffer = Buffer.from(originalArrayBuffer) as Buffer;
+    const swappedBuffer = Buffer.from(swappedArrayBuffer) as Buffer;
 
     // Get image dimensions
     const originalMeta = await sharp(originalBuffer).metadata();
@@ -162,7 +165,8 @@ export async function processWithBodyPreservation(
       if (!response.ok) {
         throw new Error("Failed to fetch face-swapped image");
       }
-      const buffer = await response.buffer();
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
       return {
         success: true,
         imageBuffer: buffer,

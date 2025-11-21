@@ -1158,7 +1158,7 @@ export default function FaceSwap() {
                       
                       {/* Source/Face Badges - Bottom Left */}
                       {currentJob && (
-                        <div className="absolute bottom-4 left-4 flex gap-2 z-10">
+                        <div className="absolute bottom-4 left-4 flex flex-col-reverse gap-2 z-10">
                           {/* Source Badge (original target) */}
                           <button
                             onClick={async (e) => {
