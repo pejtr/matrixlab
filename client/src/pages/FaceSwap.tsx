@@ -71,6 +71,7 @@ export default function FaceSwap() {
   const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
   const [showAnimateDialog, setShowAnimateDialog] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("permissive");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
 
@@ -98,6 +99,7 @@ export default function FaceSwap() {
   const currentJob = completedJobs[currentResultIndex];
   const visibleJobs = jobs?.slice(0, visibleJobsCount) || [];
   const hasMoreJobs = jobs && jobs.length > visibleJobsCount;
+  const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
   
   // Detect if there are any pending/processing jobs
   const hasActiveJobs = jobs?.some(job => job.status === "pending" || job.status === "processing") || false;
@@ -108,6 +110,31 @@ export default function FaceSwap() {
   const averageProgress = activeJobs.length > 0
     ? Math.round(activeJobs.reduce((sum, job) => sum + (job.progress || 0), 0) / activeJobs.length)
     : 0;
+
+  // Infinite scroll for desktop
+  useEffect(() => {
+    if (!isDesktop || !hasMoreJobs) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleJobsCount(prev => prev + 8);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [isDesktop, hasMoreJobs]);
 
   // Reset to clean state on page load
   useEffect(() => {
@@ -1194,8 +1221,20 @@ export default function FaceSwap() {
                                 <UserCircle className="h-8 w-8 md:h-12 md:w-12 text-white/70" />
                               </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
-                              <span className="text-white text-[8px] md:text-[10px] font-semibold">FACE</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1 pointer-events-none">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (currentJob?.sourceImageUrl) {
+                                    setLightboxType('source');
+                                    setLightboxIndex(0);
+                                    setShowLightbox(true);
+                                  }
+                                }}
+                                className="text-white text-[8px] md:text-[10px] font-semibold hover:text-pink-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40"
+                              >
+                                FACE
+                              </button>
                             </div>
                             {/* Upload Progress Overlay */}
                             {isUploading && sourceFile && (
@@ -1256,8 +1295,20 @@ export default function FaceSwap() {
                                 <Users className="h-8 w-8 md:h-12 md:w-12 text-white/70" />
                               </div>
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
-                              <span className="text-white text-[8px] md:text-[10px] font-semibold">TARGET</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1 pointer-events-none">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (currentJob?.targetMediaUrl) {
+                                    setLightboxType('target');
+                                    setLightboxIndex(0);
+                                    setShowLightbox(true);
+                                  }
+                                }}
+                                className="text-white text-[8px] md:text-[10px] font-semibold hover:text-purple-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40"
+                              >
+                                TARGET
+                              </button>
                             </div>
                             {/* Upload Progress Overlay */}
                             {isUploading && targetFiles.length > 0 && (
@@ -1569,16 +1620,21 @@ export default function FaceSwap() {
                 ))}
               </div>
               
-              {/* Load More Button */}
+              {/* Load More - Desktop: Infinite Scroll Trigger, Mobile: Button */}
               {hasMoreJobs && (
-                <div className="flex justify-center mt-4">
+                <div ref={loadMoreRef} className="flex justify-center mt-4">
+                  {/* Mobile: Show button */}
                   <button
                     onClick={() => setVisibleJobsCount(prev => prev + 8)}
-                    className="group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
+                    className="md:hidden group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
                     title={`Load ${jobs.length - visibleJobsCount} more jobs`}
                   >
                     <ChevronDown className="h-5 w-5 text-white group-hover:animate-bounce" />
                   </button>
+                  {/* Desktop: Show loading indicator */}
+                  <div className="hidden md:flex items-center justify-center">
+                    <Loader2 className="h-6 w-6 text-purple-400 animate-spin" />
+                  </div>
                 </div>
               )}
             </div>

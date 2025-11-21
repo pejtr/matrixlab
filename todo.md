@@ -1168,3 +1168,25 @@
 - [x] Odstranit text z category menu (ikony bez textů)
 - [x] Odstranit názvy a popisy templates
 - [x] Zachovat pouze tlačítka Cancel a Use Template(s)
+
+
+## Template Gallery Optimization - Current Sprint
+- [x] Zkrátit počet kategorií na maximum 4 (rychlejší načítání)
+- [x] Nahrát 10 nových fotek do projektu
+- [x] Zdvojnásobit počet templates v každé kategorii
+- [x] Odstranit padding z miniatur (p-0, object-cover pro plnou šířku)
+- [x] Implementovat hover zoom efekt (zvětšená verze při najetí myší)
+- [x] Optimalizovat rychlost načítání templates
+
+
+## Before/After Thumbnail Click Behavior - User Requested
+- [x] Kliknutí na text "FACE" otevře lightbox s maximalizovanou source face fotkou
+- [x] Kliknutí na text "TARGET" otevře lightbox s maximalizovanou target media fotkou
+- [x] Zbytek plochy miniatury zůstane klikatelný pro výběr z template galerie
+
+
+## Infinite Scroll for All Jobs - User Requested
+- [x] Implementovat automatické načítání dalších jobů při scrollování dolů (desktop)
+- [x] Použít Intersection Observer API pro detekci konce seznamu
+- [x] Zachovat Load More tlačítko pro mobil
+- [x] Desktop: infinite scroll, Mobile: Load More button
