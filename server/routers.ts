@@ -301,7 +301,7 @@ export const appRouter = router({
     addFavorite: protectedProcedure
       .input(z.object({
         jobId: z.number(),
-        category: z.number().min(1).max(3),
+        category: z.number().min(1).max(5),
       }))
       .mutation(async ({ ctx, input }) => {
         const { addFavorite } = await import("./db");
@@ -313,7 +313,7 @@ export const appRouter = router({
     removeFavorite: protectedProcedure
       .input(z.object({
         jobId: z.number(),
-        category: z.number().min(1).max(3),
+        category: z.number().min(1).max(5),
       }))
       .mutation(async ({ ctx, input }) => {
         const { removeFavorite } = await import("./db");
@@ -324,7 +324,7 @@ export const appRouter = router({
     // Get user's favorites
     getMyFavorites: protectedProcedure
       .input(z.object({
-        category: z.number().min(1).max(3).optional(),
+        category: z.number().min(1).max(5).optional(),
       }).optional())
       .query(async ({ ctx, input }) => {
         const { getUserFavorites } = await import("./db");
@@ -336,6 +336,87 @@ export const appRouter = router({
       .query(async ({ ctx }) => {
         const { getFavoriteCountsByCategory } = await import("./db");
         return getFavoriteCountsByCategory(ctx.user.id);
+      }),
+
+    // Get all user's favorites (for bookmark UI)
+    getAllFavorites: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getAllUserFavorites } = await import("./db");
+        return getAllUserFavorites(ctx.user.id);
+      }),
+
+    // Get category names
+    getCategoryNames: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getCategoryNames } = await import("./db");
+        return getCategoryNames(ctx.user.id);
+      }),
+
+    // Update category name
+    updateCategoryName: protectedProcedure
+      .input(z.object({
+        category: z.number().min(1).max(5),
+        name: z.string().min(1).max(64),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { updateCategoryName } = await import("./db");
+        return updateCategoryName(ctx.user.id, input.category, input.name);
+      }),
+
+    // Download all favorites as ZIP
+    downloadFavoritesZip: protectedProcedure
+      .input(z.object({
+        category: z.number().min(1).max(5),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getUserFavorites } = await import("./db");
+        const favorites = await getUserFavorites(ctx.user.id, input.category);
+        
+        // Limit to 50 results
+        const limitedFavorites = favorites.slice(0, 50);
+        
+        if (limitedFavorites.length === 0) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'No favorites to download',
+          });
+        }
+
+        // Create ZIP file
+        const archiver = await import('archiver');
+        const { Readable } = await import('stream');
+        const fetch = (await import('node-fetch')).default;
+        
+        const archive = archiver.default('zip', {
+          zlib: { level: 9 }
+        });
+
+        const chunks: Buffer[] = [];
+        archive.on('data', (chunk) => chunks.push(chunk));
+        
+        // Download and add each result to ZIP
+        for (let i = 0; i < limitedFavorites.length; i++) {
+          const job = limitedFavorites[i];
+          if (!job.resultMediaUrl) continue;
+          
+          try {
+            const response = await fetch(job.resultMediaUrl);
+            const buffer = await response.arrayBuffer();
+            const ext = job.targetMediaType === 'video' ? 'mp4' : 'jpg';
+            archive.append(Buffer.from(buffer), { name: `result-${i + 1}.${ext}` });
+          } catch (error) {
+            console.error(`Failed to download ${job.resultMediaUrl}:`, error);
+          }
+        }
+
+        await archive.finalize();
+        
+        return new Promise<{ zipData: string }>((resolve) => {
+          archive.on('end', () => {
+            const zipBuffer = Buffer.concat(chunks);
+            resolve({ zipData: zipBuffer.toString('base64') });
+          });
+        });
       }),
 
     // Animate result image with MiniMax I2V

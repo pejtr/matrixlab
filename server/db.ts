@@ -412,21 +412,66 @@ export async function removeFavorite(userId: number, jobId: number, category: nu
     .where(and(eq(favorites.userId, userId), eq(favorites.jobId, jobId), eq(favorites.category, category)));
 }
 
-export async function getUserFavorites(userId: number, category?: number): Promise<Favorite[]> {
+export async function getUserFavorites(userId: number, category?: number): Promise<FaceSwapJob[]> {
   const db = await getDb();
   if (!db) {
     throw new Error("Database not available");
   }
 
+  // Join favorites with faceSwapJobs to get full job data
   if (category) {
-    return db.select().from(favorites)
-      .where(and(eq(favorites.userId, userId), eq(favorites.category, category)))
-      .orderBy(desc(favorites.createdAt));
+    return db.select({
+      id: faceSwapJobs.id,
+      userId: faceSwapJobs.userId,
+      sourceImageKey: faceSwapJobs.sourceImageKey,
+      targetMediaKey: faceSwapJobs.targetMediaKey,
+      resultMediaKey: faceSwapJobs.resultMediaKey,
+      sourceImageUrl: faceSwapJobs.sourceImageUrl,
+      targetMediaUrl: faceSwapJobs.targetMediaUrl,
+      resultMediaUrl: faceSwapJobs.resultMediaUrl,
+      targetMediaType: faceSwapJobs.targetMediaType,
+      modelPreference: faceSwapJobs.modelPreference,
+      preserveBody: faceSwapJobs.preserveBody,
+      status: faceSwapJobs.status,
+      errorMessage: faceSwapJobs.errorMessage,
+      progress: faceSwapJobs.progress,
+      retryCount: faceSwapJobs.retryCount,
+      createdAt: faceSwapJobs.createdAt,
+      updatedAt: faceSwapJobs.updatedAt,
+      completedAt: faceSwapJobs.completedAt,
+      sourceDeletedAt: faceSwapJobs.sourceDeletedAt,
+    })
+    .from(favorites)
+    .innerJoin(faceSwapJobs, eq(favorites.jobId, faceSwapJobs.id))
+    .where(and(eq(favorites.userId, userId), eq(favorites.category, category)))
+    .orderBy(desc(favorites.createdAt));
   }
 
-  return db.select().from(favorites)
-    .where(eq(favorites.userId, userId))
-    .orderBy(desc(favorites.createdAt));
+  return db.select({
+    id: faceSwapJobs.id,
+    userId: faceSwapJobs.userId,
+    sourceImageKey: faceSwapJobs.sourceImageKey,
+    targetMediaKey: faceSwapJobs.targetMediaKey,
+    resultMediaKey: faceSwapJobs.resultMediaKey,
+    sourceImageUrl: faceSwapJobs.sourceImageUrl,
+    targetMediaUrl: faceSwapJobs.targetMediaUrl,
+    resultMediaUrl: faceSwapJobs.resultMediaUrl,
+    targetMediaType: faceSwapJobs.targetMediaType,
+    modelPreference: faceSwapJobs.modelPreference,
+    preserveBody: faceSwapJobs.preserveBody,
+    status: faceSwapJobs.status,
+    errorMessage: faceSwapJobs.errorMessage,
+    progress: faceSwapJobs.progress,
+    retryCount: faceSwapJobs.retryCount,
+    createdAt: faceSwapJobs.createdAt,
+    updatedAt: faceSwapJobs.updatedAt,
+    completedAt: faceSwapJobs.completedAt,
+    sourceDeletedAt: faceSwapJobs.sourceDeletedAt,
+  })
+  .from(favorites)
+  .innerJoin(faceSwapJobs, eq(favorites.jobId, faceSwapJobs.id))
+  .where(eq(favorites.userId, userId))
+  .orderBy(desc(favorites.createdAt));
 }
 
 export async function getFavoriteByJobAndCategory(userId: number, jobId: number, category: number): Promise<Favorite | undefined> {
@@ -442,6 +487,15 @@ export async function getFavoriteByJobAndCategory(userId: number, jobId: number,
   return result[0];
 }
 
+export async function getAllUserFavorites(userId: number): Promise<Favorite[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(favorites).where(eq(favorites.userId, userId));
+}
+
 export async function getFavoriteCountsByCategory(userId: number): Promise<Record<number, number>> {
   const db = await getDb();
   if (!db) {
@@ -450,10 +504,63 @@ export async function getFavoriteCountsByCategory(userId: number): Promise<Recor
 
   const allFavorites = await db.select().from(favorites).where(eq(favorites.userId, userId));
   
-  const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
+  const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   allFavorites.forEach(fav => {
     counts[fav.category] = (counts[fav.category] || 0) + 1;
   });
 
   return counts;
+}
+
+// Category Names Management
+export async function getCategoryNames(userId: number): Promise<Record<number, string>> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const { favoriteCategories } = await import("../drizzle/schema");
+  const categories = await db.select().from(favoriteCategories).where(eq(favoriteCategories.userId, userId));
+  
+  const defaults: Record<number, string> = {
+    1: "Favorites 1",
+    2: "Favorites 2",
+    3: "Favorites 3",
+    4: "Favorites 4",
+    5: "Favorites 5",
+  };
+  
+  categories.forEach(cat => {
+    defaults[cat.category] = cat.name;
+  });
+  
+  return defaults;
+}
+
+export async function updateCategoryName(userId: number, category: number, name: string): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const { favoriteCategories } = await import("../drizzle/schema");
+  
+  // Check if category name already exists
+  const existing = await db.select().from(favoriteCategories)
+    .where(and(eq(favoriteCategories.userId, userId), eq(favoriteCategories.category, category)))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    // Update existing
+    await db.update(favoriteCategories)
+      .set({ name, updatedAt: new Date() })
+      .where(and(eq(favoriteCategories.userId, userId), eq(favoriteCategories.category, category)));
+  } else {
+    // Insert new
+    await db.insert(favoriteCategories).values({
+      userId,
+      category,
+      name,
+    });
+  }
 }

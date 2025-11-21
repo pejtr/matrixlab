@@ -1227,3 +1227,20 @@
 - [ ] Odstranit progress spinner z pending/processing miniatur v All Jobs - zobrazit pouze obrázek s křížkem pro cancel
 - [ ] Prohodit popisy výběru modelu (High Quality vs Fast jsou naopak)
 -- [x] Omezit výšku náhledu o 20% - přetéká a vzniká posuvík po straně
+
+
+## Nové požadavky - Rozšíření Favorites systému (Aktuální sprint)
+- [x] Rozšířit Favorites z 3 na 5 kategorií
+- [x] Přidat editovatelné názvy pro Favorites kategorie (DB + backend API)
+- [x] Badge číslo podle počtu kliknutí (1→2→3→4→5→odstranit při 6. kliknutí)
+- [x] Implementovat Download all ZIP pro každou Favorites kategorii
+- [x] Nastavit limit max 50 výsledků pro ZIP download
+- [x] Backend endpoint pro vytvoření ZIP archivu
+- [x] Optimalizovat All Jobs grid - zvýšit počáteční počet (desktop: 12, mobile: 6)
+- [ ] Otestovat výkon a plynulost scrollování
+- [ ] Přidat UI pro editaci názvů kategorií (inline edit nebo modal)
+
+## Layout Fix - User Requested (URGENT)
+- [x] Vrátit původní layout - hlavní výsledek větší nahoře
+- [x] All Jobs grid - zobrazit pouze JEDEN řádek miniatur (ne dva)
+- [x] Zmenšit miniatury aby se vešel jen jeden řádek

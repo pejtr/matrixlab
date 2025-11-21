@@ -59,9 +59,9 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
-  // Desktop: 16 thumbnails, Mobile: 20 thumbnails
+  // Desktop: 12 thumbnails (1 row), Mobile: 6 thumbnails (1 row)
   const [visibleJobsCount, setVisibleJobsCount] = useState(
-    typeof window !== 'undefined' && window.innerWidth >= 768 ? 16 : 20
+    typeof window !== 'undefined' && window.innerWidth >= 768 ? 12 : 6
   );
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
@@ -73,7 +73,7 @@ export default function FaceSwap() {
   const [showAnimateDialog, setShowAnimateDialog] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
-  const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3>(1);
+  const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("permissive");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
 
@@ -97,10 +97,16 @@ export default function FaceSwap() {
   const animateResultMutation = trpc.faceSwap.animateResult.useMutation();
   const utils = trpc.useUtils();
 
+  // Get favorites for current category (for display)
   const { data: favorites } = trpc.faceSwap.getMyFavorites.useQuery(
     { category: favoriteCategory },
     { enabled: isAuthenticated && activeTab === 'favorites' }
   );
+  
+  // Get all favorites (for bookmark UI)
+  const { data: allFavorites } = trpc.faceSwap.getAllFavorites.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
   const { data: favoriteCounts } = trpc.faceSwap.getFavoriteCounts.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -112,7 +118,7 @@ export default function FaceSwap() {
   
   // Filter jobs based on active tab
   const displayJobs = activeTab === 'favorites' && favorites
-    ? jobs?.filter(job => favorites.some(f => f.jobId === job.id)) || []
+    ? favorites // favorites already contains full job data from JOIN
     : jobs || [];
   
   const visibleJobs = displayJobs.slice(0, visibleJobsCount);
@@ -1434,25 +1440,25 @@ export default function FaceSwap() {
                   >
                     All Jobs ({jobs.length})
                   </Button>
-                  <Button
-                    variant={activeTab === 'favorites' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => {
-                      if (activeTab === 'favorites') {
-                        // Cycle through categories: 1→2→3→1
-                        setFavoriteCategory((prev) => (prev === 3 ? 1 : (prev + 1) as 1 | 2 | 3));
-                      } else {
+                  {/* Favorites Category Buttons */}
+                  {[1, 2, 3, 4, 5].map((cat) => (
+                    <Button
+                      key={cat}
+                      variant={activeTab === 'favorites' && favoriteCategory === cat ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => {
                         setActiveTab('favorites');
-                      }
-                    }}
-                    className={`text-xs ${
-                      activeTab === 'favorites' 
-                        ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
-                        : 'bg-transparent border-white/30 text-white hover:bg-white/10'
-                    }`}
-                  >
-                    Favorites{activeTab === 'favorites' ? favoriteCategory : ''} ({favoriteCounts?.[favoriteCategory] || 0})
-                  </Button>
+                        setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
+                      }}
+                      className={`text-xs ${
+                        activeTab === 'favorites' && favoriteCategory === cat
+                          ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
+                          : 'bg-transparent border-white/30 text-white hover:bg-white/10'
+                      }`}
+                    >
+                      F{cat} ({favoriteCounts?.[cat] || 0})
+                    </Button>
+                  ))}
                 </div>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-2">
@@ -1497,11 +1503,11 @@ export default function FaceSwap() {
                                 e.stopPropagation();
                                 try {
                                   // Check if already favorited in any category
-                                  const existingFavorite = favorites?.find(f => f.jobId === job.id);
+                                  const existingFavorite = allFavorites?.find(f => f.jobId === job.id);
                                   
                                   if (existingFavorite) {
-                                    // Cycle to next category (1→2→3→remove)
-                                    if (existingFavorite.category === 3) {
+                                    // Cycle to next category (1→2→3→4→5→remove)
+                                    if (existingFavorite.category === 5) {
                                       // Remove from favorites
                                       await removeFavoriteMutation.mutateAsync({ 
                                         jobId: job.id, 
@@ -1530,6 +1536,7 @@ export default function FaceSwap() {
                                     toast.success('Added to Favorites1');
                                   }
                                   
+                                  await utils.faceSwap.getAllFavorites.invalidate();
                                   await utils.faceSwap.getMyFavorites.invalidate();
                                   await utils.faceSwap.getFavoriteCounts.invalidate();
                                 } catch (error) {
@@ -1538,10 +1545,10 @@ export default function FaceSwap() {
                               }}
                               className="h-5 w-5 p-0 bg-yellow-500/80 hover:bg-yellow-600 text-white rounded-full relative"
                             >
-                              <Bookmark className="h-2.5 w-2.5" fill={favorites?.find(f => f.jobId === job.id) ? 'white' : 'none'} />
-                              {favorites?.find(f => f.jobId === job.id) && (
+                              <Bookmark className="h-2.5 w-2.5" fill={allFavorites?.find(f => f.jobId === job.id) ? 'white' : 'none'} />
+                              {allFavorites?.find(f => f.jobId === job.id) && (
                                 <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[8px] rounded-full w-3 h-3 flex items-center justify-center font-bold">
-                                  {favorites.find(f => f.jobId === job.id)?.category}
+                                  {allFavorites.find(f => f.jobId === job.id)?.category}
                                 </span>
                               )}
                             </Button>
