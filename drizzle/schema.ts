@@ -157,3 +157,18 @@ export const customTemplates = mysqlTable("customTemplates", {
 
 export type CustomTemplate = typeof customTemplates.$inferSelect;
 export type InsertCustomTemplate = typeof customTemplates.$inferInsert;
+
+/**
+ * Favorites table - Store user's favorite face swap results
+ * Users can bookmark results into 3 categories (Favorites1, Favorites2, Favorites3)
+ */
+export const favorites = mysqlTable("favorites", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  jobId: int("jobId").notNull(), // Reference to faceSwapJobs.id
+  category: int("category").notNull(), // 1, 2, or 3 for Favorites1/2/3
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Favorite = typeof favorites.$inferSelect;
+export type InsertFavorite = typeof favorites.$inferInsert;

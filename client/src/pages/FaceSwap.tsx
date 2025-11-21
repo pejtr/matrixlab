@@ -72,6 +72,8 @@ export default function FaceSwap() {
   const [showCropDialog, setShowCropDialog] = useState(false);
   const [showAnimateDialog, setShowAnimateDialog] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
+  const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3>(1);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("permissive");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
 
@@ -95,10 +97,26 @@ export default function FaceSwap() {
   const animateResultMutation = trpc.faceSwap.animateResult.useMutation();
   const utils = trpc.useUtils();
 
+  const { data: favorites } = trpc.faceSwap.getMyFavorites.useQuery(
+    { category: favoriteCategory },
+    { enabled: isAuthenticated && activeTab === 'favorites' }
+  );
+  const { data: favoriteCounts } = trpc.faceSwap.getFavoriteCounts.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+  const addFavoriteMutation = trpc.faceSwap.addFavorite.useMutation();
+  const removeFavoriteMutation = trpc.faceSwap.removeFavorite.useMutation();
+
   const completedJobs = jobs?.filter(job => job.status === "completed") || [];
   const currentJob = completedJobs[currentResultIndex];
-  const visibleJobs = jobs?.slice(0, visibleJobsCount) || [];
-  const hasMoreJobs = jobs && jobs.length > visibleJobsCount;
+  
+  // Filter jobs based on active tab
+  const displayJobs = activeTab === 'favorites' && favorites
+    ? jobs?.filter(job => favorites.some(f => f.jobId === job.id)) || []
+    : jobs || [];
+  
+  const visibleJobs = displayJobs.slice(0, visibleJobsCount);
+  const hasMoreJobs = displayJobs.length > visibleJobsCount;
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
   
   // Detect if there are any pending/processing jobs
@@ -894,8 +912,8 @@ export default function FaceSwap() {
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
                         className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
-                        <option value="high_quality" className="bg-gray-900">HQ (no nude)</option>
-                        <option value="permissive" className="bg-gray-900">LQ (nude allowed)</option>
+                        <option value="high_quality" className="bg-gray-900">HQ (slower, better quality)</option>
+                        <option value="permissive" className="bg-gray-900">Fast (quicker, lower quality)</option>
                       </select>
                       
                       {/* Generate Button - 40% (4/10) */}
@@ -962,7 +980,7 @@ export default function FaceSwap() {
                       <img 
                         src={targetPreviews[0]} 
                         alt="Target preview" 
-                        className="w-full h-[60vh] object-contain"
+                        className="w-full h-[48vh] object-contain"
                       />
                       {/* Loading overlay */}
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
@@ -1167,14 +1185,14 @@ export default function FaceSwap() {
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
-                          className="w-full h-[60vh] object-contain"
+                          className="w-full h-[48vh] object-contain"
                           controls
                         />
                       ) : (
                         <img
                           src={currentJob?.resultMediaUrl || ""}
                           alt="Result"
-                          className="w-full h-[60vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                          className="w-full h-[48vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => {
                             setLightboxIndex(currentResultIndex);
                             setShowLightbox(true);
@@ -1366,8 +1384,8 @@ export default function FaceSwap() {
                           className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <option value="high_quality" className="bg-gray-900">HQ (no nude)</option>
-                          <option value="permissive" className="bg-gray-900">LQ (nude allowed)</option>
+                          <option value="high_quality" className="bg-gray-900">HQ (slower, better quality)</option>
+                          <option value="permissive" className="bg-gray-900">Fast (quicker, lower quality)</option>
                         </select>
                         
                         {/* Keep Body Checkbox */}
@@ -1403,7 +1421,39 @@ export default function FaceSwap() {
           {jobs && jobs.length > 0 && (
             <div className="mt-2">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-white text-sm font-semibold">All Jobs ({jobs.length})</h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant={activeTab === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActiveTab('all')}
+                    className={`text-xs ${
+                      activeTab === 'all' 
+                        ? 'bg-pink-500 hover:bg-pink-600 text-white' 
+                        : 'bg-transparent border-white/30 text-white hover:bg-white/10'
+                    }`}
+                  >
+                    All Jobs ({jobs.length})
+                  </Button>
+                  <Button
+                    variant={activeTab === 'favorites' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => {
+                      if (activeTab === 'favorites') {
+                        // Cycle through categories: 1→2→3→1
+                        setFavoriteCategory((prev) => (prev === 3 ? 1 : (prev + 1) as 1 | 2 | 3));
+                      } else {
+                        setActiveTab('favorites');
+                      }
+                    }}
+                    className={`text-xs ${
+                      activeTab === 'favorites' 
+                        ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
+                        : 'bg-transparent border-white/30 text-white hover:bg-white/10'
+                    }`}
+                  >
+                    Favorites{activeTab === 'favorites' ? favoriteCategory : ''} ({favoriteCounts?.[favoriteCategory] || 0})
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-2">
                 {visibleJobs.map((job, idx) => (
@@ -1418,7 +1468,7 @@ export default function FaceSwap() {
                             }
                           }
                         }}
-                        className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all scale-90 ${
+                        className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all scale-108 ${
                           job.status === "completed" && currentJob?.id === job.id
                             ? "ring-2 ring-pink-500"
                             : "hover:ring-2 hover:ring-white/50"
@@ -1430,31 +1480,76 @@ export default function FaceSwap() {
                           className="w-full h-full object-cover"
                         />
                         
-                        {/* Status Badge / Recreate Badge */}
-                        <div 
-                          className="absolute top-1 left-1 scale-75 origin-top-left cursor-pointer"
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            if (job.status === "completed") {
-                              // Load target media for recreation
-                              try {
-                                const response = await fetch(job.targetMediaUrl);
-                                const blob = await response.blob();
-                                const file = new File([blob], 'target.jpg', { type: blob.type || 'image/jpeg' });
-                                setTargetFiles([file]);
-                                setTargetPreviews([job.targetMediaUrl]);
-                                toast.success('Target loaded for recreation');
-                              } catch (error) {
-                                toast.error('Failed to load target');
-                              }
-                            }
-                          }}
-                        >
-                          {getStatusBadge(job.status, job.errorMessage)}
-                        </div>
+                        {/* Status Badge (only for non-completed) */}
+                        {job.status !== "completed" && (
+                          <div className="absolute top-1 left-1 scale-75 origin-top-left">
+                            {getStatusBadge(job.status, job.errorMessage)}
+                          </div>
+                        )}
 
-                        {/* Quick Delete Badge (always visible for completed and failed jobs) */}
-                        {(job.status === "completed" || job.status === "failed") && (
+                        {/* Bookmark Icon (top-left) */}
+                        {job.status === "completed" && (
+                          <div className="absolute top-1 left-1 z-10">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                  // Check if already favorited in any category
+                                  const existingFavorite = favorites?.find(f => f.jobId === job.id);
+                                  
+                                  if (existingFavorite) {
+                                    // Cycle to next category (1→2→3→remove)
+                                    if (existingFavorite.category === 3) {
+                                      // Remove from favorites
+                                      await removeFavoriteMutation.mutateAsync({ 
+                                        jobId: job.id, 
+                                        category: existingFavorite.category 
+                                      });
+                                      toast.success('Removed from favorites');
+                                    } else {
+                                      // Remove from current category and add to next
+                                      await removeFavoriteMutation.mutateAsync({ 
+                                        jobId: job.id, 
+                                        category: existingFavorite.category 
+                                      });
+                                      const nextCategory = (existingFavorite.category + 1) as 1 | 2 | 3;
+                                      await addFavoriteMutation.mutateAsync({ 
+                                        jobId: job.id, 
+                                        category: nextCategory 
+                                      });
+                                      toast.success(`Moved to Favorites${nextCategory}`);
+                                    }
+                                  } else {
+                                    // Add to Favorites1
+                                    await addFavoriteMutation.mutateAsync({ 
+                                      jobId: job.id, 
+                                      category: 1 
+                                    });
+                                    toast.success('Added to Favorites1');
+                                  }
+                                  
+                                  await utils.faceSwap.getMyFavorites.invalidate();
+                                  await utils.faceSwap.getFavoriteCounts.invalidate();
+                                } catch (error) {
+                                  toast.error('Failed to update favorites');
+                                }
+                              }}
+                              className="h-5 w-5 p-0 bg-yellow-500/80 hover:bg-yellow-600 text-white rounded-full relative"
+                            >
+                              <Bookmark className="h-2.5 w-2.5" fill={favorites?.find(f => f.jobId === job.id) ? 'white' : 'none'} />
+                              {favorites?.find(f => f.jobId === job.id) && (
+                                <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[8px] rounded-full w-3 h-3 flex items-center justify-center font-bold">
+                                  {favorites.find(f => f.jobId === job.id)?.category}
+                                </span>
+                              )}
+                            </Button>
+                          </div>
+                        )}
+                        
+                        {/* Delete Icon (top-right) - 40% smaller */}
+                        {job.status === "completed" && (
                           <div className="absolute top-1 right-1 z-10">
                             <Button
                               variant="ghost"
@@ -1471,9 +1566,32 @@ export default function FaceSwap() {
                                   }
                                 }
                               }}
-                              className="h-6 w-6 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                              className="h-5 w-5 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
                             >
-                              <Trash2 className="h-3 w-3" />
+                              <Trash2 className="h-2.5 w-2.5" />
+                            </Button>
+                          </div>
+                        )}
+                        {job.status === "failed" && (
+                          <div className="absolute top-1 right-1 z-10">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (confirm('Delete this job?')) {
+                                  try {
+                                    await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                    toast.success('Job deleted successfully');
+                                    await utils.faceSwap.getMyJobs.invalidate();
+                                  } catch (error) {
+                                    toast.error('Failed to delete job');
+                                  }
+                                }
+                              }}
+                              className="h-5 w-5 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                            >
+                              <Trash2 className="h-2.5 w-2.5" />
                             </Button>
                           </div>
                         )}
@@ -1522,97 +1640,29 @@ export default function FaceSwap() {
                           </div>
                         )}
 
-                        {/* Progress Bar for Pending/Processing */}
+                        {/* Cancel button for Pending/Processing (top-right) */}
                         {(job.status === "pending" || job.status === "processing") && (
-                          <>
-                            {/* Loading Overlay */}
-                            <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center pointer-events-none">
-                              <Loader2 className="h-8 w-8 text-white animate-spin mb-2" />
-                              <span className="text-white text-xs font-semibold">
-                                {job.status === "processing" ? `${job.progress || 0}%` : "Pending..."}
-                              </span>
-                            </div>
-                            {/* Action Buttons - Outside pointer-events-none */}
-                            <div className="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none">
-                              <div className="flex gap-2 pointer-events-auto">
-                                {/* Retry Button */}
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    try {
-                                      // Cancel current job
-                                      await cancelJobMutation.mutateAsync({ jobId: job.id });
-                                      // Create new job with same parameters
-                                      await createJobMutation.mutateAsync({
-                                        sourceImageKey: job.sourceImageKey,
-                                        sourceImageUrl: job.sourceImageUrl,
-                                        targetMediaKey: job.targetMediaKey,
-                                        targetMediaUrl: job.targetMediaUrl,
-                                        targetMediaType: job.targetMediaType,
-                                        modelPreference: job.modelPreference || "high_quality",
-                                      });
-                                      await utils.faceSwap.getMyJobs.invalidate();
-                                      toast.success('Job restarted');
-                                    } catch (error) {
-                                      toast.error('Failed to restart job');
-                                    }
-                                  }}
-                                  className="bg-yellow-500/80 hover:bg-yellow-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
-                                >
-                                  <RotateCcw className="h-3 w-3" />
-                                </Button>
-                                {/* Cancel Button */}
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    if (confirm('Cancel this job?')) {
-                                      try {
-                                        await cancelJobMutation.mutateAsync({ jobId: job.id });
-                                        toast.success('Job cancelled');
-                                        await utils.faceSwap.getMyJobs.invalidate();
-                                      } catch (error) {
-                                        toast.error('Failed to cancel job');
-                                      }
-                                    }
-                                  }}
-                                  className="bg-orange-500/80 hover:bg-orange-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
-                                >
-                                  <XCircle className="h-3 w-3" />
-                                </Button>
-                                {/* Delete Button */}
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={async (e) => {
-                                    e.stopPropagation();
-                                    if (confirm('Delete this job permanently?')) {
-                                      try {
-                                        await deleteJobMutation.mutateAsync({ jobId: job.id });
-                                        toast.success('Job deleted');
-                                        await utils.faceSwap.getMyJobs.invalidate();
-                                      } catch (error) {
-                                        toast.error('Failed to delete job');
-                                      }
-                                    }
-                                  }}
-                                  className="bg-red-500/80 hover:bg-red-600 text-white rounded-lg px-2 py-1.5 text-xs font-semibold pointer-events-auto"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                              </div>
-                            </div>
-                            {/* Progress Bar */}
-                            <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">
-                              <div 
-                                className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
-                                style={{ width: `${job.status === "processing" ? (job.progress || 0) : 10}%` }}
-                              />
-                            </div>
-                          </>
+                          <div className="absolute top-1 right-1 z-10">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (confirm('Cancel this job?')) {
+                                  try {
+                                    await cancelJobMutation.mutateAsync({ jobId: job.id });
+                                    toast.success('Job cancelled');
+                                    await utils.faceSwap.getMyJobs.invalidate();
+                                  } catch (error) {
+                                    toast.error('Failed to cancel job');
+                                  }
+                                }
+                              }}
+                              className="h-5 w-5 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                            >
+                              <X className="h-2.5 w-2.5" />
+                            </Button>
+                          </div>
                         )}
 
 

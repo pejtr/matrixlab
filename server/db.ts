@@ -371,3 +371,89 @@ export async function retryAllFailedJobs(userId: number): Promise<number> {
     return result[0]?.affectedRows || 0;
   });
 }
+
+// Favorites queries
+import { favorites, InsertFavorite, Favorite } from "../drizzle/schema";
+
+export async function addFavorite(userId: number, jobId: number, category: number): Promise<Favorite> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Check if already favorited in this category
+  const existing = await db.select().from(favorites)
+    .where(and(eq(favorites.userId, userId), eq(favorites.jobId, jobId), eq(favorites.category, category)))
+    .limit(1);
+
+  if (existing.length > 0) {
+    return existing[0]!;
+  }
+
+  const result = await db.insert(favorites).values({ userId, jobId, category });
+  const insertedId = Number(result[0].insertId);
+  
+  const inserted = await db.select().from(favorites).where(eq(favorites.id, insertedId)).limit(1);
+  
+  if (!inserted[0]) {
+    throw new Error("Failed to create favorite");
+  }
+
+  return inserted[0];
+}
+
+export async function removeFavorite(userId: number, jobId: number, category: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.delete(favorites)
+    .where(and(eq(favorites.userId, userId), eq(favorites.jobId, jobId), eq(favorites.category, category)));
+}
+
+export async function getUserFavorites(userId: number, category?: number): Promise<Favorite[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  if (category) {
+    return db.select().from(favorites)
+      .where(and(eq(favorites.userId, userId), eq(favorites.category, category)))
+      .orderBy(desc(favorites.createdAt));
+  }
+
+  return db.select().from(favorites)
+    .where(eq(favorites.userId, userId))
+    .orderBy(desc(favorites.createdAt));
+}
+
+export async function getFavoriteByJobAndCategory(userId: number, jobId: number, category: number): Promise<Favorite | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(favorites)
+    .where(and(eq(favorites.userId, userId), eq(favorites.jobId, jobId), eq(favorites.category, category)))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function getFavoriteCountsByCategory(userId: number): Promise<Record<number, number>> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const allFavorites = await db.select().from(favorites).where(eq(favorites.userId, userId));
+  
+  const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0 };
+  allFavorites.forEach(fav => {
+    counts[fav.category] = (counts[fav.category] || 0) + 1;
+  });
+
+  return counts;
+}

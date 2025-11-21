@@ -297,6 +297,47 @@ export const appRouter = router({
         return { success: true, retriedCount };
       }),
 
+    // Add to favorites
+    addFavorite: protectedProcedure
+      .input(z.object({
+        jobId: z.number(),
+        category: z.number().min(1).max(3),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { addFavorite } = await import("./db");
+        const favorite = await addFavorite(ctx.user.id, input.jobId, input.category);
+        return favorite;
+      }),
+
+    // Remove from favorites
+    removeFavorite: protectedProcedure
+      .input(z.object({
+        jobId: z.number(),
+        category: z.number().min(1).max(3),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { removeFavorite } = await import("./db");
+        await removeFavorite(ctx.user.id, input.jobId, input.category);
+        return { success: true };
+      }),
+
+    // Get user's favorites
+    getMyFavorites: protectedProcedure
+      .input(z.object({
+        category: z.number().min(1).max(3).optional(),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        const { getUserFavorites } = await import("./db");
+        return getUserFavorites(ctx.user.id, input?.category);
+      }),
+
+    // Get favorite counts by category
+    getFavoriteCounts: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getFavoriteCountsByCategory } = await import("./db");
+        return getFavoriteCountsByCategory(ctx.user.id);
+      }),
+
     // Animate result image with MiniMax I2V
     animateResult: protectedProcedure
       .input(z.object({

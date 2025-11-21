@@ -1190,3 +1190,40 @@
 - [x] Použít Intersection Observer API pro detekci konce seznamu
 - [x] Zachovat Load More tlačítko pro mobil
 - [x] Desktop: infinite scroll, Mobile: Load More button
+
+
+## Favorites Feature & UI Improvements - User Requested
+- [ ] Odstranit zelený "Completed" badge z All Jobs thumbnails
+- [ ] Zvětšit All Jobs náhledovky o 20%
+- [ ] Zmenšit ikonu smazání o 40% na All Jobs miniaturách
+- [ ] Přidat databázovou tabulku pro favorites s categorií (1-3)
+- [ ] Vytvořit tRPC procedury pro přidání/odebrání favorites
+- [ ] Přidat bookmark ikonu na miniatury pro toggle favorites
+- [ ] Implementovat Favorites tab vedle All Jobs s počítadlem
+- [ ] Při kliknutí na bookmark cyklicky přepínat mezi Favorites1, Favorites2, Favorites3 (max 3)
+- [ ] Zobrazit číslo kategorie u bookmark ikony
+- [ ] Filtrovat joby podle vybrané Favorites kategorie v tabu
+
+
+## Template Gallery Fixes - User Requested
+- [ ] Odstranit nevhodné templates (checkered, meme, processing placeholders)
+- [ ] Vygenerovat nové template obrázky ve stylu nahraných fotek (glamour, professional, casual)
+- [ ] Odstranit názvy kategorií z menu - ponechat pouze ikony
+- [ ] Zvětšit miniatury o 30%
+- [ ] Změnit hover zoom na click-to-zoom (zvětšení pouze při kliknutí)
+- [ ] Přidat Choose tlačítko a křížek (X) do zvětšeného náhledu
+- [ ] Umožnit zavření zvětšeného náhledu kliknutím mimo obrázek
+
+
+## Pending Jobs Management - User Requested
+- [ ] Přidat křížek (X) pro ukončení/cancel pending jobs
+- [ ] Přidat popelnici pro smazání pending/failed jobs
+- [ ] Opravit zamrzlé pending jobs které nelze odstranit
+
+
+## Bug Fixes - Critical
+- [ ] Opravit nested button error v All Jobs gridu (bookmark a delete ikony nesmí být uvnitř thumbnail buttonu)
+- [x] Přesunout bookmark ikonu z pravého horního rohu na levý horní roh v All Jobs miniaturách
+- [ ] Odstranit progress spinner z pending/processing miniatur v All Jobs - zobrazit pouze obrázek s křížkem pro cancel
+- [ ] Prohodit popisy výběru modelu (High Quality vs Fast jsou naopak)
+-- [x] Omezit výšku náhledu o 20% - přetéká a vzniká posuvík po straně
