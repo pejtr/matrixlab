@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -801,7 +801,7 @@ export default function FaceSwap() {
                       <select
                         value={modelPreference}
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
-                        className="h-7 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-2 focus:ring-pink-500"
+                        className="h-7 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
                         <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
                         <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
@@ -828,7 +828,7 @@ export default function FaceSwap() {
                         type="checkbox"
                         checked={preserveBody}
                         onChange={(e) => setPreserveBody(e.target.checked)}
-                        className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-2 focus:ring-pink-500 cursor-pointer"
+                        className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                       />
                       <span className="text-white/90 text-[10px]">
                         Preserve Body (prevent AI from changing body proportions)
@@ -889,18 +889,41 @@ export default function FaceSwap() {
                 )}
               </Button>
 
-              {/* Before/After Thumbnails */}
+              {/* Reference/Before Thumbnails */}
               {currentJob && (
                 <div className="grid grid-cols-2 gap-2 mt-4">
-                  {/* Before (Source) */}
-                  <div 
-                    className="relative aspect-video rounded-lg overflow-hidden border border-white/20 cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
-                    onClick={() => {
-                      setLightboxIndex(currentResultIndex);
-                      setLightboxType('source');
-                      setShowLightbox(true);
-                    }}
-                  >
+                  {/* Reference (Target - original image) */}
+                  <div className="group relative aspect-video rounded-lg overflow-hidden border border-white/20">
+                    <img
+                      src={currentJob.targetMediaUrl}
+                      alt="Reference"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                      <span className="text-white text-xs font-semibold">Reference</span>
+                    </div>
+                    {/* Use button */}
+                    <button
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(currentJob.targetMediaUrl, { mode: 'no-cors' });
+                          const blob = await response.blob();
+                          const file = new File([blob], 'reference.jpg', { type: blob.type || 'image/jpeg' });
+                          setTargetFiles([file]);
+                          setTargetPreviews([currentJob.targetMediaUrl]);
+                          toast.success('Reference loaded as target');
+                        } catch (error) {
+                          toast.error('Failed to load reference');
+                        }
+                      }}
+                      className="absolute top-2 right-2 bg-pink-500/90 hover:bg-pink-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                      title="Use as target"
+                    >
+                      <ArrowRight className="h-3 w-3" />
+                    </button>
+                  </div>
+                  {/* Before (Source face used) */}
+                  <div className="group relative aspect-video rounded-lg overflow-hidden border border-white/20">
                     <img
                       src={currentJob.sourceImageUrl}
                       alt="Before"
@@ -909,34 +932,25 @@ export default function FaceSwap() {
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
                       <span className="text-white text-xs font-semibold">Before</span>
                     </div>
-                  </div>
-                  {/* After (Result) */}
-                  <div 
-                    className="relative aspect-video rounded-lg overflow-hidden border border-white/20 cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
-                    onClick={() => {
-                      setLightboxIndex(currentResultIndex);
-                      setLightboxType('result');
-                      setShowLightbox(true);
-                    }}
-                  >
-                    {currentJob.targetMediaType === "video" ? (
-                      <video
-                        src={currentJob.resultMediaUrl || ''}
-                        className="w-full h-full object-cover"
-                        muted
-                        loop
-                        playsInline
-                      />
-                    ) : (
-                      <img
-                        src={currentJob.resultMediaUrl || ''}
-                        alt="After"
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                      <span className="text-white text-xs font-semibold">After</span>
-                    </div>
+                    {/* Use button */}
+                    <button
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(currentJob.sourceImageUrl, { mode: 'no-cors' });
+                          const blob = await response.blob();
+                          const file = new File([blob], 'source.jpg', { type: blob.type || 'image/jpeg' });
+                          setSourceFile(file);
+                          setSourcePreview(currentJob.sourceImageUrl);
+                          toast.success('Source face loaded');
+                        } catch (error) {
+                          toast.error('Failed to load source');
+                        }
+                      }}
+                      className="absolute top-2 right-2 bg-pink-500/90 hover:bg-pink-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                      title="Use as source"
+                    >
+                      <ArrowRight className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               )}

@@ -867,3 +867,10 @@
 - [x] Change saved faces grid from 2 columns to 3 columns
 - [x] Increase left column width by 20% (from current ratio)
 - [x] Adjust spacing for 3-column layout
+
+
+## Before/After Thumbnail Improvements - User Requested
+- [x] Rename "Before" to "Reference" (original target image)
+- [x] Rename "After" to "Before" (source face used)
+- [x] Add "Use" icon to thumbnails for quick reuse
+- [x] Fix hover graphic glitch - gray bar appearing in middle of column
