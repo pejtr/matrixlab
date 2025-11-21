@@ -1174,7 +1174,7 @@ export default function FaceSwap() {
                                 toast.error('Failed to load source');
                               }
                             }}
-                            className="group relative w-24 h-24 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
+                            className="group relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
                             title="Click to use as target"
                           >
                             <img
@@ -1205,7 +1205,7 @@ export default function FaceSwap() {
                                 toast.error('Failed to load face');
                               }
                             }}
-                            className="group relative w-24 h-24 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
+                            className="group relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
                             title="Click to use as source face"
                           >
                             <img

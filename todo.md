@@ -901,3 +901,9 @@
 - [x] Fix unwanted page scroll when clicking job thumbnails in All Jobs section
 - [x] Page scrolls up and cuts off header when switching between results
 - [x] Remove scrollIntoView or similar auto-scroll behavior
+
+
+## Badge Size Issue - User Requested
+- [x] Reduce FACE and SOURCE badge thumbnails by 20%
+- [x] Badges currently cover navigation arrow on the left
+- [x] Change from 96×96px to ~77×77px (w-24 h-24 → w-20 h-20)
