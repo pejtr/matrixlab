@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowRight } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowLeft } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -629,7 +629,7 @@ export default function FaceSwap() {
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-1.5">
+                  <CardContent className="p-0">
                     {/* Hidden file input */}
                     <input
                       ref={sourceInputRef}
@@ -1158,7 +1158,7 @@ export default function FaceSwap() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
                             </div>
                             <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
-                              <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                              <ArrowLeft className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
                           </button>
                         </div>
@@ -1193,7 +1193,7 @@ export default function FaceSwap() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
                             </div>
                             <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
-                              <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                              <ArrowLeft className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
                           </button>
                         </div>

@@ -1009,3 +1009,21 @@
 - [x] Add as badge overlay in bottom-left corner of target preview image
 - [x] Maintain toggle functionality (clickable badge)
 - [x] Use compact text "Keep Body" with checkbox
+
+
+## Sticky Header Further Reduction - User Requested
+- [x] Reduce sticky header height by additional 20% (h-8 → h-6)
+- [x] Icons automatically scale with header height
+- [x] Maintain clickability and visual clarity
+
+## Remove Face Thumbnail Padding - User Requested
+- [x] Remove padding from CardContent containing face thumbnails (p-1.5 → p-0)
+- [x] Face thumbnails fill entire cell without gaps
+- [x] Maximize space efficiency
+- [x] Grid gap (gap-1.5) provides visual separation
+
+
+## Reverse Hover Arrow Direction - User Requested
+- [x] Change hover arrow on All Jobs results from right (→) to left (←)
+- [x] Update ArrowRight icon to ArrowLeft icon (import + 2 instances)
+- [x] Maintain hover tooltip and click functionality
