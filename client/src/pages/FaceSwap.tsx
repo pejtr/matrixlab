@@ -169,33 +169,7 @@ export default function FaceSwap() {
       setSourcePreview(reader.result as string);
       toast.success('Source face loaded');
       
-      // Auto-save face to saved faces
-      const faceName = prompt('Enter a name for this face:');
-      if (faceName) {
-        try {
-          // Upload the file
-          const formData = new FormData();
-          formData.append('file', file);
-          const uploadRes = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-          const uploadData = await uploadRes.json();
-
-          // Save to database
-          await saveFaceMutation.mutateAsync({
-            faceImageKey: uploadData.key || `saved-${Date.now()}`,
-            faceImageUrl: uploadData.url,
-            name: faceName,
-          });
-
-          toast.success(`Face "${faceName}" saved successfully!`);
-          await utils.savedFaces.getMySavedFaces.invalidate();
-        } catch (error) {
-          console.error('Failed to save face:', error);
-          toast.error('Failed to save face');
-        }
-      }
+      // Auto-save removed - user can manually save via Save button if needed
     };
     reader.onerror = () => {
       toast.error('Failed to read file');
@@ -651,7 +625,7 @@ export default function FaceSwap() {
           <div className="grid grid-cols-1 md:grid-cols-[1.2fr_3.8fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">

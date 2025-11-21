@@ -907,3 +907,16 @@
 - [x] Reduce FACE and SOURCE badge thumbnails by 20%
 - [x] Badges currently cover navigation arrow on the left
 - [x] Change from 96×96px to ~77×77px (w-24 h-24 → w-20 h-20)
+
+
+## Left Column Max-Height Constraint - User Requested
+- [x] Set max-height on left column to match result image height (70vh)
+- [x] Ensure vertical preview images fit within this constraint
+- [x] Apply overflow-y-auto for scrolling if content exceeds height
+- [x] Maintain responsive behavior on mobile
+
+## Remove Name Prompt for Add Face - User Requested
+- [x] Remove prompt dialog when uploading new face via "Add Face" button
+- [x] Auto-save face without asking for name
+- [x] User can manually save via Save button if needed
+- [x] Simplify upload workflow for better UX
