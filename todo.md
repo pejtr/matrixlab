@@ -1125,3 +1125,12 @@
 - [x] Target badge: Zobrazit progress během generování (když job běží)
 - [x] Spinner design: Semi-transparent overlay + Loader2 icon + text "Uploading..." / "Generating..."
 - [x] Test všechny stavy: idle → uploading → generating → completed
+
+
+## UX Improvements - Current Sprint
+- [x] Progress indicator: Zobrazit procenta (např. "Generating... 45%") místo jen "Generating..."
+- [x] Progress indicator: Použít job.progress pro přesný progress každého jobu
+- [x] Haptic feedback: Přidat vibraci při dokončení generování (navigator.vibrate)
+- [x] Haptic feedback: Detekce nových completed jobů a trigger vibrace
+- [x] Queue counter: Zobrazit badge s počtem pending/processing jobů na Generate tlačítku
+- [x] Queue counter: Design - malý badge v pravém horním rohu tlačítka

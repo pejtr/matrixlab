@@ -102,6 +102,12 @@ export default function FaceSwap() {
   // Detect if there are any pending/processing jobs
   const hasActiveJobs = jobs?.some(job => job.status === "pending" || job.status === "processing") || false;
   const activeJobsCount = jobs?.filter(job => job.status === "pending" || job.status === "processing").length || 0;
+  
+  // Calculate average progress from active jobs
+  const activeJobs = jobs?.filter(job => job.status === "pending" || job.status === "processing") || [];
+  const averageProgress = activeJobs.length > 0
+    ? Math.round(activeJobs.reduce((sum, job) => sum + (job.progress || 0), 0) / activeJobs.length)
+    : 0;
 
   // Reset to clean state on page load
   useEffect(() => {
@@ -125,6 +131,11 @@ export default function FaceSwap() {
       
       // Automatically switch to the newest result (first in list)
       setCurrentResultIndex(0);
+      
+      // Haptic feedback on mobile devices
+      if ('vibrate' in navigator) {
+        navigator.vibrate([200, 100, 200]); // Pattern: vibrate 200ms, pause 100ms, vibrate 200ms
+      }
       
       toast.success(`${newCount} new result(s) ready!`, {
         duration: 5000,
@@ -1197,7 +1208,9 @@ export default function FaceSwap() {
                             {!isUploading && hasActiveJobs && (
                               <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
                                 <Loader2 className="h-6 w-6 text-pink-400 animate-spin mb-1" />
-                                <span className="text-white text-[8px] font-semibold">Generating...</span>
+                                <span className="text-white text-[8px] font-semibold">
+                                  {averageProgress > 0 ? `${averageProgress}%` : "Pending..."}
+                                </span>
                               </div>
                             )}
                           </button>
@@ -1257,7 +1270,9 @@ export default function FaceSwap() {
                             {!isUploading && hasActiveJobs && (
                               <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
                                 <Loader2 className="h-6 w-6 text-purple-400 animate-spin mb-1" />
-                                <span className="text-white text-[8px] font-semibold">Generating...</span>
+                                <span className="text-white text-[8px] font-semibold">
+                                  {averageProgress > 0 ? `${averageProgress}%` : "Pending..."}
+                                </span>
                               </div>
                             )}
                           </button>
@@ -1279,6 +1294,12 @@ export default function FaceSwap() {
                             <Loader2 className="h-6 w-6 text-white animate-spin" />
                           ) : (
                             <Sparkles className="h-6 w-6 text-white" />
+                          )}
+                          {/* Queue Counter Badge */}
+                          {activeJobsCount > 0 && (
+                            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-yellow-500 border-2 border-white flex items-center justify-center">
+                              <span className="text-white text-[10px] font-bold">{activeJobsCount}</span>
+                            </div>
                           )}
                         </button>
                       </div>
