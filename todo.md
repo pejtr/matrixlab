@@ -947,3 +947,16 @@
 - [x] Shorten "Preserve Body (prevent AI from changing body proportions)" text
 - [x] Make it fit on one line (now: "Preserve Body (keep original proportions)")
 - [x] Keep meaning clear and concise
+
+
+## Scrollbar Persistent Issue Fix - User Reported
+- [x] Reduce target preview max-height further (50vh → 35vh)
+- [x] Ensure no scrollbar appears even with tall images
+- [x] Shorten "Preserve Body (keep original proportions)" → "Keep Body Proportions"
+- [x] Text stays on one line even when scrollbar appears
+
+
+## Remove Badge Labels - User Requested
+- [x] Remove "USED FACE" text from face badge on result thumbnails
+- [x] Remove "SOURCE" text from source badge on result thumbnails
+- [x] Keep badges visible but without text labels (gradient overlay only)

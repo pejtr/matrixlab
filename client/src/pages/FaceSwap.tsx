@@ -764,7 +764,7 @@ export default function FaceSwap() {
                                   setLightboxIndex(idx);
                                   setShowLightbox(true);
                                 }}
-                                className={targetPreviews.length === 1 ? "w-full max-h-[50vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
+                                className={targetPreviews.length === 1 ? "w-full max-h-[35vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                 <span className="text-white text-[8px] font-medium">#{idx + 1}</span>
@@ -836,7 +836,7 @@ export default function FaceSwap() {
                         className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                       />
                       <span className="text-white/90 text-[10px]">
-                        Preserve Body (keep original proportions)
+                        Keep Body Proportions
                       </span>
                     </label>
                   </CardContent>
@@ -1157,7 +1157,6 @@ export default function FaceSwap() {
                               className="w-full h-full object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
-                              <span className="text-white text-[8px] font-bold uppercase tracking-wide">Used Face</span>
                             </div>
                             <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
                               <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1193,7 +1192,6 @@ export default function FaceSwap() {
                               className="w-full h-full object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
-                              <span className="text-white text-[10px] font-bold uppercase tracking-wide">Source</span>
                             </div>
                             <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
                               <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
