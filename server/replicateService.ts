@@ -17,6 +17,7 @@ export interface FaceSwapInput {
   targetMediaUrl: string;
   targetMediaType: "image" | "video";
   modelPreference?: "high_quality" | "permissive"; // Model selection: high_quality (NSFW filter) vs permissive (NSFW allowed)
+  webhookUrl?: string; // Optional webhook URL for instant notifications
 }
 
 export interface FaceSwapResult {
@@ -25,6 +26,7 @@ export interface FaceSwapResult {
   outputBase64?: string;
   mimeType?: string;
   error?: string;
+  predictionId?: string; // Replicate prediction ID for webhook tracking
 }
 
 /**
@@ -45,8 +47,9 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     console.log("[Replicate] Type:", input.targetMediaType);
 
     // Use different models based on media type and preference
-    let output;
+    let output: any;
     let modelUsed: string;
+    let predictionId: string | undefined;
     const modelPreference = input.modelPreference || "high_quality";
     
     if (input.targetMediaType === "video") {
@@ -54,45 +57,63 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
       // Cost: $0.10 per run, ~103 seconds
       modelUsed = "xrunda/hello (video)";
       console.log("[Replicate] Using model: xrunda/hello for VIDEO (cost: $0.10, ~103s)");
-      output = await replicate.run(
-        "xrunda/hello",
-        {
-          input: {
-            target_face: input.sourceImageUrl,
-            input_video: input.targetMediaUrl,
-          },
-        }
-      );
+      const prediction = await replicate.predictions.create({
+        version: "xrunda/hello",
+        input: {
+          target_face: input.sourceImageUrl,
+          input_video: input.targetMediaUrl,
+        },
+        webhook: input.webhookUrl,
+        webhook_events_filter: ["completed"],
+      });
+      predictionId = prediction.id;
+      console.log("[Replicate] Prediction ID:", predictionId);
+      
+      // Wait for prediction to complete
+      output = await replicate.wait(prediction);
+      output = output.output;
     } else {
       // For images, choose model based on preference
       if (modelPreference === "permissive") {
         // Use fofr/face-swap-with-ideogram (NSFW-friendly, lower quality)
         modelUsed = "fofr/face-swap-with-ideogram (permissive)";
         console.log("[Replicate] Using model: fofr/face-swap-with-ideogram for IMAGE (NSFW-friendly)");
-        output = await replicate.run(
-          "fofr/face-swap-with-ideogram",
-          {
-            input: {
-              character_image: input.sourceImageUrl,
-              target_image: input.targetMediaUrl,
-            },
-          }
-        );
+        const prediction = await replicate.predictions.create({
+          model: "fofr/face-swap-with-ideogram",
+          input: {
+            character_image: input.sourceImageUrl,
+            target_image: input.targetMediaUrl,
+          },
+          webhook: input.webhookUrl,
+          webhook_events_filter: ["completed"],
+        });
+        predictionId = prediction.id;
+        console.log("[Replicate] Prediction ID:", predictionId);
+        
+        // Wait for prediction to complete
+        output = await replicate.wait(prediction);
+        output = output.output;
       } else {
         // Use easel/advanced-face-swap (commercial-grade, NSFW filter)
         modelUsed = "easel/advanced-face-swap (high quality)";
         console.log("[Replicate] Using model: easel/advanced-face-swap for IMAGE (commercial-grade quality, NSFW filter)");
         
         try {
-          output = await replicate.run(
-            "easel/advanced-face-swap",
-            {
-              input: {
-                target_image: input.targetMediaUrl,
-                swap_image: input.sourceImageUrl,
-              },
-            }
-          );
+          const prediction = await replicate.predictions.create({
+            model: "easel/advanced-face-swap",
+            input: {
+              target_image: input.targetMediaUrl,
+              swap_image: input.sourceImageUrl,
+            },
+            webhook: input.webhookUrl,
+            webhook_events_filter: ["completed"],
+          });
+          predictionId = prediction.id;
+          console.log("[Replicate] Prediction ID:", predictionId);
+          
+          // Wait for prediction to complete
+          output = await replicate.wait(prediction);
+          output = output.output;
           
           // Check if output is empty (NSFW detected)
           const outputUrl = Array.isArray(output) ? output[0] : output;
@@ -152,6 +173,7 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     return {
       success: true,
       outputUrl,
+      predictionId,
     };
   } catch (error: any) {
     console.error("[Replicate] Face swap failed:", error);

@@ -127,12 +127,20 @@ async function processJob(jobId: number) {
         );
       } else {
         console.log(`[Worker] [Job #${jobId}] Using Replicate for image face swap`);
+        
+        // Get webhook URL from environment
+        const webhookUrl = process.env.WEBHOOK_URL;
+        if (webhookUrl) {
+          console.log(`[Worker] [Job #${jobId}] Webhook URL configured: ${webhookUrl}`);
+        }
+        
         result = await withTimeout(
           performFaceSwap({
             sourceImageUrl: job.sourceImageUrl,
             targetMediaUrl: job.targetMediaUrl,
             targetMediaType: job.targetMediaType,
             modelPreference: job.modelPreference || "high_quality",
+            webhookUrl: webhookUrl,
           }),
           API_CALL_TIMEOUT,
           "Replicate API call"
@@ -145,10 +153,20 @@ async function processJob(jobId: number) {
     const apiDuration = Date.now() - apiStartTime;
     console.log(`[Worker] [Job #${jobId}] ✓ API call completed in ${apiDuration}ms`);
     console.log(`[Worker] [Job #${jobId}] Result success: ${result.success}`);
-
-    // Step 5: Update progress after API call
-    console.log(`[Worker] [Job #${jobId}] [Step 5/7] Updating progress (70%)...`);
-    await updateFaceSwapJobStatus(jobId, "processing", { progress: 70 });
+    
+    // Save predictionId if available (for webhook tracking)
+    if ('predictionId' in result && result.predictionId) {
+      const predId = result.predictionId as string;
+      console.log(`[Worker] [Job #${jobId}] Saving prediction ID: ${predId}`);
+      await updateFaceSwapJobStatus(jobId, "processing", { 
+        progress: 70,
+        predictionId: predId 
+      });
+    } else {
+      // Step 5: Update progress after API call
+      console.log(`[Worker] [Job #${jobId}] [Step 5/7] Updating progress (70%)...`);
+      await updateFaceSwapJobStatus(jobId, "processing", { progress: 70 });
+    }
 
     if (!result.success || (!result.outputUrl && !result.outputBase64)) {
       // Retry logic: retry up to 3 times

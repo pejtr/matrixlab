@@ -51,6 +51,7 @@ export const faceSwapJobs = mysqlTable("faceSwapJobs", {
   errorMessage: text("errorMessage"),
   progress: int("progress").default(0).notNull(), // 0-100
   retryCount: int("retryCount").default(0).notNull(), // Number of retry attempts
+  predictionId: varchar("predictionId", { length: 128 }), // Replicate prediction ID for webhook tracking
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -188,3 +189,4 @@ export type InsertFavorite = typeof favorites.$inferInsert;
 
 export type FavoriteCategory = typeof favoriteCategories.$inferSelect;
 export type InsertFavoriteCategory = typeof favoriteCategories.$inferInsert;
+// Note: predictionId field needs to be added to faceSwapJobs table (line 53)

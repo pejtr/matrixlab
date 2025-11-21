@@ -174,6 +174,7 @@ export async function updateFaceSwapJobStatus(
     completedAt?: Date;
     progress?: number;
     retryCount?: number;
+    predictionId?: string;
   }
 ): Promise<void> {
   const db = await getDb();
@@ -189,6 +190,7 @@ export async function updateFaceSwapJobStatus(
   if (updates?.completedAt) updateData.completedAt = updates.completedAt;
   if (updates?.progress !== undefined) updateData.progress = updates.progress;
   if (updates?.retryCount !== undefined) updateData.retryCount = updates.retryCount;
+  if (updates?.predictionId) updateData.predictionId = updates.predictionId;
 
   await db.update(faceSwapJobs).set(updateData).where(eq(faceSwapJobs.id, jobId));
 }
@@ -436,6 +438,7 @@ export async function getUserFavorites(userId: number, category?: number): Promi
       errorMessage: faceSwapJobs.errorMessage,
       progress: faceSwapJobs.progress,
       retryCount: faceSwapJobs.retryCount,
+      predictionId: faceSwapJobs.predictionId,
       createdAt: faceSwapJobs.createdAt,
       updatedAt: faceSwapJobs.updatedAt,
       completedAt: faceSwapJobs.completedAt,
@@ -463,6 +466,7 @@ export async function getUserFavorites(userId: number, category?: number): Promi
     errorMessage: faceSwapJobs.errorMessage,
     progress: faceSwapJobs.progress,
     retryCount: faceSwapJobs.retryCount,
+    predictionId: faceSwapJobs.predictionId,
     createdAt: faceSwapJobs.createdAt,
     updatedAt: faceSwapJobs.updatedAt,
     completedAt: faceSwapJobs.completedAt,
