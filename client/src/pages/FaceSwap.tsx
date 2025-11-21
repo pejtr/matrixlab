@@ -671,12 +671,12 @@ export default function FaceSwap() {
                                 }
                               }
                             }}
-                            className="group relative aspect-square rounded-full border-2 border-white/10 overflow-hidden cursor-pointer hover:ring-2 hover:ring-pink-500 hover:scale-105 transition-all"
+                            className="group relative aspect-square rounded-full border-2 border-white/10 cursor-pointer hover:ring-2 hover:ring-pink-500 hover:scale-105 transition-all"
                           >
                             <img
                               src={face.faceImageUrl}
                               alt="Saved face"
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover rounded-full"
                             />
                             {/* Active indicator */}
                             {sourcePreview === face.faceImageUrl && (
@@ -698,7 +698,7 @@ export default function FaceSwap() {
                                   toast.error('Failed to delete saved face');
                                 }
                               }}
-                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 rounded-full p-1 shadow-lg transition-colors z-10"
+                              className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 rounded-full p-1 shadow-lg transition-colors z-10"
                             >
                               <X className="h-3 w-3 text-white" />
                             </button>

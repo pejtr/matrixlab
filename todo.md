@@ -806,3 +806,9 @@
 - [x] Přidat samostatné tlačítko "Add Face" nebo + ikonu pro nahrání nové tváře
 - [x] Změnit delete badge z hover-only na always visible (vždy viditelný)
 - [x] Použít badge ikonu X místo button v rohu
+
+
+## Delete Badge Not Visible - User Reported Bug
+- [x] Delete X badge není viditelný na saved faces thumbnails
+- [x] Zkontrolovat CSS overflow, z-index a positioning
+- [x] Zajistit, aby badge byl vždy viditelný nad obrázkem
