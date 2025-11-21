@@ -1148,3 +1148,9 @@
 - [x] Opravit výšku náhledu v pravém sloupci - způsobuje vertikální scrollbar
 - [x] Nastavit správný max-height pro result preview na desktopu (70vh → 60vh)
 - [x] Zajistit že se vše vejde na obrazovku bez scrollování
+
+
+## Tablet UI Improvement - Current Sprint
+- [x] Generate button: Změnit na icon-only design na tabletu
+- [x] Skrýt text "Generate" na tabletu, zobrazit pouze Sparkles ikonu (hidden lg:inline)
+- [x] Zachovat queue counter badge i při icon-only módu

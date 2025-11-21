@@ -879,13 +879,13 @@ export default function FaceSwap() {
                       >
                         {isUploading ? (
                           <>
-                            <Loader2 className="mr-1 h-3 w-3 md:h-4 md:w-4 animate-spin" />
-                            {uploadProgress.current}/{uploadProgress.total}
+                            <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
+                            <span className="hidden lg:inline ml-1">{uploadProgress.current}/{uploadProgress.total}</span>
                           </>
                         ) : (
                           <>
-                            <Sparkles className="mr-1 h-3 w-3 md:h-4 md:w-4" />
-                            Generate
+                            <Sparkles className="h-3 w-3 md:h-4 md:w-4" />
+                            <span className="hidden lg:inline ml-1">Generate</span>
                           </>
                         )}
                       </Button>
