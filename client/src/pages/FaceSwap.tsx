@@ -323,6 +323,7 @@ export default function FaceSwap() {
   };
 
   const saveFaceMutation = trpc.savedFaces.saveFace.useMutation();
+  const deleteFaceMutation = trpc.savedFaces.deleteFace.useMutation();
   const getFaceImageBlob = trpc.savedFaces.getFaceImageBlob.useMutation();
 
   const handleSaveCurrentFace = async () => {
@@ -616,7 +617,7 @@ export default function FaceSwap() {
       <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_4fr] gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-[1.2fr_3.8fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
             <div className="space-y-1.5">
@@ -634,7 +635,7 @@ export default function FaceSwap() {
                     />
                     
                     {/* Grid of Saved Faces */}
-                    <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div className="grid grid-cols-3 gap-2 mb-2">
                       {savedFaces?.map((face) => (
                           <div
                             key={face.id}
@@ -692,7 +693,7 @@ export default function FaceSwap() {
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 try {
-                                  await trpc.savedFaces.deleteFace.useMutation().mutateAsync({ faceId: face.id });
+                                  await deleteFaceMutation.mutateAsync({ faceId: face.id });
                                   utils.savedFaces.getMySavedFaces.invalidate();
                                   if (sourcePreview === face.faceImageUrl) {
                                     setSourceFile(null);
@@ -703,7 +704,7 @@ export default function FaceSwap() {
                                   toast.error('Failed to delete saved face');
                                 }
                               }}
-                              className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 rounded-full p-1 shadow-lg transition-colors z-10"
+                              className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 rounded-full p-1.5 shadow-lg transition-colors z-20 pointer-events-auto"
                             >
                               <X className="h-3 w-3 text-white" />
                             </button>

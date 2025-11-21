@@ -860,3 +860,10 @@
 - [x] Use simple center-crop blending instead of face detection
 - [x] Test that body preservation still works
 - [ ] Verify deployment succeeds
+
+
+## Saved Faces Layout Fixes - User Requested
+- [x] Fix delete badge on saved faces - not clickable
+- [x] Change saved faces grid from 2 columns to 3 columns
+- [x] Increase left column width by 20% (from current ratio)
+- [x] Adjust spacing for 3-column layout
