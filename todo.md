@@ -842,3 +842,12 @@
   - [x] Add "Animate" button to result images in UI (Film icon)
   - [x] Open generated video in new tab
   - [x] Only show for image results (not videos)
+
+
+## Custom Animation Prompts - User Requested
+- [x] Create AnimateDialog component with prompt input field
+- [x] Add preset animation styles (smiling, talking, looking around, nodding, winking)
+- [x] Allow custom text prompt input
+- [x] Update Animate button to open dialog instead of direct animation
+- [x] Pass custom prompt to animateResult mutation
+- [x] Test various animation styles

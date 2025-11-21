@@ -16,6 +16,7 @@ import FullscreenLightbox from "@/components/FullscreenLightbox";
 import SavedFacesDialog from "@/components/SavedFacesDialog";
 import RegenerateDialog from "@/components/RegenerateDialog";
 import CropDialog from "@/components/CropDialog";
+import AnimateDialog from "@/components/AnimateDialog";
 
 /**
  * Get video duration in seconds
@@ -66,6 +67,7 @@ export default function FaceSwap() {
   const [isRegenerateMode, setIsRegenerateMode] = useState(false);
   const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
+  const [showAnimateDialog, setShowAnimateDialog] = useState(false);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("permissive");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
 
@@ -1090,23 +1092,9 @@ export default function FaceSwap() {
                     {currentJob?.targetMediaType === 'image' && (
                       <Button
                         size="sm"
-                        onClick={async () => {
+                        onClick={() => {
                           if (!currentJob) return;
-                          try {
-                            toast.info('Generating video animation...');
-                            const result = await animateResultMutation.mutateAsync({
-                              jobId: currentJob.id,
-                            });
-                            
-                            if (result.success && result.videoUrl) {
-                              // Open video in new tab
-                              window.open(result.videoUrl, '_blank');
-                              toast.success('Animation generated! Opening in new tab...');
-                            }
-                          } catch (error: any) {
-                            console.error('Animation failed:', error);
-                            toast.error(error.message || 'Failed to generate animation');
-                          }
+                          setShowAnimateDialog(true);
                         }}
                         disabled={animateResultMutation.isPending}
                         className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 h-8 w-8 p-0 shadow-lg"
@@ -1586,6 +1574,35 @@ export default function FaceSwap() {
             </div>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* Animate Dialog */}
+      {currentJob && (
+        <AnimateDialog
+          open={showAnimateDialog}
+          onClose={() => setShowAnimateDialog(false)}
+          isAnimating={animateResultMutation.isPending}
+          onAnimate={async (prompt: string) => {
+            if (!currentJob) return;
+            try {
+              toast.info('Generating video animation...');
+              const result = await animateResultMutation.mutateAsync({
+                jobId: currentJob.id,
+                prompt,
+              });
+              
+              if (result.success && result.videoUrl) {
+                // Open video in new tab
+                window.open(result.videoUrl, '_blank');
+                toast.success('Animation generated! Opening in new tab...');
+                setShowAnimateDialog(false);
+              }
+            } catch (error: any) {
+              console.error('Animation failed:', error);
+              toast.error(error.message || 'Failed to generate animation');
+            }
+          }}
+        />
       )}
     </div>
   );
