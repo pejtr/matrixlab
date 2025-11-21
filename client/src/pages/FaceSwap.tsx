@@ -764,7 +764,7 @@ export default function FaceSwap() {
                                   setLightboxIndex(idx);
                                   setShowLightbox(true);
                                 }}
-                                className={targetPreviews.length === 1 ? "w-full aspect-[3/4] object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
+                                className={targetPreviews.length === 1 ? "w-full max-h-[50vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
                               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
                                 <span className="text-white text-[8px] font-medium">#{idx + 1}</span>
@@ -836,7 +836,7 @@ export default function FaceSwap() {
                         className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                       />
                       <span className="text-white/90 text-[10px]">
-                        Preserve Body (prevent AI from changing body proportions)
+                        Preserve Body (keep original proportions)
                       </span>
                     </label>
                   </CardContent>

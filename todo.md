@@ -934,3 +934,16 @@
 - [x] Stretch menu icons to full height of the header bar
 - [x] Maintain responsive design and click areas
 - [x] Preserve logo and user profile visibility
+
+
+## Target Preview Overflow Fix - User Requested
+- [x] Prevent scrollbar in left column when target preview is tall
+- [x] Apply max-height constraint to target preview image (max-h-[50vh])
+- [x] Ensure preview always fits within available space
+- [x] Use object-contain to maintain aspect ratio
+
+
+## Preserve Body Label Shortening - User Requested
+- [x] Shorten "Preserve Body (prevent AI from changing body proportions)" text
+- [x] Make it fit on one line (now: "Preserve Body (keep original proportions)")
+- [x] Keep meaning clear and concise
