@@ -46,6 +46,7 @@ export const faceSwapJobs = mysqlTable("faceSwapJobs", {
   // Metadata
   targetMediaType: mysqlEnum("targetMediaType", ["image", "video"]).notNull(),
   modelPreference: mysqlEnum("modelPreference", ["high_quality", "permissive"]).default("high_quality").notNull(), // Model selection: high_quality (NSFW filter) vs permissive (NSFW allowed)
+  preserveBody: int("preserveBody").default(0).notNull(), // 0 = disabled, 1 = enabled - preserve body proportions during face swap
   status: mysqlEnum("status", ["pending", "processing", "completed", "failed", "cancelled"]).default("pending").notNull(),
   errorMessage: text("errorMessage"),
   progress: int("progress").default(0).notNull(), // 0-100

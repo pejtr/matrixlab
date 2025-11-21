@@ -1,0 +1,1 @@
+ALTER TABLE `faceSwapJobs` ADD `preserveBody` int DEFAULT 0 NOT NULL;

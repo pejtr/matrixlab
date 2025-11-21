@@ -49,7 +49,9 @@
     "@trpc/react-query": "^11.6.0",
     "@trpc/server": "^11.6.0",
     "@types/multer": "^2.0.0",
+    "@vladmandic/face-api": "^1.7.15",
     "axios": "^1.12.0",
+    "canvas": "^3.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -67,6 +69,7 @@
     "mysql2": "^3.15.0",
     "nanoid": "^5.1.5",
     "next-themes": "^0.4.6",
+    "node-fetch": "2",
     "openai": "^4.67.0",
     "react": "^19.1.1",
     "react-day-picker": "^9.11.1",
@@ -75,6 +78,7 @@
     "react-resizable-panels": "^3.0.6",
     "recharts": "^2.15.2",
     "replicate": "^1.4.0",
+    "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "streamdown": "^1.4.0",
     "superjson": "^1.13.3",
@@ -91,6 +95,7 @@
     "@types/express": "4.17.21",
     "@types/google.maps": "^3.58.1",
     "@types/node": "^24.7.0",
+    "@types/node-fetch": "^2.6.13",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
@@ -116,6 +121,10 @@
     },
     "overrides": {
       "tailwindcss>nanoid": "3.3.7"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "canvas",
+      "sharp"
+    ]
   }
 }

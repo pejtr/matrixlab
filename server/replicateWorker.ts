@@ -188,6 +188,33 @@ async function processJob(jobId: number) {
       throw new Error('No output URL or base64 data');
     }
 
+    // Step 6.5: Apply body preservation blending (if enabled and image)
+    if (job.preserveBody === 1 && job.targetMediaType === "image") {
+      console.log(`[Worker] [Job #${jobId}] [Step 6.5/7] Applying body preservation blending...`);
+      await updateFaceSwapJobStatus(jobId, "processing", { progress: 85 });
+      
+      const { processWithBodyPreservation } = await import("./imageBlendingService.js");
+      
+      // First upload the face-swapped result temporarily to get a URL
+      const tempKey = `temp/job-${jobId}-swapped-${Date.now()}.jpg`;
+      const { url: tempSwappedUrl } = await storagePut(tempKey, resultBuffer, "image/jpeg");
+      
+      // Apply blending
+      const blendResult = await processWithBodyPreservation(
+        job.targetMediaUrl, // original image
+        tempSwappedUrl, // face-swapped image
+        true // preserveBody enabled
+      );
+      
+      if (blendResult.success && blendResult.imageBuffer) {
+        console.log(`[Worker] [Job #${jobId}] ✓ Body preservation applied, blended size: ${blendResult.imageBuffer.length} bytes`);
+        resultBuffer = blendResult.imageBuffer;
+      } else {
+        console.log(`[Worker] [Job #${jobId}] ⚠ Body preservation failed: ${blendResult.error}, using original face-swapped result`);
+        // Continue with original face-swapped result
+      }
+    }
+    
     // Step 7: Upload to S3
     console.log(`[Worker] [Job #${jobId}] [Step 7/7] Uploading to S3...`);
     await updateFaceSwapJobStatus(jobId, "processing", { progress: 90 });

@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'faceSwapJobs' AND COLUMN_NAME LIKE '%preserve%'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'faceSwapJobs' AND COLUMN_NAME LIKE '%preserve%'",
+  "rows": [
+    {
+      "COLUMN_NAME": "preserveBody"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\npreserveBody\n",
+  "stderr": "",
+  "execution_time_ms": 117
+}

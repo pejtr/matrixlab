@@ -84,6 +84,7 @@ export const appRouter = router({
         targetMediaUrl: z.string(),
         targetMediaType: z.enum(["image", "video"]),
         modelPreference: z.enum(["high_quality", "permissive"]).optional(),
+        preserveBody: z.number().optional(), // 0 = disabled, 1 = enabled
       }))
       .mutation(async ({ ctx, input }) => {
         const job = await createFaceSwapJob({
@@ -94,6 +95,7 @@ export const appRouter = router({
           targetMediaUrl: input.targetMediaUrl,
           targetMediaType: input.targetMediaType,
           modelPreference: input.modelPreference || "high_quality",
+          preserveBody: input.preserveBody || 0,
           status: "pending",
         });
 
@@ -293,6 +295,76 @@ export const appRouter = router({
         const { retryAllFailedJobs } = await import("./db");
         const retriedCount = await retryAllFailedJobs(ctx.user.id);
         return { success: true, retriedCount };
+      }),
+
+    // Animate result image with MiniMax I2V
+    animateResult: protectedProcedure
+      .input(z.object({
+        jobId: z.number(),
+        prompt: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify job belongs to user and is completed image
+        const job = await getFaceSwapJobById(input.jobId);
+        if (!job) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Job not found',
+          });
+        }
+
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: "You don't have permission to animate this job",
+          });
+        }
+
+        if (job.status !== 'completed') {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Can only animate completed jobs',
+          });
+        }
+
+        if (job.targetMediaType !== 'image') {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Can only animate image results, not videos',
+          });
+        }
+
+        if (!job.resultMediaUrl) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Job has no result to animate',
+          });
+        }
+
+        // Generate video from result image using MiniMax I2V
+        const prompt = input.prompt || "Natural facial expressions and subtle head movement";
+        
+        console.log(`[I2V] Animating job #${input.jobId} with prompt: ${prompt}`);
+        
+        const i2vResult = await minimaxService.generateVideoFromImage({
+          prompt,
+          firstFrameImage: job.resultMediaUrl,
+        });
+
+        if (!i2vResult.success || !i2vResult.outputPath) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: i2vResult.error || 'Failed to generate video animation',
+          });
+        }
+
+        console.log(`[I2V] Animation generated: ${i2vResult.outputPath}`);
+
+        return {
+          success: true,
+          videoUrl: i2vResult.outputPath,
+          taskId: i2vResult.taskId,
+        };
       }),
   }),
 

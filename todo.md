@@ -812,3 +812,33 @@
 - [x] Delete X badge není viditelný na saved faces thumbnails
 - [x] Zkontrolovat CSS overflow, z-index a positioning
 - [x] Zajistit, aby badge byl vždy viditelný nad obrázkem
+
+
+## Body Preservation via Sharp - User Requested Feature
+- [ ] Nainstalovat sharp a @vladmandic/face-api závislosti
+- [ ] Vytvořit faceDetectionService.ts pro detekci obličeje v obrázku
+- [ ] Vytvořit imageBlendingService.ts s Sharp pro kombinování swapovaného obličeje s původním tělem
+- [ ] Přidat toggle "Preserve Body" do UI (vedle AI Model selectu)
+- [ ] Aktualizovat replicateService.ts pro volání image blending post-processingu
+- [ ] Testovat, že body preservation zachovává tělesné proporce
+
+## Image-to-Video Animation - User Requested Feature
+- [ ] Vytvořit minimaxI2VService.ts pro MiniMax image-to-video
+- [ ] Přidat "Animate" tlačítko k výsledným obrázkům v UI
+- [ ] Přidat dialog pro výběr I2V parametrů (model, prompt, camera movement)
+- [ ] Implementovat job processing pro I2V úlohy
+- [ ] Přidat video preview a download do výsledků
+- [ ] Testovat I2V animaci na face swap výsledcích
+
+
+## Body Preservation & Animation Features - Implemented
+- [x] Implement body preservation feature using Sharp image compositing
+  - [x] Add face detection service using face-api.js
+  - [x] Create image blending service to preserve body proportions
+  - [x] Add "Preserve Body" toggle in UI
+  - [x] Integrate into face swap workflow (worker applies blending automatically)
+- [x] Add MiniMax Image-to-Video animation feature
+  - [x] Create I2V endpoint in backend (animateResult mutation)
+  - [x] Add "Animate" button to result images in UI (Film icon)
+  - [x] Open generated video in new tab
+  - [x] Only show for image results (not videos)

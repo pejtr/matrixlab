@@ -71,6 +71,13 @@
       "when": 1763669242961,
       "tag": "0009_slimy_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1763688267086,
+      "tag": "0010_fixed_risque",
+      "breakpoints": true
     }
   ]
 }

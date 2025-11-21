@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -67,6 +67,7 @@ export default function FaceSwap() {
   const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("permissive");
+  const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -85,6 +86,7 @@ export default function FaceSwap() {
   const cancelJobMutation = trpc.faceSwap.cancelJob.useMutation();
   const updateJobResultMutation = trpc.faceSwap.updateJobResult.useMutation();
   const softDeleteSourceMutation = trpc.faceSwap.softDeleteSourceImage.useMutation();
+  const animateResultMutation = trpc.faceSwap.animateResult.useMutation();
   const utils = trpc.useUtils();
 
   const completedJobs = jobs?.filter(job => job.status === "completed") || [];
@@ -529,6 +531,7 @@ export default function FaceSwap() {
           targetMediaUrl: targetUploadData.url,
           targetMediaType,
           modelPreference,
+          preserveBody: preserveBody ? 1 : 0, // Convert boolean to 0/1 for database
         });
 
       }
@@ -815,6 +818,19 @@ export default function FaceSwap() {
                         {showTemplateGallery ? 'Hide' : 'Templates'}
                       </Button>
                     </div>
+                    
+                    {/* Preserve Body Checkbox */}
+                    <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={preserveBody}
+                        onChange={(e) => setPreserveBody(e.target.checked)}
+                        className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-2 focus:ring-pink-500 cursor-pointer"
+                      />
+                      <span className="text-white/90 text-[10px]">
+                        Preserve Body (prevent AI from changing body proportions)
+                      </span>
+                    </label>
                   </CardContent>
                 </Card>
               </div>
@@ -1071,6 +1087,38 @@ export default function FaceSwap() {
                     >
                       <Crop className="h-4 w-4" />
                     </Button>
+                    {currentJob?.targetMediaType === 'image' && (
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          if (!currentJob) return;
+                          try {
+                            toast.info('Generating video animation...');
+                            const result = await animateResultMutation.mutateAsync({
+                              jobId: currentJob.id,
+                            });
+                            
+                            if (result.success && result.videoUrl) {
+                              // Open video in new tab
+                              window.open(result.videoUrl, '_blank');
+                              toast.success('Animation generated! Opening in new tab...');
+                            }
+                          } catch (error: any) {
+                            console.error('Animation failed:', error);
+                            toast.error(error.message || 'Failed to generate animation');
+                          }
+                        }}
+                        disabled={animateResultMutation.isPending}
+                        className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 h-8 w-8 p-0 shadow-lg"
+                        title="Animate with AI (Image to Video)"
+                      >
+                        {animateResultMutation.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Film className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       onClick={async () => {
