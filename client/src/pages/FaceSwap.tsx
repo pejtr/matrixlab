@@ -74,7 +74,7 @@ export default function FaceSwap() {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
   const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3 | 4 | 5>(1);
-  const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("permissive");
+  const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
@@ -978,7 +978,7 @@ export default function FaceSwap() {
             <div className="space-y-4">
               {/* Results Section */}
               {/* Loading State - Show when processing */}
-              {jobs && jobs.some(j => j.status === "pending" || j.status === "processing") && completedJobs.length === 0 && (
+              {(jobs && jobs.some(j => j.status === "pending" || j.status === "processing") && completedJobs.length === 0) ? (
                 <div className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden">
                   {/* Show target preview during generation */}
                   {targetPreviews.length > 0 && (
@@ -1065,9 +1065,7 @@ export default function FaceSwap() {
                     ))}
                   </div>
                 </div>
-              )}
-              
-              {completedJobs.length > 0 && (
+              ) : completedJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
                   {/* Action Buttons - Floating */}
                   <div className="absolute top-3 right-3 z-20 flex gap-2">
@@ -1246,7 +1244,7 @@ export default function FaceSwap() {
                               </div>
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1 pointer-events-none">
-                              <button
+                              <span
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (currentJob?.sourceImageUrl) {
@@ -1255,10 +1253,10 @@ export default function FaceSwap() {
                                     setShowLightbox(true);
                                   }
                                 }}
-                                className="text-white text-[8px] md:text-[10px] font-semibold hover:text-pink-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40"
+                                className="text-white text-[8px] md:text-[10px] font-semibold hover:text-pink-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40 cursor-pointer"
                               >
                                 FACE
-                              </button>
+                              </span>
                             </div>
                             {/* Upload Progress Overlay */}
                             {isUploading && sourceFile && (
@@ -1320,7 +1318,7 @@ export default function FaceSwap() {
                               </div>
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1 pointer-events-none">
-                              <button
+                              <span
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (currentJob?.targetMediaUrl) {
@@ -1329,10 +1327,10 @@ export default function FaceSwap() {
                                     setShowLightbox(true);
                                   }
                                 }}
-                                className="text-white text-[8px] md:text-[10px] font-semibold hover:text-purple-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40"
+                                className="text-white text-[8px] md:text-[10px] font-semibold hover:text-purple-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40 cursor-pointer"
                               >
                                 TARGET
-                              </button>
+                              </span>
                             </div>
                             {/* Upload Progress Overlay */}
                             {isUploading && targetFiles.length > 0 && (
@@ -1417,6 +1415,14 @@ export default function FaceSwap() {
                     </div>
 
 
+                  </div>
+                </div>
+              ) : (
+                <div className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden h-[64vh] flex items-center justify-center">
+                  <div className="text-center px-8">
+                    <UserCircle className="h-16 w-16 text-white/30 mx-auto mb-4" />
+                    <h3 className="text-white/70 text-lg font-semibold mb-2">No Results Yet</h3>
+                    <p className="text-white/50 text-sm">Upload a face and target media to get started</p>
                   </div>
                 </div>
               )}

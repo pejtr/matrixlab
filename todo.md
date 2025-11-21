@@ -1257,3 +1257,25 @@
 ## Bug Fixes - User Reported
 - [x] Opravit duplicity v source faces lightboxu (filtrovat unikátní source faces)
 - [x] Přidat funkcionalitu pro TARGET badge (otevřít lightbox s target média)
+
+
+## Layout Bug - Intermittent Rendering Issue
+- [ ] Opravit problém kdy se při každém druhém refreshi stránky nezobrazí pravá část s výsledky (pouze levý sloupec viditelný)
+
+## Branding Update - User Requested
+- [x] Odstranit "STUDIO" z navigace (pouze "AI FaceSwap")
+
+## Bug Fixes - User Reported
+- [x] Opravit nested button error (button uvnitř button elementu - FACE badge)
+- [x] Opravit nested button error (button uvnitř button elementu - TARGET badge)
+
+## Model Settings - User Requested
+- [x] Změnit primární model na "high_quality" místo "permissive"
+
+## A/B Testing - New Design Variant
+- [ ] Vytvořit Design B podle ChatGPT vzoru (čistší, minimalistický)
+- [ ] Implementovat URL parametr ?variant=b pro přepínání
+- [ ] Design B: Levý sloupec vertikální (Face Source + Target Image)
+- [ ] Design B: Pravý sloupec s velkým výsledkem + miniatury pod ním
+- [ ] Design B: Bílé pozadí místo fialového gradientu
+- [ ] Zachovat sticky header stejný pro obě varianty
