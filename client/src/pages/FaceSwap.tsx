@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowLeft } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowLeft, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -59,9 +59,9 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
-  // Desktop: 4 thumbnails (1 row), Mobile: 8 thumbnails
+  // Desktop: 16 thumbnails, Mobile: 20 thumbnails
   const [visibleJobsCount, setVisibleJobsCount] = useState(
-    typeof window !== 'undefined' && window.innerWidth >= 768 ? 4 : 8
+    typeof window !== 'undefined' && window.innerWidth >= 768 ? 16 : 20
   );
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
@@ -1572,12 +1572,13 @@ export default function FaceSwap() {
               {/* Load More Button */}
               {hasMoreJobs && (
                 <div className="flex justify-center mt-4">
-                  <Button
+                  <button
                     onClick={() => setVisibleJobsCount(prev => prev + 8)}
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                    className="group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
+                    title={`Load ${jobs.length - visibleJobsCount} more jobs`}
                   >
-                    Načíst další ({jobs.length - visibleJobsCount})
-                  </Button>
+                    <ChevronDown className="h-5 w-5 text-white group-hover:animate-bounce" />
+                  </button>
                 </div>
               )}
             </div>

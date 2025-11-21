@@ -1134,3 +1134,11 @@
 - [x] Haptic feedback: Detekce nových completed jobů a trigger vibrace
 - [x] Queue counter: Zobrazit badge s počtem pending/processing jobů na Generate tlačítku
 - [x] Queue counter: Design - malý badge v pravém horním rohu tlačítka
+
+
+## All Jobs UI Improvements - Current Sprint
+- [x] Zvýšit počet defaultně zobrazených miniatur v All Jobs gridu
+- [x] Desktop: Zobrazit více jobů (např. 12-16 místo 4) - implementováno 16
+- [x] Mobile: Zobrazit více jobů (např. 16-20 místo 8) - implementováno 20
+- [x] Změnit "Load More" textové tlačítko na ikonu (ChevronDown nebo Plus)
+- [x] Icon button design - kompaktnější a vizuálně konzistentní
