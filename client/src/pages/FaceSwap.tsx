@@ -629,7 +629,7 @@ export default function FaceSwap() {
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-2">
+                  <CardContent className="p-1.5">
                     {/* Hidden file input */}
                     <input
                       ref={sourceInputRef}
@@ -640,7 +640,7 @@ export default function FaceSwap() {
                     />
                     
                     {/* Grid of Saved Faces */}
-                    <div className="grid grid-cols-3 gap-2 mb-2">
+                    <div className="grid grid-cols-3 gap-2">
                       {savedFaces?.map((face) => (
                           <div
                             key={face.id}
@@ -765,9 +765,7 @@ export default function FaceSwap() {
                                 }}
                                 className={targetPreviews.length === 1 ? "w-full max-h-[35vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
-                                <span className="text-white text-[8px] font-medium">#{idx + 1}</span>
-                              </div>
+
                               {/* Delete button */}
                               <Button
                                 size="sm"

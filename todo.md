@@ -980,3 +980,14 @@
 - [x] Change ratio from 30:30:40 to 20:40:40 (Templates:AI model:Generate)
 - [x] Fix Generate button icon overflow - reduced margin from mr-2 to mr-1
 - [x] Ensure content doesn't overflow in Generate button
+
+
+## Fix Target Preview Hover Jump - User Reported
+- [x] Remove hover effect that causes target preview to jump/resize
+- [x] Prevent layout shift when hovering over target image (removed overlay)
+- [x] Maintain stable layout
+
+## Reduce Face Grid Padding - User Requested
+- [x] Remove empty space above and below face thumbnails grid
+- [x] Make face section more compact (p-2 → p-1.5, mb-2 removed)
+- [x] Reduce CardContent padding in Saved Faces section
