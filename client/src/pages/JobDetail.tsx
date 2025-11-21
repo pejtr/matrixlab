@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation, useParams } from "wouter";
-import { ArrowLeft, Loader2, Download, CheckCircle, XCircle, Clock, RefreshCw } from "lucide-react";
+import { ArrowLeft, Loader2, Download, CheckCircle, XCircle, Clock, RefreshCw, Maximize2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import UpscaleButton from "@/components/UpscaleButton";
 import { useState } from "react";
 
 export default function JobDetail() {
@@ -173,6 +174,9 @@ export default function JobDetail() {
                           <Download className="mr-2 h-4 w-4" />
                           Download
                         </Button>
+                        {job.targetMediaType === "image" && (
+                          <UpscaleButton imageUrl={job.resultMediaUrl!} />
+                        )}
                       </div>
                     </div>
                   </CardHeader>

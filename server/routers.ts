@@ -913,6 +913,120 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // Wan Animate - Character animation and full body replacement
+  wanAnimate: router({
+    // Create new Wan Animate job
+    createJob: protectedProcedure
+      .input(z.object({
+        characterImageKey: z.string(),
+        characterImageUrl: z.string(),
+        referenceVideoKey: z.string(),
+        referenceVideoUrl: z.string(),
+        mode: z.enum(["animation", "replacement"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createWanAnimateJob } = await import("./db");
+        
+        const job = await createWanAnimateJob({
+          userId: ctx.user.id,
+          characterImageKey: input.characterImageKey,
+          characterImageUrl: input.characterImageUrl,
+          referenceVideoKey: input.referenceVideoKey,
+          referenceVideoUrl: input.referenceVideoUrl,
+          mode: input.mode,
+          status: "pending",
+          progress: 0,
+          retryCount: 0,
+        });
+
+        return job;
+      }),
+
+    // Get all user's Wan Animate jobs
+    getJobs: protectedProcedure.query(async ({ ctx }) => {
+      const { getWanAnimateJobsByUserId } = await import("./db");
+      return getWanAnimateJobsByUserId(ctx.user.id);
+    }),
+
+    // Get specific job by ID
+    getJobById: protectedProcedure
+      .input(z.object({ jobId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { getWanAnimateJobById } = await import("./db");
+        const job = await getWanAnimateJobById(input.jobId);
+        
+        if (!job) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Job not found",
+          });
+        }
+
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to view this job",
+          });
+        }
+
+        return job;
+      }),
+
+    // Delete job
+    deleteJob: protectedProcedure
+      .input(z.object({ jobId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { getWanAnimateJobById, deleteWanAnimateJob } = await import("./db");
+        const job = await getWanAnimateJobById(input.jobId);
+        
+        if (!job) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Job not found",
+          });
+        }
+
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to delete this job",
+          });
+        }
+
+        await deleteWanAnimateJob(input.jobId);
+        return { success: true };
+      }),
+  }),
+
+  // Upscale - Image upscaling using Real-ESRGAN
+  upscale: router({
+    // Upscale image
+    upscaleImage: protectedProcedure
+      .input(z.object({
+        imageUrl: z.string(),
+        scale: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { upscaleImage } = await import("./upscaleService");
+        const webhookUrl = process.env.WEBHOOK_URL;
+        
+        const result = await upscaleImage({
+          imageUrl: input.imageUrl,
+          scale: input.scale,
+          webhookUrl,
+        });
+
+        if (!result.success) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: result.error || "Upscale failed",
+          });
+        }
+
+        return result;
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

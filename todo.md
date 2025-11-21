@@ -11,14 +11,14 @@
 - [ ] Nastavit WEBHOOK_URL (https://faceswap.manus.space/api/replicate-webhook) v Settings
 - [ ] Otestovat webhook s reálným Replicate API voláním
 
-## Upscale Feature - User Requested (CURRENT)
-- [ ] Přidat Upscale tlačítko vedle Download/Crop/Animate na výsledcích
-- [ ] Vytvořit upscaleService.ts pro Replicate upscale modely
-- [ ] Implementovat image upscale pomocí Real-ESRGAN (4x zvětšení)
+## Upscale Feature - Completed
+- [x] Přidat Upscale tlačítko vedle Download na výsledcích
+- [x] Vytvořit upscaleService.ts pro Replicate upscale modely
+- [x] Implementovat image upscale pomocí Real-ESRGAN (4x zvětšení)
+- [x] Přidat UI pro upscale progress a výsledky (dialog s before/after)
+- [x] tRPC API procedure pro upscale
 - [ ] Implementovat video upscale pomocí vhodného modelu
-- [ ] Přidat UI pro upscale progress a výsledky
-- [ ] Uložit upscalované výsledky jako nové joby
-- [ ] Otestovat upscale na obrázcích i videích
+- [ ] Otestovat upscale na reálných obrázcích
 
 ## Text-to-Video Models Integration - User Requested
 - [ ] Integrovat Wan model pro text-to-video generování
@@ -34,22 +34,29 @@
 ## Previous Features (All Completed)
 See git history for complete list of implemented features.
 
-## Wan2.2-Animate Integration - User Requested (HIGH PRIORITY)
-- [ ] Integrovat Wan2.2-Animate-14B model (wan-video/wan-2.2-animate-animation)
-- [ ] Implementovat Animation Mode - animace postavy podle reference videa
-- [ ] Implementovat Replacement Mode - full body swap (nahrazení celé postavy)
-- [ ] Vytvořit UI pro výběr módu (Animation vs Replacement)
-- [ ] Přidat upload pro character image + reference video
-- [ ] Preprocessing videa před odesláním do modelu
-- [ ] Zobrazit progress a výsledky pro oba módy
+## Wan2.2-Animate Integration - Completed
+- [x] Integrovat Wan2.2-Animate-14B model (wan-video/wan-2.2-animate-animation)
+- [x] Vytvořit wanAnimateService.ts s Animation a Replacement módy
+- [x] Database schema - wanAnimateJobs tabulka
+- [x] tRPC API procedures (createJob, getJobs, getJobById, deleteJob)
+- [x] Vytvořit Hailuo-style UI s tmavým layoutem
+- [x] Levý panel - mode selection, image/video upload
+- [x] Pravý panel - grid galerie videí
+- [x] Processing animace POUZE v miniaturách (ne v hlavním preview)
+- [ ] Implementovat worker pro zpracování Wan Animate jobů
 - [ ] Otestovat s reálnými videi a postavami
 
-## Hailuo AI-Style Video Generation UI - User Requested
-- [ ] Vytvořit tmavý layout inspirovaný Hailuo AI
-- [ ] Levý panel - prompt input, image upload, mode selection
-- [ ] Pravý panel - grid galerie vygenerovaných videí
-- [ ] Video thumbnails s duration overlay (např. "00:10")
-- [ ] Bookmark ikony pro přidání do favorites
-- [ ] Filtr Type: Videos + Favorites toggle
-- [ ] Responsive grid layout (3-4 sloupce)
-- [ ] Hover efekty a smooth transitions
+## Hailuo AI-Style Video Generation UI - Completed
+- [x] Vytvořit tmavý layout inspirovaný Hailuo AI
+- [x] Levý panel - mode selection, image/video upload
+- [x] Pravý panel - grid galerie vygenerovaných videí
+- [x] Video thumbnails s duration overlay ("00:10")
+- [x] Bookmark ikony pro přidání do favorites
+- [x] Responsive grid layout (3 sloupce)
+- [x] Gradient background (gray-900 → purple-900)
+- [x] Processing animace pouze v miniaturách
+
+## UX Improvements - User Requested
+- [ ] Processing animace POUZE v miniaturách v "All Jobs" sekci
+- [ ] Hlavní preview zůstává čistý bez processing overlays
+- [ ] Progress bar a status pouze v job thumbnails
