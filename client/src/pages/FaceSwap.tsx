@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -628,12 +628,9 @@ export default function FaceSwap() {
                       className="hidden"
                     />
                     
-                    {/* Grid of Saved Faces (2x2) */}
+                    {/* Grid of Saved Faces */}
                     <div className="grid grid-cols-2 gap-2 mb-2">
-                      {/* Render 4 slots */}
-                      {Array.from({ length: 4 }).map((_, idx) => {
-                        const face = savedFaces?.[idx];
-                        return face ? (
+                      {savedFaces?.map((face) => (
                           <div
                             key={face.id}
                             onClick={async () => {
@@ -685,7 +682,7 @@ export default function FaceSwap() {
                             {sourcePreview === face.faceImageUrl && (
                               <div className="absolute inset-0 ring-2 ring-pink-500 bg-pink-500/20" />
                             )}
-                            {/* Delete button */}
+                            {/* Delete badge - always visible */}
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
@@ -701,35 +698,24 @@ export default function FaceSwap() {
                                   toast.error('Failed to delete saved face');
                                 }
                               }}
-                              className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 rounded-full p-1 shadow-lg transition-colors z-10"
                             >
                               <X className="h-3 w-3 text-white" />
                             </button>
                           </div>
-                        ) : (
-                          <div
-                            key={`empty-${idx}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              sourceInputRef.current?.click();
-                            }}
-                            onDrop={handleSourceDrop}
-                            onDragOver={handleSourceDragOver}
-                            onDragLeave={handleSourceDragLeave}
-                            className={`aspect-square rounded-full border-2 border-dashed flex items-center justify-center cursor-pointer transition-all ${
-                              isDraggingSource
-                                ? 'border-pink-400 bg-pink-500/20 scale-105'
-                                : 'border-white/20 hover:border-pink-400 hover:bg-pink-500/10'
-                            }`}
-                          >
-                            <UserCircle 
-                              className="h-8 w-8 text-white/30 pointer-events-none" 
-                            />
-                          </div>
-                        );
-                      })}
+                        ))}
                     </div>
+                    
+                    {/* Add Face Button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => sourceInputRef.current?.click()}
+                      className="w-full bg-white/5 hover:bg-white/10 border-white/20 text-white"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Face
+                    </Button>
                   </CardContent>
                 </Card>
 

@@ -799,3 +799,10 @@
 - [x] Debugovat proč sourceInputRef.current?.click() nespouští file picker
 - [x] Opravit handleSourceFileChange - po výběru souboru se nic nestane
 - [x] Delete tlačítko X funguje (zobrazuje se při hoveru nad uloženými tvářemi)
+
+
+## Saved Faces UX Redesign - User Requested
+- [x] Odstranit prázdný slot z saved faces grid (nefunguje správně)
+- [x] Přidat samostatné tlačítko "Add Face" nebo + ikonu pro nahrání nové tváře
+- [x] Změnit delete badge z hover-only na always visible (vždy viditelný)
+- [x] Použít badge ikonu X místo button v rohu
