@@ -1189,11 +1189,11 @@ export default function FaceSwap() {
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
-                          className="w-full h-[64vh] object-contain"
+                          className="w-full h-[72vh] object-contain"
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-[64vh]">
+                        <div className="relative w-full h-[72vh]">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img

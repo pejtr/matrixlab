@@ -1287,3 +1287,4 @@
 
 ## Layout Adjustments - User Requested
 - [x] Zmenšit výšku náhledu target média o 22% (verze A)
+- [x] Zvětšit výšku hlavního výsledkového obrázku (odstranit mezeru pod fotkou na desktopu)
