@@ -351,6 +351,9 @@ export default function FaceSwap() {
         faceImageUrl: uploadData.url,
         name: faceName,
       });
+
+      toast.success(`Face "${faceName}" saved successfully!`);
+      await utils.savedFaces.getMySavedFaces.invalidate();
     } catch (error) {
       console.error("Failed to save face:", error);
       toast.error("Failed to save face");

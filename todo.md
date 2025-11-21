@@ -874,3 +874,9 @@
 - [x] Rename "After" to "Before" (source face used)
 - [x] Add "Use" icon to thumbnails for quick reuse
 - [x] Fix hover graphic glitch - gray bar appearing in middle of column
+
+
+## Saved Faces Refresh Bug - User Reported
+- [x] Fix saved faces not refreshing after adding new face
+- [x] Add cache invalidation to saveFace mutation
+- [x] Ensure new face thumbnail appears immediately
