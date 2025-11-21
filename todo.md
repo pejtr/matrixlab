@@ -1154,3 +1154,9 @@
 - [x] Generate button: Změnit na icon-only design na tabletu
 - [x] Skrýt text "Generate" na tabletu, zobrazit pouze Sparkles ikonu (hidden lg:inline)
 - [x] Zachovat queue counter badge i při icon-only módu
+
+
+## All Jobs Grid Layout - Current Sprint
+- [x] Zvýšit počet sloupců v All Jobs gridu na desktopu
+- [x] Desktop: Zobrazit více miniatur na řádek (md:10, lg:12, xl:14, 2xl:16)
+- [x] Využít celou šířku obrazovky pro All Jobs grid

@@ -1354,7 +1354,7 @@ export default function FaceSwap() {
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-white text-sm font-semibold">All Jobs ({jobs.length})</h3>
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2">
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-2">
                 {visibleJobs.map((job, idx) => (
                       <div
                         key={job.id}
