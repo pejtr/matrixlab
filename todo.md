@@ -1027,3 +1027,15 @@
 - [x] Change hover arrow on All Jobs results from right (→) to left (←)
 - [x] Update ArrowRight icon to ArrowLeft icon (import + 2 instances)
 - [x] Maintain hover tooltip and click functionality
+
+
+## Remove All Face Card Padding - User Reported Issue
+- [x] Face thumbnails still have padding on all sides (top, bottom, left, right)
+- [x] Remove padding from Card component itself using [&>*]:p-0
+- [x] Thumbnails fill 100% of cell width and height
+- [x] Overridden default Card/CardContent padding
+
+## Remove Before/After Badges from All Jobs - User Requested
+- [x] Remove "Before" and "After" badges from All Jobs result thumbnails
+- [x] Keep only the hover arrow and image
+- [x] Cleaner, simpler appearance

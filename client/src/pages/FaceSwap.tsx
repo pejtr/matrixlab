@@ -628,7 +628,7 @@ export default function FaceSwap() {
             <div className="space-y-1.5 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
-                <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+                <Card className="bg-white/10 backdrop-blur-lg border-white/20 [&>*]:p-0">
                   <CardContent className="p-0">
                     {/* Hidden file input */}
                     <input
@@ -1242,36 +1242,6 @@ export default function FaceSwap() {
                         <div className="absolute top-1 left-1 scale-75 origin-top-left">
                           {getStatusBadge(job.status, job.errorMessage)}
                         </div>
-                        
-                        {/* Before/After Badge - Bottom Left */}
-                        {job.status === "completed" && (
-                          <div className="absolute bottom-1 left-1 flex gap-0.5">
-                            <div 
-                              className="bg-pink-500/90 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded cursor-pointer hover:bg-pink-600 transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLightboxType('source');
-                                setShowLightbox(true);
-                                const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
-                                if (completedIndex !== -1) setLightboxIndex(completedIndex);
-                              }}
-                            >
-                              Before
-                            </div>
-                            <div 
-                              className="bg-purple-500/90 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded cursor-pointer hover:bg-purple-600 transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setLightboxType('target');
-                                setShowLightbox(true);
-                                const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
-                                if (completedIndex !== -1) setLightboxIndex(completedIndex);
-                              }}
-                            >
-                              After
-                            </div>
-                          </div>
-                        )}
 
                         {/* Quick Delete Badge (always visible for completed and failed jobs) */}
                         {(job.status === "completed" || job.status === "failed") && (
