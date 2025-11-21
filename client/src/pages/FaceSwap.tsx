@@ -98,6 +98,10 @@ export default function FaceSwap() {
   const currentJob = completedJobs[currentResultIndex];
   const visibleJobs = jobs?.slice(0, visibleJobsCount) || [];
   const hasMoreJobs = jobs && jobs.length > visibleJobsCount;
+  
+  // Detect if there are any pending/processing jobs
+  const hasActiveJobs = jobs?.some(job => job.status === "pending" || job.status === "processing") || false;
+  const activeJobsCount = jobs?.filter(job => job.status === "pending" || job.status === "processing").length || 0;
 
   // Reset to clean state on page load
   useEffect(() => {
@@ -1182,6 +1186,20 @@ export default function FaceSwap() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
                               <span className="text-white text-[8px] md:text-[10px] font-semibold">FACE</span>
                             </div>
+                            {/* Upload Progress Overlay */}
+                            {isUploading && sourceFile && (
+                              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                                <Loader2 className="h-6 w-6 text-pink-400 animate-spin mb-1" />
+                                <span className="text-white text-[8px] font-semibold">Uploading...</span>
+                              </div>
+                            )}
+                            {/* Generating Progress Overlay */}
+                            {!isUploading && hasActiveJobs && (
+                              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                                <Loader2 className="h-6 w-6 text-pink-400 animate-spin mb-1" />
+                                <span className="text-white text-[8px] font-semibold">Generating...</span>
+                              </div>
+                            )}
                           </button>
                         </div>
                       )}
@@ -1228,6 +1246,20 @@ export default function FaceSwap() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
                               <span className="text-white text-[8px] md:text-[10px] font-semibold">TARGET</span>
                             </div>
+                            {/* Upload Progress Overlay */}
+                            {isUploading && targetFiles.length > 0 && (
+                              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                                <Loader2 className="h-6 w-6 text-purple-400 animate-spin mb-1" />
+                                <span className="text-white text-[8px] font-semibold">Uploading...</span>
+                              </div>
+                            )}
+                            {/* Generating Progress Overlay */}
+                            {!isUploading && hasActiveJobs && (
+                              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                                <Loader2 className="h-6 w-6 text-purple-400 animate-spin mb-1" />
+                                <span className="text-white text-[8px] font-semibold">Generating...</span>
+                              </div>
+                            )}
                           </button>
                         </div>
                       )}

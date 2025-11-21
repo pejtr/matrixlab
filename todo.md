@@ -1116,3 +1116,12 @@
 - [x] Opravit disabled logiku - aktivovat když existuje (sourceFile NEBO sourcePreview) A targetFiles.length > 0
 - [x] Opravit handleSubmit - použít sourcePreview URL když sourceFile neexistuje
 - [x] Testovat s batch upload (5 target fotek)
+
+
+## Progress Indicators in Badges - Current Sprint
+- [x] Face badge: Přidat spinner overlay během source face uploadu
+- [x] Target badge: Přidat spinner overlay během target media uploadu
+- [x] Face badge: Zobrazit progress během generování (když job běží)
+- [x] Target badge: Zobrazit progress během generování (když job běží)
+- [x] Spinner design: Semi-transparent overlay + Loader2 icon + text "Uploading..." / "Generating..."
+- [x] Test všechny stavy: idle → uploading → generating → completed
