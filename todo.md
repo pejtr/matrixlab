@@ -1110,3 +1110,9 @@
 - [x] All Jobs: Změnit zelenou Done ikonu na RotateCcw (Recreate badge)
 - [x] Recreate badge: Kliknutí nahráje původní fotku do TARGET preview
 - [x] Generate button: Již funguje s existujícím sourceFile a targetFiles
+
+
+## Generate Button Fix - Current Sprint
+- [x] Opravit disabled logiku - aktivovat když existuje (sourceFile NEBO sourcePreview) A targetFiles.length > 0
+- [x] Opravit handleSubmit - použít sourcePreview URL když sourceFile neexistuje
+- [x] Testovat s batch upload (5 target fotek)

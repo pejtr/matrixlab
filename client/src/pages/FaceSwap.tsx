@@ -455,7 +455,7 @@ export default function FaceSwap() {
   const handleSubmit = async () => {
 
     
-    if (!sourceFile || targetFiles.length === 0) {
+    if ((!sourceFile && !sourcePreview) || targetFiles.length === 0) {
       toast.error("Please upload both source face and target media");
       return;
     }
@@ -494,13 +494,13 @@ export default function FaceSwap() {
 
         // Check if source has remote URL (from regenerate/saved face)
         let sourceUploadData;
-        if ((sourceFile as any).__remoteUrl) {
+        if (sourceFile && (sourceFile as any).__remoteUrl) {
           // Use existing URL instead of uploading
           sourceUploadData = {
             key: `remote-${Date.now()}`,
             url: (sourceFile as any).__remoteUrl,
           };
-        } else {
+        } else if (sourceFile) {
           // Upload source file
           const sourceFormData = new FormData();
           sourceFormData.append("file", sourceFile);
@@ -510,6 +510,14 @@ export default function FaceSwap() {
             body: sourceFormData,
           });
           sourceUploadData = await sourceUploadRes.json();
+        } else if (sourcePreview) {
+          // Use sourcePreview URL (from saved face)
+          sourceUploadData = {
+            key: `preview-${Date.now()}`,
+            url: sourcePreview,
+          };
+        } else {
+          throw new Error('No source file or preview available');
         }
 
         // Check if target has remote URL (from template/regenerate)
@@ -849,9 +857,9 @@ export default function FaceSwap() {
                       </select>
                       
                       {/* Generate Button - 40% (4/10) */}
-                      <Button
-                        onClick={handleSubmit}
-                        disabled={!sourceFile || targetFiles.length === 0 || isUploading}
+                        <Button
+                          onClick={handleSubmit}
+                          disabled={(!sourceFile && !sourcePreview) || targetFiles.length === 0 || isUploading}
                         className="col-span-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-7 md:h-9 text-xs md:text-sm"
                       >
                         {isUploading ? (
@@ -1231,7 +1239,7 @@ export default function FaceSwap() {
                             e.stopPropagation();
                             handleSubmit();
                           }}
-                          disabled={!sourceFile || targetFiles.length === 0 || isUploading}
+                          disabled={(!sourceFile && !sourcePreview) || targetFiles.length === 0 || isUploading}
                           className="relative w-14 h-14 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/40 shadow-lg hover:scale-105 transition-all flex items-center justify-center"
                           title="Generate"
                         >
