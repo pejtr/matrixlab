@@ -1191,14 +1191,14 @@ export default function FaceSwap() {
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
-                          className="w-full h-[48vh] object-contain"
+                          className="w-full h-[64vh] object-contain"
                           controls
                         />
                       ) : (
                         <img
                           src={currentJob?.resultMediaUrl || ""}
                           alt="Result"
-                          className="w-full h-[48vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                          className="w-full h-[64vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => {
                             setLightboxIndex(currentResultIndex);
                             setShowLightbox(true);

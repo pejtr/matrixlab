@@ -1244,3 +1244,7 @@
 - [x] Vrátit původní layout - hlavní výsledek větší nahoře
 - [x] All Jobs grid - zobrazit pouze JEDEN řádek miniatur (ne dva)
 - [x] Zmenšit miniatury aby se vešel jen jeden řádek
+
+
+## UI Adjustment - User Requested
+- [x] Zvětšit hlavní výsledkovou fotku o 33% (z 48vh na 64vh)
