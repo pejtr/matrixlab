@@ -1,11 +1,12 @@
 /**
  * Image Blending Service using Sharp
  * Blends face-swapped result with original body to preserve body proportions
+ * 
+ * Simplified version without face detection - uses center-crop blending
  */
 
 import sharp from "sharp";
 import fetch from "node-fetch";
-import { detectFace, FaceBox } from "./faceDetectionService";
 
 export interface BlendResult {
   success: boolean;
@@ -14,24 +15,21 @@ export interface BlendResult {
 }
 
 /**
- * Create a feathered mask for smooth blending
+ * Create a feathered circular mask for center-crop blending
  * Returns a grayscale PNG buffer with soft edges
  */
-async function createFeatheredMask(
+async function createCenterMask(
   width: number,
   height: number,
-  faceBox: FaceBox,
   featherRadius: number = 50
 ): Promise<Buffer> {
-  // Expand face box by feather radius for smooth transition
-  const expandedBox = {
-    x: Math.max(0, faceBox.x - featherRadius),
-    y: Math.max(0, faceBox.y - featherRadius),
-    width: Math.min(width - faceBox.x, faceBox.width + featherRadius * 2),
-    height: Math.min(height - faceBox.y, faceBox.height + featherRadius * 2),
-  };
+  // Calculate center region (60% of image dimensions)
+  const centerWidth = Math.floor(width * 0.6);
+  const centerHeight = Math.floor(height * 0.6);
+  const centerX = Math.floor((width - centerWidth) / 2);
+  const centerY = Math.floor((height - centerHeight) / 2);
 
-  // Create white rectangle on black background
+  // Create white rectangle on black background with blur for feathering
   const maskSvg = `
     <svg width="${width}" height="${height}">
       <defs>
@@ -41,10 +39,10 @@ async function createFeatheredMask(
       </defs>
       <rect width="${width}" height="${height}" fill="black"/>
       <rect 
-        x="${expandedBox.x}" 
-        y="${expandedBox.y}" 
-        width="${expandedBox.width}" 
-        height="${expandedBox.height}" 
+        x="${centerX}" 
+        y="${centerY}" 
+        width="${centerWidth}" 
+        height="${centerHeight}" 
         fill="white"
         filter="url(#blur)"
       />
@@ -57,8 +55,8 @@ async function createFeatheredMask(
 }
 
 /**
- * Blend face-swapped image with original body
- * Uses face detection to create a mask and composite only the face region
+ * Blend face-swapped image with original body using center-crop mask
+ * Preserves body proportions by blending only the center region (face area)
  */
 export async function blendFaceWithOriginalBody(
   originalImageUrl: string,
@@ -110,26 +108,11 @@ export async function blendFaceWithOriginalBody(
         .toBuffer();
     }
 
-    // Detect face in swapped image
-    console.log("[ImageBlending] Detecting face in swapped image");
-    const faceDetection = await detectFace(faceSwappedImageUrl);
-
-    if (!faceDetection.success || !faceDetection.faceBox) {
-      console.log("[ImageBlending] No face detected, returning swapped image as-is");
-      return {
-        success: true,
-        imageBuffer: resizedSwappedBuffer,
-      };
-    }
-
-    console.log("[ImageBlending] Face detected:", faceDetection.faceBox);
-
-    // Create feathered mask
-    console.log("[ImageBlending] Creating feathered mask");
-    const maskBuffer = await createFeatheredMask(
+    // Create center-crop mask for blending
+    console.log("[ImageBlending] Creating center-crop mask");
+    const maskBuffer = await createCenterMask(
       originalMeta.width,
       originalMeta.height,
-      faceDetection.faceBox,
       80 // Feather radius for smooth blending
     );
 

@@ -851,3 +851,12 @@
 - [x] Update Animate button to open dialog instead of direct animation
 - [x] Pass custom prompt to animateResult mutation
 - [x] Test various animation styles
+
+
+## Deployment Fix - Canvas Dependency Issue
+- [x] Remove @canvas/image dependency (causes deployment failure)
+- [x] Remove face-api.js dependency (requires canvas)
+- [x] Simplify imageBlendingService to work without face detection
+- [x] Use simple center-crop blending instead of face detection
+- [x] Test that body preservation still works
+- [ ] Verify deployment succeeds
