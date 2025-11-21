@@ -1083,3 +1083,8 @@
 ## All Jobs Desktop Enhancement - Current Sprint
 - [x] Na desktopu zobrazit vždy celý první řádek (4 miniatury místo 8)
 - [x] Mobil zůstává na 8 miniaturách
+
+
+## Keep Body Label Update - Current Sprint
+- [x] Změnit "Keep Body" na "Keep body proportions"
+- [x] Odstranit font-semibold/font-medium pro kompaktnější vzhled

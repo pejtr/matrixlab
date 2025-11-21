@@ -787,7 +787,7 @@ export default function FaceSwap() {
                                     }}
                                     className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                                   />
-                                  <span className="text-white/90 text-[9px] font-medium">Keep Body</span>
+                                  <span className="text-white/90 text-[9px]">Keep body proportions</span>
                                 </div>
                               )}
 
@@ -1275,7 +1275,7 @@ export default function FaceSwap() {
                             }}
                             className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                           />
-                          <span className="text-white text-[9px] font-semibold whitespace-nowrap">Keep Body</span>
+                          <span className="text-white text-[9px] whitespace-nowrap">Keep body proportions</span>
                         </div>
                       </div>
                     </div>
