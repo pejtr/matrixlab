@@ -1252,3 +1252,8 @@
 
 ## Branding Update - User Requested
 - [x] Přidat "STUDIO" kurzívou v růžové barvě vedle "AI FaceSwap" v navigaci
+
+
+## Bug Fixes - User Reported
+- [x] Opravit duplicity v source faces lightboxu (filtrovat unikátní source faces)
+- [x] Přidat funkcionalitu pro TARGET badge (otevřít lightbox s target média)

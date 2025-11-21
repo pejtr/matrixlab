@@ -1700,17 +1700,32 @@ export default function FaceSwap() {
       </main>
 
       {/* Fullscreen Lightbox */}
-      {showLightbox && (lightboxType === 'target' ? targetPreviews.length > 0 : completedJobs.length > 0) && (
+      {showLightbox && (lightboxType === 'target' ? (currentJob?.targetMediaUrl ? true : targetPreviews.length > 0) : completedJobs.length > 0) && (
         <FullscreenLightbox
           images={lightboxType === 'target' 
-            ? targetPreviews.map((url, idx) => ({ url, id: idx }))
-            : completedJobs
-              // Filter out soft-deleted source images when viewing Before gallery
-              .filter(job => lightboxType !== 'source' || !job.sourceDeletedAt)
-              .map(job => ({
-                url: lightboxType === 'source' ? job.sourceImageUrl : job.resultMediaUrl!,
-                id: job.id
-              }))
+            ? (currentJob?.targetMediaUrl 
+                ? [{ url: currentJob.targetMediaUrl, id: currentJob.id }]
+                : targetPreviews.map((url, idx) => ({ url, id: idx })))
+            : lightboxType === 'source'
+              ? (() => {
+                  // Get unique source images (remove duplicates)
+                  const uniqueSources = new Map<string, { url: string; id: number }>();
+                  completedJobs
+                    .filter(job => !job.sourceDeletedAt)
+                    .forEach(job => {
+                      if (!uniqueSources.has(job.sourceImageUrl)) {
+                        uniqueSources.set(job.sourceImageUrl, {
+                          url: job.sourceImageUrl,
+                          id: job.id
+                        });
+                      }
+                    });
+                  return Array.from(uniqueSources.values());
+                })()
+              : completedJobs.map(job => ({
+                  url: job.resultMediaUrl!,
+                  id: job.id
+                }))
           }
           currentIndex={lightboxIndex}
           onClose={() => {
