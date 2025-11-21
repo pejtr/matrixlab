@@ -625,7 +625,7 @@ export default function FaceSwap() {
           <div className="grid grid-cols-1 md:grid-cols-[1.2fr_3.8fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
-            <div className="space-y-1.5 max-h-[70vh] overflow-y-auto">
+            <div className="space-y-1.5 max-h-[20vh] md:max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20 [&>*]:p-0">
@@ -731,7 +731,7 @@ export default function FaceSwap() {
 
                 {/* Target Media */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-1.5 space-y-1.5">
+                  <CardContent className="p-0.5 md:p-1.5 space-y-1">
                     <input
                       ref={targetInputRef}
                       type="file"
@@ -745,7 +745,7 @@ export default function FaceSwap() {
                       onDrop={handleTargetDrop}
                       onDragOver={handleTargetDragOver}
                       onDragLeave={handleTargetDragLeave}
-                      className={`border-2 border-dashed rounded-lg p-2 text-center cursor-pointer transition-all ${
+                      className={`border-2 border-dashed rounded-lg p-1 md:p-2 text-center cursor-pointer transition-all ${
                         isDraggingTarget 
                           ? 'border-purple-400 bg-purple-500/20 scale-105' 
                           : 'border-white/30 hover:border-white/50'
@@ -763,7 +763,7 @@ export default function FaceSwap() {
                                   setLightboxIndex(idx);
                                   setShowLightbox(true);
                                 }}
-                                className={targetPreviews.length === 1 ? "w-full max-h-[35vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
+                                className={targetPreviews.length === 1 ? "w-full max-h-[12vh] md:max-h-[35vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-8 md:h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
                               
                               {/* Keep Body Proportions Badge - only on single preview */}
@@ -829,7 +829,7 @@ export default function FaceSwap() {
                           e.stopPropagation();
                           setShowTemplateGallery(!showTemplateGallery);
                         }}
-                        className="col-span-2 h-9 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-1"
+                        className="col-span-2 h-7 md:h-9 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-1"
                         title="Templates"
                       >
                         <Users className="h-4 w-4" />
@@ -839,7 +839,7 @@ export default function FaceSwap() {
                       <select
                         value={modelPreference}
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
-                        className="col-span-4 h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
+                        className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
                         <option value="high_quality" className="bg-gray-900">High Quality</option>
                         <option value="permissive" className="bg-gray-900">Permissive</option>
@@ -849,16 +849,16 @@ export default function FaceSwap() {
                       <Button
                         onClick={handleSubmit}
                         disabled={!sourceFile || targetFiles.length === 0 || isUploading}
-                        className="col-span-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-9 text-sm"
+                        className="col-span-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-7 md:h-9 text-xs md:text-sm"
                       >
                         {isUploading ? (
                           <>
-                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                            <Loader2 className="mr-1 h-3 w-3 md:h-4 md:w-4 animate-spin" />
                             {uploadProgress.current}/{uploadProgress.total}
                           </>
                         ) : (
                           <>
-                            <Sparkles className="mr-1 h-4 w-4" />
+                            <Sparkles className="mr-1 h-3 w-3 md:h-4 md:w-4" />
                             Generate
                           </>
                         )}

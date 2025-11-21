@@ -1056,3 +1056,9 @@
 - [x] Optimalizovat rozložení pro lepší využití prostoru na mobilu
 - [x] All Jobs na mobilu - zobrazit pouze 8 posledních miniatur
 - [x] Přidat tlačítko "Načíst další" pod miniatury na mobilu
+
+
+## Upload Section Mobile Optimization - Current Sprint
+- [x] Zmenšit upload sekci (Source Face + Target Media) na mobilu na max 20% výšky displaye (max-h-[20vh])
+- [x] Kompaktnější design - menší thumbnaily (h-8), menší padding (p-0.5), menší buttony (h-7)
+- [x] Zachovat funkčnost při zmenšení velikosti
