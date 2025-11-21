@@ -54,7 +54,7 @@ export default function AnimateDialog({ open, onClose, onAnimate, isAnimating }:
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-xl border-white/20 text-white max-w-2xl">
+      <DialogContent className="bg-gradient-to-br from-purple-900/95 to-blue-900/95 backdrop-blur-xl border-white/20 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Film className="h-6 w-6 text-pink-400" />
@@ -62,13 +62,13 @@ export default function AnimateDialog({ open, onClose, onAnimate, isAnimating }:
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
+        <div className="space-y-4 mt-2">
           {/* Preset Prompts */}
           <div>
             <label className="text-sm font-medium text-white/90 mb-3 block">
               Choose Animation Style
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {PRESET_PROMPTS.map((preset, index) => (
                 <button
                   key={index}
@@ -77,7 +77,7 @@ export default function AnimateDialog({ open, onClose, onAnimate, isAnimating }:
                     setCustomPrompt(""); // Clear custom prompt when selecting preset
                   }}
                   className={`
-                    p-4 rounded-lg border-2 transition-all text-left
+                    p-3 rounded-lg border-2 transition-all text-left
                     ${
                       selectedPreset === index && !customPrompt
                         ? "border-pink-500 bg-pink-500/20"
@@ -85,11 +85,11 @@ export default function AnimateDialog({ open, onClose, onAnimate, isAnimating }:
                     }
                   `}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{preset.icon}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{preset.icon}</span>
                     <div>
-                      <div className="font-medium text-white">{preset.label}</div>
-                      <div className="text-xs text-white/60 mt-1">{preset.prompt}</div>
+                      <div className="font-medium text-sm text-white">{preset.label}</div>
+                      <div className="text-xs text-white/60 mt-0.5 line-clamp-2">{preset.prompt}</div>
                     </div>
                   </div>
                 </button>
@@ -106,7 +106,7 @@ export default function AnimateDialog({ open, onClose, onAnimate, isAnimating }:
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
               placeholder="Describe the animation you want... (e.g., 'Person laughing joyfully with eyes closed')"
-              className="w-full h-24 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none"
+              className="w-full h-20 px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none text-sm"
             />
             <p className="text-xs text-white/50 mt-2">
               Custom prompts override preset selections
@@ -114,7 +114,7 @@ export default function AnimateDialog({ open, onClose, onAnimate, isAnimating }:
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-2">
             <Button
               onClick={onClose}
               disabled={isAnimating}

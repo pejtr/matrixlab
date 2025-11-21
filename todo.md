@@ -1039,3 +1039,20 @@
 - [x] Remove "Before" and "After" badges from All Jobs result thumbnails
 - [x] Keep only the hover arrow and image
 - [x] Cleaner, simpler appearance
+
+
+## Fix Animate Result Dialog Overflow - User Reported Critical UX Issue
+- [ ] Animate Result dialog is too large and overflows screen
+- [ ] Bottom buttons (Generate) are not visible/accessible
+- [ ] Reduce dialog size to fit within viewport (max-h-[90vh])
+- [ ] Add scrolling to dialog content if needed
+- [ ] Ensure works on mobile devices
+- [ ] Make all buttons accessible without scrolling if possible
+
+
+## Mobile Layout Optimization - Current Sprint
+- [x] Zmenšit Before/After thumbnaily na mobilu na cca 25% prostoru (w-12 h-12 místo w-20 h-20)
+- [x] Zmenšit spodní sticky menu na mobilu o 20% výšky (h-12 místo h-16)
+- [x] Optimalizovat rozložení pro lepší využití prostoru na mobilu
+- [x] All Jobs na mobilu - zobrazit pouze 8 posledních miniatur
+- [x] Přidat tlačítko "Načíst další" pod miniatury na mobilu

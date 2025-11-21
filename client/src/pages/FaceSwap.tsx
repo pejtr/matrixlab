@@ -59,7 +59,7 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
-  const [visibleJobsCount, setVisibleJobsCount] = useState(20);
+  const [visibleJobsCount, setVisibleJobsCount] = useState(8);
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
   const [isDraggingSource, setIsDraggingSource] = useState(false);
@@ -640,7 +640,7 @@ export default function FaceSwap() {
                     />
                     
                     {/* Grid of Saved Faces - reduced size by 40% */}
-                    <div className="grid grid-cols-4 gap-1.5">
+                    <div className="grid grid-cols-4 gap-0">
                       {savedFaces?.map((face) => (
                           <div
                             key={face.id}
@@ -682,12 +682,12 @@ export default function FaceSwap() {
                                 }
                               }
                             }}
-                            className="group relative aspect-square rounded-full border-2 border-white/10 cursor-pointer hover:ring-2 hover:ring-pink-500 hover:scale-105 transition-all"
+                            className="group relative aspect-square cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all"
                           >
                             <img
                               src={face.faceImageUrl}
                               alt="Saved face"
-                              className="w-full h-full object-cover rounded-full"
+                              className="w-full h-full object-cover"
                             />
                             {/* Active indicator */}
                             {sourcePreview === face.faceImageUrl && (
@@ -720,7 +720,7 @@ export default function FaceSwap() {
                       {(savedFaces?.length ?? 0) < 5 && (
                         <div
                           onClick={() => sourceInputRef.current?.click()}
-                          className="aspect-square rounded-full border-2 border-dashed border-white/30 cursor-pointer hover:border-pink-500 hover:bg-white/5 transition-all flex items-center justify-center"
+                          className="aspect-square border-2 border-dashed border-white/30 cursor-pointer hover:border-pink-500 hover:bg-white/5 transition-all flex items-center justify-center"
                         >
                           <Plus className="h-4 w-4 text-white/50" />
                         </div>
@@ -1131,7 +1131,7 @@ export default function FaceSwap() {
                       
                       {/* USED FACE Badge - Top Left */}
                       {currentJob && (
-                        <div className="absolute top-4 left-4 z-10">
+                        <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10">
                           {/* Used Face Badge (source face used) */}
                           <button
                             onClick={async (e) => {
@@ -1147,7 +1147,7 @@ export default function FaceSwap() {
                                 toast.error('Failed to load face');
                               }
                             }}
-                            className="group relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
+                            className="group relative w-12 h-12 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
                             title="Click to use as source face"
                           >
                             <img
@@ -1166,7 +1166,7 @@ export default function FaceSwap() {
                       
                       {/* Source Badge - Bottom Left */}
                       {currentJob && (
-                        <div className="absolute bottom-4 left-4 z-10">
+                        <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4 z-10">
                           {/* Source Badge (original target) */}
                           <button
                             onClick={async (e) => {
@@ -1182,7 +1182,7 @@ export default function FaceSwap() {
                                 toast.error('Failed to load source');
                               }
                             }}
-                            className="group relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
+                            className="group relative w-12 h-12 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
                             title="Click to use as target"
                           >
                             <img
@@ -1414,10 +1414,10 @@ export default function FaceSwap() {
               {hasMoreJobs && (
                 <div className="flex justify-center mt-4">
                   <Button
-                    onClick={() => setVisibleJobsCount(prev => prev + 20)}
+                    onClick={() => setVisibleJobsCount(prev => prev + 8)}
                     className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
                   >
-                    Load More ({jobs.length - visibleJobsCount} remaining)
+                    Načíst další ({jobs.length - visibleJobsCount})
                   </Button>
                 </div>
               )}
