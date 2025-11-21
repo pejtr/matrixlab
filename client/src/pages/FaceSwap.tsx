@@ -576,7 +576,7 @@ export default function FaceSwap() {
   const getStatusBadge = (status: string, errorMessage?: string | null) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-500 text-xs p-1"><CheckCircle className="h-3 w-3" /></Badge>;
+        return <Badge className="bg-green-500 text-xs p-1"><RotateCcw className="h-3 w-3" /></Badge>;
       case "processing":
         return <Badge className="bg-blue-500 text-xs"><Loader2 className="mr-1 h-3 w-3 animate-spin" />Processing</Badge>;
       case "failed":
@@ -1139,9 +1139,9 @@ export default function FaceSwap() {
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
-                              // Mobile: Open face selector dialog
+                              // Mobile: Open saved faces dialog
                               if (window.innerWidth < 768) {
-                                sourceInputRef.current?.click();
+                                setShowSavedFaces(true);
                                 return;
                               }
                               // Desktop: Load current job's face
@@ -1160,7 +1160,7 @@ export default function FaceSwap() {
                             className="group relative w-14 h-14 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer bg-white/10 backdrop-blur-sm"
                             title={currentJob ? "Click to use as source face" : "Select face"}
                           >
-                            {sourcePreview || currentJob?.sourceImageUrl ? (
+                            {(sourcePreview || currentJob?.sourceImageUrl) ? (
                               <img
                                 src={sourcePreview || currentJob?.sourceImageUrl}
                                 alt="Face"
@@ -1318,8 +1318,26 @@ export default function FaceSwap() {
                           className="w-full h-full object-cover"
                         />
                         
-                        {/* Status Badge */}
-                        <div className="absolute top-1 left-1 scale-75 origin-top-left">
+                        {/* Status Badge / Recreate Badge */}
+                        <div 
+                          className="absolute top-1 left-1 scale-75 origin-top-left cursor-pointer"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (job.status === "completed") {
+                              // Load target media for recreation
+                              try {
+                                const response = await fetch(job.targetMediaUrl);
+                                const blob = await response.blob();
+                                const file = new File([blob], 'target.jpg', { type: blob.type || 'image/jpeg' });
+                                setTargetFiles([file]);
+                                setTargetPreviews([job.targetMediaUrl]);
+                                toast.success('Target loaded for recreation');
+                              } catch (error) {
+                                toast.error('Failed to load target');
+                              }
+                            }
+                          }}
+                        >
                           {getStatusBadge(job.status, job.errorMessage)}
                         </div>
 

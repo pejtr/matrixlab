@@ -55,9 +55,13 @@ export default function SavedFacesDialog({ open, onOpenChange, onSelectFace }: S
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-white/70" />
             </div>
-          ) : savedFaces && savedFaces.length > 0 ? (
-            <div className="grid grid-cols-3 gap-3 max-h-[400px] overflow-y-auto">
-              {savedFaces.map((face) => (
+          ) : (
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+              {/* Show up to 5 faces */}
+              {Array.from({ length: 5 }).map((_, index) => {
+                const face = savedFaces?.[index];
+                if (face) {
+                  return (
                 <div
                   key={face.id}
                   className="relative group cursor-pointer bg-white/10 rounded-lg p-2 hover:bg-white/20 transition-colors"
@@ -77,13 +81,29 @@ export default function SavedFacesDialog({ open, onOpenChange, onSelectFace }: S
                   >
                     <Trash2 className="h-3 w-3" />
                   </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-white/70">
-              <p>No saved faces yet</p>
-              <p className="text-sm mt-2">Upload a source face and save it for quick reuse</p>
+                    </div>
+                  );
+                } else {
+                  // Empty slot - upload new face
+                  return (
+                    <div
+                      key={`empty-${index}`}
+                      className="relative cursor-pointer bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-colors border-2 border-dashed border-white/20 hover:border-pink-500"
+                      onClick={() => {
+                        onOpenChange(false);
+                        document.querySelector<HTMLInputElement>('input[type="file"][accept*="image"]')?.click();
+                      }}
+                    >
+                      <div className="w-full h-32 flex items-center justify-center rounded">
+                        <div className="text-center">
+                          <div className="text-4xl text-white/40 mb-1">+</div>
+                          <p className="text-xs text-white/60">Add Face</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              })}
             </div>
           )}
 

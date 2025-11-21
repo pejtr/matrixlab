@@ -1100,3 +1100,13 @@
 - [x] Odstranit samostatný sticky header z FaceSwap.tsx
 - [x] Přidat název "AI FaceSwap" do úzkého horního pruhu (Navigation komponenta)
 - [x] Umístit vedle ikony hvězdy (text-sm na mobilu, text-lg na desktopu)
+
+
+## Mobile Face Selector & Recreate Badge - Current Sprint
+- [x] Face badge: Zobrazit náhled vybrané tváře (sourcePreview)
+- [x] Face badge: Kliknutí otevře Saved Faces dialog s až 5 uloženými tvářemi
+- [x] Face badge: Prázdná pozice = nahrát novou tvář (+ button)
+- [x] Face badge: Křížek pro odstranění uložené tváře (Trash2 icon)
+- [x] All Jobs: Změnit zelenou Done ikonu na RotateCcw (Recreate badge)
+- [x] Recreate badge: Kliknutí nahráje původní fotku do TARGET preview
+- [x] Generate button: Již funguje s existujícím sourceFile a targetFiles
