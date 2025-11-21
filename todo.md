@@ -927,3 +927,10 @@
 - [x] Change badge text from "FACE" to "USED FACE"
 - [x] Keep SOURCE badge in bottom-left corner (unchanged)
 - [x] Maintain click functionality and hover effects
+
+
+## Sticky Header Height Reduction - User Requested
+- [x] Reduce sticky header height by 30% (h-12 → h-8)
+- [x] Stretch menu icons to full height of the header bar
+- [x] Maintain responsive design and click areas
+- [x] Preserve logo and user profile visibility

@@ -44,7 +44,7 @@ export function Navigation() {
       {/* Desktop & Mobile Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-purple-900/80 backdrop-blur-lg border-b border-white/10">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between md:justify-center h-12 relative">
+          <div className="flex items-center justify-between md:justify-center h-8 relative">
             {/* Logo - Absolute Left on Desktop */}
             <button
               onClick={() => handleNavClick("/")}
@@ -55,7 +55,7 @@ export function Navigation() {
             </button>
 
             {/* Desktop Navigation - Icon Only */}
-            <nav className="hidden md:flex items-center gap-2">
+            <nav className="hidden md:flex items-center gap-2 h-full">
               {navItems.map((item) => {
                 if (item.auth && !isAuthenticated) return null;
                 const Icon = item.icon;
@@ -66,7 +66,7 @@ export function Navigation() {
                     key={item.path}
                     onClick={() => handleNavClick(item.path)}
                     title={item.label}
-                    className={`p-2 rounded-lg transition-all ${
+                    className={`h-full px-3 flex items-center transition-all ${
                       isActive
                         ? "bg-white/20 text-white"
                         : "text-white/70 hover:text-white hover:bg-white/10"
@@ -175,7 +175,7 @@ export function Navigation() {
       </header>
 
       {/* Spacer for fixed header */}
-      <div className="h-16" />
+      <div className="h-8" />
     </>
   );
 }
