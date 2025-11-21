@@ -796,3 +796,6 @@
 ## Saved Faces Upload Fix - User Reported Bug
 - [x] Opravit nefunkční nahrávání přes prázdnou pozici v saved faces grid
 - [x] Přidat onClick handler na prázdný slot pro otevření file pickeru
+- [x] Debugovat proč sourceInputRef.current?.click() nespouští file picker
+- [x] Opravit handleSourceFileChange - po výběru souboru se nic nestane
+- [x] Delete tlačítko X funguje (zobrazuje se při hoveru nad uloženými tvářemi)

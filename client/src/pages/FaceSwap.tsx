@@ -148,6 +148,8 @@ export default function FaceSwap() {
     const file = e.target.files?.[0];
     if (file) {
       processSourceFile(file);
+      // Reset input so same file can be selected again
+      e.target.value = '';
     }
   };
 
@@ -161,6 +163,10 @@ export default function FaceSwap() {
     const reader = new FileReader();
     reader.onloadend = () => {
       setSourcePreview(reader.result as string);
+      toast.success('Source face loaded');
+    };
+    reader.onerror = () => {
+      toast.error('Failed to read file');
     };
     reader.readAsDataURL(file);
   };
@@ -705,6 +711,7 @@ export default function FaceSwap() {
                             key={`empty-${idx}`}
                             onClick={(e) => {
                               e.stopPropagation();
+                              e.preventDefault();
                               sourceInputRef.current?.click();
                             }}
                             onDrop={handleSourceDrop}
@@ -716,7 +723,9 @@ export default function FaceSwap() {
                                 : 'border-white/20 hover:border-pink-400 hover:bg-pink-500/10'
                             }`}
                           >
-                            <UserCircle className="h-8 w-8 text-white/30" />
+                            <UserCircle 
+                              className="h-8 w-8 text-white/30 pointer-events-none" 
+                            />
                           </div>
                         );
                       })}
