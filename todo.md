@@ -1142,3 +1142,9 @@
 - [x] Mobile: Zobrazit více jobů (např. 16-20 místo 8) - implementováno 20
 - [x] Změnit "Load More" textové tlačítko na ikonu (ChevronDown nebo Plus)
 - [x] Icon button design - kompaktnější a vizuálně konzistentní
+
+
+## Desktop Layout Fix - Current Sprint
+- [x] Opravit výšku náhledu v pravém sloupci - způsobuje vertikální scrollbar
+- [x] Nastavit správný max-height pro result preview na desktopu (70vh → 60vh)
+- [x] Zajistit že se vše vejde na obrazovku bez scrollování
