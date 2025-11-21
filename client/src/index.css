@@ -120,6 +120,20 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Theme-specific backgrounds */
+  [data-color-theme="purple"] body {
+    background: linear-gradient(to bottom, rgb(88, 28, 135), rgb(49, 46, 129), rgb(17, 24, 39));
+  }
+  [data-color-theme="blue"] body {
+    background: linear-gradient(to bottom, rgb(12, 74, 110), rgb(21, 94, 117), rgb(17, 94, 89));
+  }
+  [data-color-theme="green"] body {
+    background: linear-gradient(to bottom, rgb(20, 83, 45), rgb(6, 78, 59), rgb(17, 94, 89));
+  }
+  [data-color-theme="orange"] body {
+    background: linear-gradient(to bottom, rgb(124, 45, 18), rgb(153, 27, 27), rgb(131, 24, 67));
+  }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),

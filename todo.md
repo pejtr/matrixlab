@@ -1288,3 +1288,21 @@
 ## Layout Adjustments - User Requested
 - [x] Zmenšit výšku náhledu target média o 22% (verze A)
 - [x] Zvětšit výšku hlavního výsledkového obrázku (odstranit mezeru pod fotkou na desktopu)
+
+## Theme Switcher Feature - User Requested
+- [ ] Vytvořit theme context s 4 barevnými schématy
+- [ ] Implementovat theme switcher UI v navigaci (vpravo)
+- [ ] Aplikovat theme styly na všechny komponenty
+- [ ] Otestovat přepínání mezi tématy
+
+## Bug Fix - TARGET Preview Synchronization
+- [x] Opravit: TARGET náhled se neaktualizuje při kliknutí na All Jobs miniatury
+- [x] Při výběru jobu aktualizovat targetPreviews podle vybraného jobu
+
+## Theme Switcher - Pokračování
+- [x] Vytvořit theme context s 4 barevnými schématy
+- [x] Implementovat theme switcher UI v navigaci (vpravo)
+- [x] Aplikovat theme na pozadí stránky
+- [x] Aplikovat theme na Generate button gradient
+- [x] Aplikovat theme na progress bars
+- [x] Otestovat přepínání mezi tématy

@@ -10,6 +10,7 @@ import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRigh
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 import TemplateGallery, { Template } from "@/components/TemplateGallery";
 
 import FullscreenLightbox from "@/components/FullscreenLightbox";
@@ -43,6 +44,7 @@ function getVideoDuration(file: File): Promise<number> {
 export default function FaceSwap() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const { themeConfig } = useColorTheme();
   
   const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [targetFiles, setTargetFiles] = useState<File[]>([]);
@@ -926,7 +928,7 @@ export default function FaceSwap() {
                         <Button
                           onClick={handleSubmit}
                           disabled={(!sourceFile && !sourcePreview) || targetFiles.length === 0 || isUploading}
-                        className="col-span-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-7 md:h-9 text-xs md:text-sm"
+                        className={`col-span-4 bg-gradient-to-r from-${themeConfig.accent} to-${themeConfig.secondary} hover:from-${themeConfig.accentHover} hover:to-${themeConfig.secondaryHover} h-7 md:h-9 text-xs md:text-sm`}
                       >
                         {isUploading ? (
                           <>
@@ -991,7 +993,7 @@ export default function FaceSwap() {
                       {/* Loading overlay */}
                       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
                         <div className="text-center">
-                          <Loader2 className="h-16 w-16 text-pink-400 animate-spin mb-4 mx-auto" />
+                          <Loader2 className={`h-16 w-16 text-${themeConfig.accent} animate-spin mb-4 mx-auto`} />
                           <h3 className="text-white text-xl font-semibold mb-2">Generating Face Swap...</h3>
                           <p className="text-white/70 text-sm mb-4">
                             {jobs.find(j => j.status === "processing")?.targetMediaType === "video" 
@@ -1005,7 +1007,7 @@ export default function FaceSwap() {
                   {/* Fallback: no preview available */}
                   {targetPreviews.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-32 px-8">
-                      <Loader2 className="h-16 w-16 text-pink-400 animate-spin mb-4" />
+                      <Loader2 className={`h-16 w-16 text-${themeConfig.accent} animate-spin mb-4`} />
                       <h3 className="text-white text-xl font-semibold mb-2">Generating Face Swap...</h3>
                       <p className="text-white/70 text-sm text-center mb-4">
                         {jobs.find(j => j.status === "processing")?.targetMediaType === "video" 
@@ -1019,7 +1021,7 @@ export default function FaceSwap() {
                     <div className="px-8 pb-2">
                       <div className="w-full max-w-md mx-auto bg-white/5 rounded-lg p-2 mb-2">
                         <div className="flex items-center justify-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-pink-400" />
+                          <Loader2 className={`h-4 w-4 animate-spin text-${themeConfig.accent}`} />
                           <span className="text-white/90 text-sm font-medium">
                             Processing {jobs.filter(j => j.status === "processing").length || 1} / {jobs.filter(j => j.status === "pending" || j.status === "processing").length} jobs
                           </span>
@@ -1057,7 +1059,7 @@ export default function FaceSwap() {
                         </div>
                         <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
                           <div 
-                            className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
+                            className={`h-full bg-gradient-to-r from-${themeConfig.accent} to-${themeConfig.secondary} transition-all duration-500`}
                             style={{ width: `${job.status === "processing" ? (job.progress || 0) : 10}%` }}
                           />
                         </div>
@@ -1275,14 +1277,14 @@ export default function FaceSwap() {
                             {/* Upload Progress Overlay */}
                             {isUploading && sourceFile && (
                               <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
-                                <Loader2 className="h-6 w-6 text-pink-400 animate-spin mb-1" />
+                                <Loader2 className={`h-6 w-6 text-${themeConfig.accent} animate-spin mb-1`} />
                                 <span className="text-white text-[8px] font-semibold">Uploading...</span>
                               </div>
                             )}
                             {/* Generating Progress Overlay */}
                             {!isUploading && hasActiveJobs && (
                               <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
-                                <Loader2 className="h-6 w-6 text-pink-400 animate-spin mb-1" />
+                                <Loader2 className={`h-6 w-6 text-${themeConfig.accent} animate-spin mb-1`} />
                                 <span className="text-white text-[8px] font-semibold">
                                   {averageProgress > 0 ? `${averageProgress}%` : "Pending..."}
                                 </span>
@@ -1374,7 +1376,7 @@ export default function FaceSwap() {
                             handleSubmit();
                           }}
                           disabled={(!sourceFile && !sourcePreview) || targetFiles.length === 0 || isUploading}
-                          className="relative w-14 h-14 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/40 shadow-lg hover:scale-105 transition-all flex items-center justify-center"
+                          className={`relative w-14 h-14 rounded-full bg-gradient-to-r from-${themeConfig.accent} to-${themeConfig.secondary} hover:from-${themeConfig.accentHover} hover:to-${themeConfig.secondaryHover} disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/40 shadow-lg hover:scale-105 transition-all flex items-center justify-center`}
                           title="Generate"
                         >
                           {isUploading ? (
@@ -1490,6 +1492,10 @@ export default function FaceSwap() {
                             const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
                             if (completedIndex !== -1) {
                               setCurrentResultIndex(completedIndex);
+                              // Update target preview to match selected job
+                              if (job.targetMediaUrl) {
+                                setTargetPreviews([job.targetMediaUrl]);
+                              }
                               // Removed auto-scroll to prevent cutting off header
                             }
                           }
@@ -1872,7 +1878,7 @@ export default function FaceSwap() {
                   setShowTemplateGallery(false);
                 }}
                 disabled={selectedTemplates.length === 0}
-                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                className={`bg-gradient-to-r from-${themeConfig.accent} to-${themeConfig.secondary} hover:from-${themeConfig.accentHover} hover:to-${themeConfig.secondaryHover}`}
               >
                 Use {selectedTemplates.length} Template(s)
               </Button>

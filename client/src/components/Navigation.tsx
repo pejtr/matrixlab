@@ -14,12 +14,72 @@ import {
   Image,
   Video,
   Music,
+  Palette,
 } from "lucide-react";
+import { useColorTheme, COLOR_THEMES, type ColorTheme } from "@/contexts/ColorThemeContext";
+
+function ThemeSwitcher() {
+  const { colorTheme, setColorTheme } = useColorTheme();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const themes: ColorTheme[] = ["purple", "blue", "green", "orange"];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="h-full px-3 flex items-center text-white/70 hover:text-white hover:bg-white/10 transition-all"
+        title="Change theme"
+      >
+        <Palette className="h-5 w-5" />
+      </button>
+
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Theme Picker Dropdown */}
+          <div className="absolute top-full right-0 mt-2 bg-black/90 backdrop-blur-lg border border-white/20 rounded-lg p-2 z-50 min-w-[200px]">
+            <div className="text-white/70 text-xs font-semibold mb-2 px-2">Choose Theme</div>
+            <div className="space-y-1">
+              {themes.map((theme) => (
+                <button
+                  key={theme}
+                  onClick={() => {
+                    setColorTheme(theme);
+                    setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                    colorTheme === theme
+                      ? "bg-white/20 text-white"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  {/* Color Preview Circle */}
+                  <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${COLOR_THEMES[theme].gradient}`} />
+                  <span className="text-sm">{COLOR_THEMES[theme].name}</span>
+                  {colorTheme === theme && (
+                    <div className="ml-auto w-2 h-2 rounded-full bg-white" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const { themeConfig } = useColorTheme();
 
   const navItems = [
     { path: "/", label: "Home", icon: Home },
@@ -42,7 +102,7 @@ export function Navigation() {
   return (
     <>
       {/* Desktop & Mobile Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-purple-900/80 backdrop-blur-lg border-b border-white/10">
+      <header className={`fixed top-0 left-0 right-0 z-50 bg-gradient-to-r ${themeConfig.gradient} bg-opacity-80 backdrop-blur-lg border-b border-white/10`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between md:justify-center h-6 relative">
             {/* Logo - Absolute Left on Desktop */}
@@ -76,6 +136,11 @@ export function Navigation() {
                   </button>
                 );
               })}
+
+              {/* Theme Switcher - Desktop Only */}
+              <div className="hidden md:flex items-center gap-1 pl-2 ml-2 border-l border-white/20">
+                <ThemeSwitcher />
+              </div>
 
               {/* User Menu - Compact - Absolute Right on Desktop */}
               {isAuthenticated ? (
