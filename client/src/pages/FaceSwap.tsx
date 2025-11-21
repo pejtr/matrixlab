@@ -78,6 +78,8 @@ export default function FaceSwap() {
   const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
+  const [selectedJobs, setSelectedJobs] = useState<Set<number>>(new Set());
+  const [isDownloadingZip, setIsDownloadingZip] = useState(false);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -97,6 +99,7 @@ export default function FaceSwap() {
   const updateJobResultMutation = trpc.faceSwap.updateJobResult.useMutation();
   const softDeleteSourceMutation = trpc.faceSwap.softDeleteSourceImage.useMutation();
   const animateResultMutation = trpc.faceSwap.animateResult.useMutation();
+  const downloadZipMutation = trpc.faceSwap.downloadJobsAsZip.useMutation();
   const utils = trpc.useUtils();
 
   // Get favorites for current category (for display)
@@ -1449,7 +1452,7 @@ export default function FaceSwap() {
           {jobs && jobs.length > 0 && (
             <div className="mt-2">
               <div className="flex items-center justify-between mb-2">
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
                   <Button
                     variant={activeTab === 'all' ? 'default' : 'outline'}
                     size="sm"
@@ -1481,6 +1484,84 @@ export default function FaceSwap() {
                       F{cat} ({favoriteCounts?.[cat] || 0})
                     </Button>
                   ))}
+                </div>
+                <div className="flex gap-2 items-center">
+                  {/* Select All Checkbox */}
+                  {visibleJobs.filter(j => j.status === 'completed').length > 0 && (
+                    <label className="flex items-center gap-2 text-white/70 text-xs cursor-pointer hover:text-white transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={visibleJobs.filter(j => j.status === 'completed').every(j => selectedJobs.has(j.id))}
+                        onChange={(e) => {
+                          const completedJobIds = visibleJobs.filter(j => j.status === 'completed').map(j => j.id);
+                          if (e.target.checked) {
+                            const newSet = new Set(selectedJobs);
+                            completedJobIds.forEach(id => newSet.add(id));
+                            setSelectedJobs(newSet);
+                          } else {
+                            const newSet = new Set(selectedJobs);
+                            completedJobIds.forEach(id => newSet.delete(id));
+                            setSelectedJobs(newSet);
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
+                      />
+                      Select All
+                    </label>
+                  )}
+                  {/* Download Selected Button */}
+                  {selectedJobs.size > 0 && (
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        setIsDownloadingZip(true);
+                        try {
+                          const jobIds = Array.from(selectedJobs);
+                          const result = await downloadZipMutation.mutateAsync({ jobIds });
+                          
+                          // Convert base64 to blob
+                          const binaryString = atob(result.zipData);
+                          const bytes = new Uint8Array(binaryString.length);
+                          for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                          }
+                          const blob = new Blob([bytes], { type: 'application/zip' });
+                          
+                          // Download
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `faceswap-results-${Date.now()}.zip`;
+                          document.body.appendChild(a);
+                          a.click();
+                          window.URL.revokeObjectURL(url);
+                          document.body.removeChild(a);
+                          
+                          toast.success(`Downloaded ${selectedJobs.size} results`);
+                          setSelectedJobs(new Set());
+                        } catch (error) {
+                          console.error('Download error:', error);
+                          toast.error('Failed to download ZIP');
+                        } finally {
+                          setIsDownloadingZip(false);
+                        }
+                      }}
+                      disabled={isDownloadingZip}
+                      className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                    >
+                      {isDownloadingZip ? (
+                        <>
+                          <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                          Downloading...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-3 w-3 mr-1" />
+                          Download {selectedJobs.size} as ZIP
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-2">
@@ -1516,6 +1597,30 @@ export default function FaceSwap() {
                         {job.status !== "completed" && (
                           <div className="absolute top-1 left-1 scale-75 origin-top-left">
                             {getStatusBadge(job.status, job.errorMessage)}
+                          </div>
+                        )}
+
+                        {/* Selection Checkbox (top-right) */}
+                        {job.status === "completed" && (
+                          <div className="absolute top-1 right-1 z-20">
+                            <label className="flex items-center justify-center w-6 h-6 bg-black/70 backdrop-blur-sm rounded border-2 border-white/50 cursor-pointer hover:bg-black/90 transition-all">
+                              <input
+                                type="checkbox"
+                                checked={selectedJobs.has(job.id)}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  const newSet = new Set(selectedJobs);
+                                  if (e.target.checked) {
+                                    newSet.add(job.id);
+                                  } else {
+                                    newSet.delete(job.id);
+                                  }
+                                  setSelectedJobs(newSet);
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-4 h-4 rounded border-white bg-white/20 checked:bg-green-500 checked:border-green-500 focus:ring-0 focus:outline-none cursor-pointer"
+                              />
+                            </label>
                           </div>
                         )}
 

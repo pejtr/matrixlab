@@ -419,6 +419,64 @@ export const appRouter = router({
         });
       }),
 
+    // Download selected jobs as ZIP
+    downloadJobsAsZip: protectedProcedure
+      .input(z.object({
+        jobIds: z.array(z.number()),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getUserFaceSwapJobs } = await import("./db");
+        const archiver = await import('archiver');
+        const { Readable } = await import('stream');
+        
+        // Get all user's jobs
+        const allJobs = await getUserFaceSwapJobs(ctx.user.id);
+        
+        // Filter only requested jobs that belong to user and are completed
+        const jobsToDownload = allJobs.filter(
+          job => input.jobIds.includes(job.id) && job.status === 'completed' && job.resultMediaUrl
+        );
+
+        if (jobsToDownload.length === 0) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'No completed jobs found to download',
+          });
+        }
+
+        return new Promise<{ zipData: string }>((resolve, reject) => {
+          const archive = archiver.default('zip', { zlib: { level: 9 } });
+          const chunks: Buffer[] = [];
+
+          archive.on('data', (chunk: Buffer) => chunks.push(chunk));
+          archive.on('error', (err: Error) => reject(err));
+          archive.on('end', () => {
+            const zipBuffer = Buffer.concat(chunks);
+            resolve({ zipData: zipBuffer.toString('base64') });
+          });
+
+          // Download each result file and add to ZIP
+          Promise.all(
+            jobsToDownload.map(async (job, index) => {
+              try {
+                const response = await fetch(job.resultMediaUrl!);
+                if (!response.ok) throw new Error(`Failed to fetch ${job.resultMediaUrl}`);
+                
+                const buffer = await response.arrayBuffer();
+                const extension = job.targetMediaType === 'video' ? 'mp4' : 'jpg';
+                const filename = `result-${job.id}-${index + 1}.${extension}`;
+                
+                archive.append(Buffer.from(buffer), { name: filename });
+              } catch (error) {
+                console.error(`Failed to download job ${job.id}:`, error);
+              }
+            })
+          ).then(() => {
+            archive.finalize();
+          }).catch(reject);
+        });
+      }),
+
     // Animate result image with MiniMax I2V
     animateResult: protectedProcedure
       .input(z.object({

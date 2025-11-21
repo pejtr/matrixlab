@@ -1306,3 +1306,10 @@
 - [x] Aplikovat theme na Generate button gradient
 - [x] Aplikovat theme na progress bars
 - [x] Otestovat přepínání mezi tématy
+
+## Batch Download Feature - User Requested
+- [x] Přidat multi-select checkboxy na job thumbnails (All Jobs + Favorites)
+- [x] Implementovat backend endpoint pro ZIP download vybraných jobů
+- [x] Přidat "Download Selected as ZIP" tlačítko
+- [x] Stahovat result media files do ZIP archivu
+- [x] Otestovat batch download v All Jobs i Favorites sekcích
