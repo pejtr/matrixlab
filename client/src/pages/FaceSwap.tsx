@@ -59,7 +59,10 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
-  const [visibleJobsCount, setVisibleJobsCount] = useState(8);
+  // Desktop: 4 thumbnails (1 row), Mobile: 8 thumbnails
+  const [visibleJobsCount, setVisibleJobsCount] = useState(
+    typeof window !== 'undefined' && window.innerWidth >= 768 ? 4 : 8
+  );
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
   const [isDraggingSource, setIsDraggingSource] = useState(false);

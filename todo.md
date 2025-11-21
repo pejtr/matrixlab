@@ -1078,3 +1078,8 @@
 - [x] Přidat Keep Body checkbox vedle AI model selectoru (dole uprostřed)
 - [x] Změnit model labels: "High Quality" → "Nude declined", "Permissive" → "Nude allowed"
 - [x] Upravit layout pro 2 prvky vedle sebe (model + checkbox ve flex-col)
+
+
+## All Jobs Desktop Enhancement - Current Sprint
+- [x] Na desktopu zobrazit vždy celý první řádek (4 miniatury místo 8)
+- [x] Mobil zůstává na 8 miniaturách
