@@ -1284,3 +1284,6 @@
 - [x] Odstranit animaci (spinner) z miniatur v all jobs gridu
 - [x] Zobrazit původní target fotku ve velkém náhledu během processingu
 - [x] Přidat zajímavou animaci při přechodu z původní na vygenerovanou fotku (fade + slide)
+
+## Layout Adjustments - User Requested
+- [x] Zmenšit výšku náhledu target média o 22% (verze A)

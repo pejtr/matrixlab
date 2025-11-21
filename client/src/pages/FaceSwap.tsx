@@ -840,7 +840,7 @@ export default function FaceSwap() {
                                   setLightboxIndex(idx);
                                   setShowLightbox(true);
                                 }}
-                                className={targetPreviews.length === 1 ? "w-full max-h-[12vh] md:max-h-[35vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-8 md:h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
+                                className={targetPreviews.length === 1 ? "w-full max-h-[12vh] md:max-h-[27vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-8 md:h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
                               
                               {/* Keep Body Proportions Badge - only on single preview */}
