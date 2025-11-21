@@ -715,18 +715,17 @@ export default function FaceSwap() {
                             </button>
                           </div>
                         ))}
+                      
+                      {/* Add Face Button - inline, only show if < 5 faces */}
+                      {(savedFaces?.length ?? 0) < 5 && (
+                        <div
+                          onClick={() => sourceInputRef.current?.click()}
+                          className="aspect-square rounded-full border-2 border-dashed border-white/30 cursor-pointer hover:border-pink-500 hover:bg-white/5 transition-all flex items-center justify-center"
+                        >
+                          <Plus className="h-6 w-6 text-white/50" />
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Add Face Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => sourceInputRef.current?.click()}
-                      className="w-full bg-white/5 hover:bg-white/10 border-white/20 text-white"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Face
-                    </Button>
                   </CardContent>
                 </Card>
 
@@ -813,9 +812,9 @@ export default function FaceSwap() {
                       </span>
                     </label>
                     
-                    {/* Templates + AI Model + Generate Row (30:30:40) */}
+                    {/* Templates + AI Model + Generate Row (20:40:40) */}
                     <div className="grid grid-cols-10 gap-2 mt-2">
-                      {/* Templates Button - 30% (3/10) */}
+                      {/* Templates Button - 20% (2/10) */}
                       <Button
                         variant="outline"
                         size="sm"
@@ -823,17 +822,17 @@ export default function FaceSwap() {
                           e.stopPropagation();
                           setShowTemplateGallery(!showTemplateGallery);
                         }}
-                        className="col-span-3 h-9 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-2"
+                        className="col-span-2 h-9 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-1"
                         title="Templates"
                       >
                         <Users className="h-4 w-4" />
                       </Button>
                       
-                      {/* AI Model Select - 30% (3/10) */}
+                      {/* AI Model Select - 40% (4/10) */}
                       <select
                         value={modelPreference}
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
-                        className="col-span-3 h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
+                        className="col-span-4 h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
                         <option value="high_quality" className="bg-gray-900">High Quality</option>
                         <option value="permissive" className="bg-gray-900">Permissive</option>
@@ -847,12 +846,12 @@ export default function FaceSwap() {
                       >
                         {isUploading ? (
                           <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                             {uploadProgress.current}/{uploadProgress.total}
                           </>
                         ) : (
                           <>
-                            <Sparkles className="mr-2 h-4 w-4" />
+                            <Sparkles className="mr-1 h-4 w-4" />
                             Generate
                           </>
                         )}

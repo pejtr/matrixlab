@@ -968,3 +968,15 @@
 - [x] Change "Start Face Swap" text to "Generate"
 - [x] Use Users icon for Templates (represents people/characters)
 - [x] Move "Keep Body Proportions" checkbox above this row
+
+
+## Inline Add Face Button - User Requested
+- [x] Move "Add Face" button into same row as face thumbnails
+- [x] Show Add Face only when there are empty slots (< 5 faces)
+- [x] Hide Add Face when all 5 positions are filled
+- [x] Save vertical space in left column (circular Plus icon in grid)
+
+## Adjust Layout Ratio - User Requested
+- [x] Change ratio from 30:30:40 to 20:40:40 (Templates:AI model:Generate)
+- [x] Fix Generate button icon overflow - reduced margin from mr-2 to mr-1
+- [x] Ensure content doesn't overflow in Generate button
