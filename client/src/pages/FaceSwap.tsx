@@ -639,8 +639,8 @@ export default function FaceSwap() {
                       className="hidden"
                     />
                     
-                    {/* Grid of Saved Faces */}
-                    <div className="grid grid-cols-3 gap-2">
+                    {/* Grid of Saved Faces - reduced size by 40% */}
+                    <div className="grid grid-cols-4 gap-1.5">
                       {savedFaces?.map((face) => (
                           <div
                             key={face.id}
@@ -711,7 +711,7 @@ export default function FaceSwap() {
                               }}
                               className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 rounded-full p-1.5 shadow-lg transition-colors z-20 pointer-events-auto"
                             >
-                              <X className="h-3 w-3 text-white" />
+                              <X className="h-2.5 w-2.5 text-white" />
                             </button>
                           </div>
                         ))}
@@ -722,7 +722,7 @@ export default function FaceSwap() {
                           onClick={() => sourceInputRef.current?.click()}
                           className="aspect-square rounded-full border-2 border-dashed border-white/30 cursor-pointer hover:border-pink-500 hover:bg-white/5 transition-all flex items-center justify-center"
                         >
-                          <Plus className="h-6 w-6 text-white/50" />
+                          <Plus className="h-4 w-4 text-white/50" />
                         </div>
                       )}
                     </div>
@@ -765,6 +765,28 @@ export default function FaceSwap() {
                                 }}
                                 className={targetPreviews.length === 1 ? "w-full max-h-[35vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
+                              
+                              {/* Keep Body Proportions Badge - only on single preview */}
+                              {targetPreviews.length === 1 && (
+                                <div 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreserveBody(!preserveBody);
+                                  }}
+                                  className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1 cursor-pointer hover:bg-black/80 transition-colors flex items-center gap-1.5"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={preserveBody}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      setPreserveBody(e.target.checked);
+                                    }}
+                                    className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
+                                  />
+                                  <span className="text-white/90 text-[9px] font-medium">Keep Body</span>
+                                </div>
+                              )}
 
                               {/* Delete button */}
                               <Button
@@ -796,19 +818,6 @@ export default function FaceSwap() {
                     {targetFiles.length === 0 && (
                       <p className="text-white/50 text-[9px] mt-0.5 text-center">Max 5 files</p>
                     )}
-                    
-                    {/* Preserve Body Checkbox */}
-                    <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preserveBody}
-                        onChange={(e) => setPreserveBody(e.target.checked)}
-                        className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
-                      />
-                      <span className="text-white/90 text-[10px]">
-                        Keep Body Proportions
-                      </span>
-                    </label>
                     
                     {/* Templates + AI Model + Generate Row (20:40:40) */}
                     <div className="grid grid-cols-10 gap-2 mt-2">

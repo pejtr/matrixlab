@@ -991,3 +991,21 @@
 - [x] Remove empty space above and below face thumbnails grid
 - [x] Make face section more compact (p-2 → p-1.5, mb-2 removed)
 - [x] Reduce CardContent padding in Saved Faces section
+
+
+## Eliminate Scrollbar - User Reported Critical Issue
+- [x] Reduce face thumbnail size by 40% to save vertical space (grid-cols-3 → grid-cols-4)
+- [x] Move "Keep Body Proportions" checkbox from separate row to badge overlay on target preview
+- [x] Ensure entire left column fits within 70vh without scrollbar
+- [x] Significantly reduced vertical space usage
+
+## Face Thumbnails Size Reduction - User Requested
+- [x] Reduce circular face thumbnails from current size to 40% smaller (3 cols → 4 cols)
+- [x] Maintain aspect ratio and quality
+- [x] Keep delete button and click functionality (smaller icons)
+
+## Keep Body Proportions Badge - User Requested
+- [x] Remove checkbox from separate row below target preview
+- [x] Add as badge overlay in bottom-left corner of target preview image
+- [x] Maintain toggle functionality (clickable badge)
+- [x] Use compact text "Keep Body" with checkbox
