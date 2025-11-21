@@ -520,7 +520,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
     }
     
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-4 gap-4">
         {templates.map((template) => (
           <Card 
             key={template.id} 
@@ -532,7 +532,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
             onClick={() => onSelectTemplate(template)}
           >
             <CardContent className="p-4">
-              <div className="relative aspect-square mb-2">
+              <div className="relative aspect-[3/4] mb-2">
                 <img 
                   src={template.thumbnailUrl} 
                   alt={template.name}
@@ -584,10 +584,7 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
                   </div>
                 )}
               </div>
-              <h4 className="text-white text-sm font-medium truncate">{template.name}</h4>
-              {template.description && (
-                <p className="text-white/60 text-xs truncate">{template.description}</p>
-              )}
+
             </CardContent>
           </Card>
         ))}
@@ -606,41 +603,32 @@ export default function TemplateGallery({ onSelectTemplate, selectedTemplates = 
     <div className="w-full">
       <Tabs defaultValue="supermodel" className="w-full">
         <TabsList className="flex flex-wrap w-full gap-1 p-1 bg-black/40 backdrop-blur-lg border border-white/20 h-auto">
-          <TabsTrigger value="favorites" className="flex-1 min-w-[80px] data-[state=active]:bg-yellow-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Star className="h-4 w-4 mr-1" />
-            <span className="hidden lg:inline">Favorites</span>
+          <TabsTrigger value="favorites" className="flex-1 min-w-[60px] data-[state=active]:bg-yellow-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Star className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="supermodel" className="flex-1 min-w-[80px] data-[state=active]:bg-pink-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <ImageIcon className="h-4 w-4 mr-1" />
-            <span className="hidden lg:inline">Supermodels</span>
+          <TabsTrigger value="supermodel" className="flex-1 min-w-[60px] data-[state=active]:bg-pink-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <ImageIcon className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="superhero" className="flex-1 min-w-[80px] data-[state=active]:bg-purple-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Zap className="h-4 w-4 mr-1" />
-            <span className="hidden lg:inline">Superheroes</span>
+          <TabsTrigger value="superhero" className="flex-1 min-w-[60px] data-[state=active]:bg-purple-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Zap className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="business" className="flex-1 min-w-[80px] data-[state=active]:bg-blue-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Briefcase className="h-4 w-4 mr-1" />
-            <span className="hidden lg:inline">Business</span>
+          <TabsTrigger value="business" className="flex-1 min-w-[60px] data-[state=active]:bg-blue-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Briefcase className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="casual" className="flex-1 min-w-[80px] data-[state=active]:bg-green-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Coffee className="h-4 w-4 mr-1" />
-            <span className="hidden lg:inline">Casual</span>
+          <TabsTrigger value="casual" className="flex-1 min-w-[60px] data-[state=active]:bg-green-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Coffee className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="sports" className="flex-1 min-w-[80px] data-[state=active]:bg-orange-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Dumbbell className="h-4 w-4 mr-1" />
-            <span className="hidden lg:inline">Sports</span>
+          <TabsTrigger value="sports" className="flex-1 min-w-[60px] data-[state=active]:bg-orange-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Dumbbell className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="meme" className="flex-1 min-w-[80px] data-[state=active]:bg-indigo-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Laugh className="h-4 w-4 mr-1" />
-            Memes
+          <TabsTrigger value="meme" className="flex-1 min-w-[60px] data-[state=active]:bg-indigo-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Laugh className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="scene" className="flex-1 min-w-[80px] data-[state=active]:bg-cyan-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Film className="h-4 w-4 mr-1" />
-            Scenes
+          <TabsTrigger value="scene" className="flex-1 min-w-[60px] data-[state=active]:bg-cyan-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Film className="h-5 w-5" />
           </TabsTrigger>
-          <TabsTrigger value="custom" className="flex-1 min-w-[80px] data-[state=active]:bg-emerald-500 data-[state=active]:text-white text-white/80 hover:text-white">
-            <Upload className="h-4 w-4 mr-1" />
-            <span className="hidden lg:inline">Custom</span>
+          <TabsTrigger value="custom" className="flex-1 min-w-[60px] data-[state=active]:bg-emerald-500 data-[state=active]:text-white text-white/80 hover:text-white">
+            <Upload className="h-5 w-5" />
           </TabsTrigger>
         </TabsList>
         

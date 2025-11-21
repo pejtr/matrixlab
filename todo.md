@@ -1160,3 +1160,11 @@
 - [x] Zvýšit počet sloupců v All Jobs gridu na desktopu
 - [x] Desktop: Zobrazit více miniatur na řádek (md:10, lg:12, xl:14, 2xl:16)
 - [x] Využít celou šířku obrazovky pro All Jobs grid
+
+
+## Template Gallery Redesign - Current Sprint
+- [x] Změnit aspect ratio miniatur na 4:3 portrait (aspect-[3/4])
+- [x] Upravit grid na 4 sloupce (grid-cols-4)
+- [x] Odstranit text z category menu (ikony bez textů)
+- [x] Odstranit názvy a popisy templates
+- [x] Zachovat pouze tlačítka Cancel a Use Template(s)
