@@ -800,33 +800,6 @@ export default function FaceSwap() {
                       <p className="text-white/50 text-[9px] mt-0.5 text-center">Max 5 files</p>
                     )}
                     
-                    {/* AI Model + Templates Row (50:50) */}
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      {/* AI Model Select */}
-                      <select
-                        value={modelPreference}
-                        onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
-                        className="h-7 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
-                      >
-                        <option value="high_quality" className="bg-gray-900">High Quality (NSFW filter)</option>
-                        <option value="permissive" className="bg-gray-900">Permissive (NSFW allowed)</option>
-                      </select>
-                      
-                      {/* Templates Button */}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowTemplateGallery(!showTemplateGallery);
-                        }}
-                        className="h-7 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-2"
-                      >
-                        <Library className="mr-1 h-3 w-3" />
-                        {showTemplateGallery ? 'Hide' : 'Templates'}
-                      </Button>
-                    </div>
-                    
                     {/* Preserve Body Checkbox */}
                     <label className="flex items-center gap-2 mt-2 cursor-pointer">
                       <input
@@ -839,6 +812,52 @@ export default function FaceSwap() {
                         Keep Body Proportions
                       </span>
                     </label>
+                    
+                    {/* Templates + AI Model + Generate Row (30:30:40) */}
+                    <div className="grid grid-cols-10 gap-2 mt-2">
+                      {/* Templates Button - 30% (3/10) */}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowTemplateGallery(!showTemplateGallery);
+                        }}
+                        className="col-span-3 h-9 bg-transparent border-white/30 text-white hover:bg-white/10 text-[10px] px-2"
+                        title="Templates"
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                      
+                      {/* AI Model Select - 30% (3/10) */}
+                      <select
+                        value={modelPreference}
+                        onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
+                        className="col-span-3 h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
+                      >
+                        <option value="high_quality" className="bg-gray-900">High Quality</option>
+                        <option value="permissive" className="bg-gray-900">Permissive</option>
+                      </select>
+                      
+                      {/* Generate Button - 40% (4/10) */}
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={!sourceFile || targetFiles.length === 0 || isUploading}
+                        className="col-span-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-9 text-sm"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            {uploadProgress.current}/{uploadProgress.total}
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Generate
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -866,33 +885,7 @@ export default function FaceSwap() {
                 </Card>
               )}
 
-              {/* Submit Button */}
-              <Button
-                onClick={handleSubmit}
-                disabled={!sourceFile || targetFiles.length === 0 || isUploading}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-9 text-sm"
-              >
-                {isUploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating {uploadProgress.current}/{uploadProgress.total}...
-                  </>
-                ) : (
-                  <>
-                    {isRegenerateMode ? (
-                      <>
-                        <RotateCcw className="mr-2 h-4 w-4" />
-                        Generate
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Start Face Swap
-                      </>
-                    )}
-                  </>
-                )}
-              </Button>
+
 
 
 

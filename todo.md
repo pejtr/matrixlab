@@ -960,3 +960,11 @@
 - [x] Remove "USED FACE" text from face badge on result thumbnails
 - [x] Remove "SOURCE" text from source badge on result thumbnails
 - [x] Keep badges visible but without text labels (gradient overlay only)
+
+
+## Layout Reorganization - User Requested
+- [x] Move Templates, AI model select, and Generate button to one row
+- [x] Set ratio 30:30:40 (Templates : AI model : Generate) using grid-cols-10
+- [x] Change "Start Face Swap" text to "Generate"
+- [x] Use Users icon for Templates (represents people/characters)
+- [x] Move "Keep Body Proportions" checkbox above this row
