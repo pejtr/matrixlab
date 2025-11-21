@@ -895,3 +895,9 @@
 - [x] Swap badge order - put FACE badge above SOURCE badge (vertical stack)
 - [x] Debug why preserveBody parameter isn't being processed correctly
 - [x] Fixed node-fetch buffer() incompatibility - use arrayBuffer() instead
+
+
+## Auto-Scroll Issue - User Reported
+- [x] Fix unwanted page scroll when clicking job thumbnails in All Jobs section
+- [x] Page scrolls up and cuts off header when switching between results
+- [x] Remove scrollIntoView or similar auto-scroll behavior

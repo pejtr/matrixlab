@@ -1246,7 +1246,7 @@ export default function FaceSwap() {
                             const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
                             if (completedIndex !== -1) {
                               setCurrentResultIndex(completedIndex);
-                              document.querySelector('[data-results-section]')?.scrollIntoView({ behavior: 'smooth' });
+                              // Removed auto-scroll to prevent cutting off header
                             }
                           }
                         }}
