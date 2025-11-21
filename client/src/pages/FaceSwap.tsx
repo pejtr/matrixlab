@@ -621,6 +621,13 @@ export default function FaceSwap() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      {/* Mobile Header - Sticky */}
+      <header className="md:hidden sticky top-0 z-50 bg-purple-900/95 backdrop-blur-lg border-b border-white/10">
+        <div className="container mx-auto px-4 py-3">
+          <h1 className="text-white text-lg font-semibold text-center">AI FaceSwap</h1>
+        </div>
+      </header>
+      
       {/* Main Content */}
       <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">
@@ -787,7 +794,7 @@ export default function FaceSwap() {
                                     }}
                                     className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                                   />
-                                  <span className="text-white/90 text-[9px]">Keep body proportions</span>
+                                  <span className="text-white/90 text-[9px]">Keep proportions</span>
                                 </div>
                               )}
 
@@ -844,8 +851,8 @@ export default function FaceSwap() {
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
                         className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
-                        <option value="high_quality" className="bg-gray-900">Nude declined</option>
-                        <option value="permissive" className="bg-gray-900">Nude allowed</option>
+                        <option value="high_quality" className="bg-gray-900">HQ (no nude)</option>
+                        <option value="permissive" className="bg-gray-900">LQ (nude allowed)</option>
                       </select>
                       
                       {/* Generate Button - 40% (4/10) */}
@@ -1254,8 +1261,8 @@ export default function FaceSwap() {
                           className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <option value="high_quality" className="bg-gray-900">Nude declined</option>
-                          <option value="permissive" className="bg-gray-900">Nude allowed</option>
+                          <option value="high_quality" className="bg-gray-900">HQ (no nude)</option>
+                          <option value="permissive" className="bg-gray-900">LQ (nude allowed)</option>
                         </select>
                         
                         {/* Keep Body Checkbox */}
@@ -1275,7 +1282,7 @@ export default function FaceSwap() {
                             }}
                             className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                           />
-                          <span className="text-white text-[9px] whitespace-nowrap">Keep body proportions</span>
+                          <span className="text-white text-[9px] whitespace-nowrap">Keep proportions</span>
                         </div>
                       </div>
                     </div>

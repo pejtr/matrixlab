@@ -1088,3 +1088,9 @@
 ## Keep Body Label Update - Current Sprint
 - [x] Změnit "Keep Body" na "Keep body proportions"
 - [x] Odstranit font-semibold/font-medium pro kompaktnější vzhled
+
+
+## Label Brevity Update - Current Sprint
+- [x] Změnit model labels: "Nude declined" → "HQ (no nude)", "Nude allowed" → "LQ (nude allowed)"
+- [x] Zkrátit checkbox: "Keep body proportions" → "Keep proportions"
+- [x] Přidat název "AI FaceSwap" do horního sticky menu na mobilu
