@@ -652,7 +652,7 @@ export default function FaceSwap() {
       case "completed":
         return <Badge className="bg-green-500 text-xs p-1"><RotateCcw className="h-3 w-3" /></Badge>;
       case "processing":
-        return <Badge className="bg-blue-500 text-xs"><Loader2 className="mr-1 h-3 w-3 animate-spin" />Processing</Badge>;
+        return <Badge className="bg-blue-500 text-xs">Processing</Badge>;
       case "failed":
         return (
           <Badge 
@@ -1193,15 +1193,29 @@ export default function FaceSwap() {
                           controls
                         />
                       ) : (
-                        <img
-                          src={currentJob?.resultMediaUrl || ""}
-                          alt="Result"
-                          className="w-full h-[64vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                          onClick={() => {
-                            setLightboxIndex(currentResultIndex);
-                            setShowLightbox(true);
-                          }}
-                        />
+                        <div className="relative w-full h-[64vh]">
+                          {/* Show original target image during processing */}
+                          {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
+                            <img
+                              src={currentJob.targetMediaUrl}
+                              alt="Original"
+                              className="absolute inset-0 w-full h-full object-contain"
+                            />
+                          )}
+                          {/* Show result with fade-in animation when completed */}
+                          {currentJob?.status === "completed" && currentJob?.resultMediaUrl && (
+                            <img
+                              key={currentJob.id}
+                              src={currentJob.resultMediaUrl}
+                              alt="Result"
+                              className="absolute inset-0 w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
+                              onClick={() => {
+                                setLightboxIndex(currentResultIndex);
+                                setShowLightbox(true);
+                              }}
+                            />
+                          )}
+                        </div>
                       )}
                       
                       {/* USED FACE Badge - Top Left (Desktop shows current, Mobile shows selector) */}
