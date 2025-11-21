@@ -624,8 +624,8 @@ export default function FaceSwap() {
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
           <div className="grid grid-cols-1 md:grid-cols-[1.2fr_3.8fr] gap-3">
             
-            {/* Left Column: Inputs (Desktop: stacked, Mobile: side-by-side) */}
-            <div className="space-y-1.5 max-h-[20vh] md:max-h-[70vh] overflow-y-auto">
+            {/* Left Column: Inputs (Desktop: stacked, Mobile: hidden) */}
+            <div className="hidden md:block space-y-1.5 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20 [&>*]:p-0">
@@ -1129,13 +1129,20 @@ export default function FaceSwap() {
                         />
                       )}
                       
-                      {/* USED FACE Badge - Top Left */}
-                      {currentJob && (
+                      {/* USED FACE Badge - Top Left (Desktop shows current, Mobile shows selector) */}
+                      {(currentJob || !currentJob) && (
                         <div className="absolute top-2 left-2 md:top-4 md:left-4 z-10">
                           {/* Used Face Badge (source face used) */}
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
+                              // Mobile: Open face selector dialog
+                              if (window.innerWidth < 768) {
+                                sourceInputRef.current?.click();
+                                return;
+                              }
+                              // Desktop: Load current job's face
+                              if (!currentJob) return;
                               try {
                                 const response = await fetch(currentJob.sourceImageUrl, { mode: 'no-cors' });
                                 const blob = await response.blob();
@@ -1147,57 +1154,107 @@ export default function FaceSwap() {
                                 toast.error('Failed to load face');
                               }
                             }}
-                            className="group relative w-12 h-12 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
-                            title="Click to use as source face"
+                            className="group relative w-14 h-14 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer bg-white/10 backdrop-blur-sm"
+                            title={currentJob ? "Click to use as source face" : "Select face"}
                           >
-                            <img
-                              src={currentJob.sourceImageUrl}
-                              alt="Used Face"
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
-                            </div>
-                            <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
-                              <ArrowLeft className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            {sourcePreview || currentJob?.sourceImageUrl ? (
+                              <img
+                                src={sourcePreview || currentJob?.sourceImageUrl}
+                                alt="Face"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <UserCircle className="h-8 w-8 md:h-12 md:w-12 text-white/70" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
+                              <span className="text-white text-[8px] md:text-[10px] font-semibold">FACE</span>
                             </div>
                           </button>
                         </div>
                       )}
                       
-                      {/* Source Badge - Bottom Left */}
-                      {currentJob && (
+                      {/* Target Badge - Bottom Left (Desktop shows current, Mobile shows selector) */}
+                      {(currentJob || !currentJob) && (
                         <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4 z-10">
                           {/* Source Badge (original target) */}
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
+                              // Mobile: Open target selector
+                              if (window.innerWidth < 768) {
+                                targetInputRef.current?.click();
+                                return;
+                              }
+                              // Desktop: Load current job's target
+                              if (!currentJob) return;
                               try {
                                 const response = await fetch(currentJob.targetMediaUrl, { mode: 'no-cors' });
                                 const blob = await response.blob();
-                                const file = new File([blob], 'source.jpg', { type: blob.type || 'image/jpeg' });
+                                const file = new File([blob], 'target.jpg', { type: blob.type || 'image/jpeg' });
                                 setTargetFiles([file]);
                                 setTargetPreviews([currentJob.targetMediaUrl]);
-                                toast.success('Source loaded as target');
+                                toast.success('Target loaded');
                               } catch (error) {
-                                toast.error('Failed to load source');
+                                toast.error('Failed to load target');
                               }
                             }}
-                            className="group relative w-12 h-12 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
-                            title="Click to use as target"
+                            className="group relative w-14 h-14 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer bg-white/10 backdrop-blur-sm"
+                            title={currentJob ? "Click to use as target" : "Select target"}
                           >
-                            <img
-                              src={currentJob.targetMediaUrl}
-                              alt="Source"
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
-                            </div>
-                            <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
-                              <ArrowLeft className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            {targetPreviews[0] || currentJob?.targetMediaUrl ? (
+                              <img
+                                src={targetPreviews[0] || currentJob?.targetMediaUrl}
+                                alt="Target"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Users className="h-8 w-8 md:h-12 md:w-12 text-white/70" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1">
+                              <span className="text-white text-[8px] md:text-[10px] font-semibold">TARGET</span>
                             </div>
                           </button>
                         </div>
                       )}
+                      
+                      {/* Generate Button - Bottom Right (Mobile only) */}
+                      <div className="md:hidden absolute bottom-2 right-2 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSubmit();
+                          }}
+                          disabled={!sourceFile || targetFiles.length === 0 || isUploading}
+                          className="relative w-14 h-14 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-white/40 shadow-lg hover:scale-105 transition-all flex items-center justify-center"
+                          title="Generate"
+                        >
+                          {isUploading ? (
+                            <Loader2 className="h-6 w-6 text-white animate-spin" />
+                          ) : (
+                            <Sparkles className="h-6 w-6 text-white" />
+                          )}
+                        </button>
+                      </div>
+                      
+                      {/* AI Model Selector - Bottom Center (Mobile only) */}
+                      <div className="md:hidden absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
+                        <select
+                          value={modelPreference}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            setModelPreference(e.target.value as "high_quality" | "permissive");
+                          }}
+                          className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <option value="high_quality" className="bg-gray-900">HQ</option>
+                          <option value="permissive" className="bg-gray-900">Fast</option>
+                        </select>
+                      </div>
                     </div>
 
 

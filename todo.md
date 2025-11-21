@@ -1062,3 +1062,13 @@
 - [x] Zmenšit upload sekci (Source Face + Target Media) na mobilu na max 20% výšky displaye (max-h-[20vh])
 - [x] Kompaktnější design - menší thumbnaily (h-8), menší padding (p-0.5), menší buttony (h-7)
 - [x] Zachovat funkčnost při zmenšení velikosti
+
+
+## Mobile Overlay Badge UI Redesign - Current Sprint
+- [x] Odstranit samostatnou upload sekci na mobilu (hidden md:block)
+- [x] Vlevo nahore: Face selector badge (kliknutí = file input nebo saved faces)
+- [x] Vlevo dole: Target selector badge (kliknutí = file input)
+- [x] Vpravo dole: Generate button badge (pouze ikona Sparkles)
+- [x] Dole uprostřed: AI model selector badge (HQ/Fast dropdown)
+- [x] Všechny badges jako overlay na výsledné fotce
+- [x] Desktop zůstává beze změny (původní layout)
