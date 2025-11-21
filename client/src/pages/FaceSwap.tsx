@@ -1130,9 +1130,45 @@ export default function FaceSwap() {
                         />
                       )}
                       
-                      {/* Source/Face Badges - Bottom Left */}
+                      {/* USED FACE Badge - Top Left */}
                       {currentJob && (
-                        <div className="absolute bottom-4 left-4 flex flex-col-reverse gap-2 z-10">
+                        <div className="absolute top-4 left-4 z-10">
+                          {/* Used Face Badge (source face used) */}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const response = await fetch(currentJob.sourceImageUrl, { mode: 'no-cors' });
+                                const blob = await response.blob();
+                                const file = new File([blob], 'face.jpg', { type: blob.type || 'image/jpeg' });
+                                setSourceFile(file);
+                                setSourcePreview(currentJob.sourceImageUrl);
+                                toast.success('Face loaded');
+                              } catch (error) {
+                                toast.error('Failed to load face');
+                              }
+                            }}
+                            className="group relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
+                            title="Click to use as source face"
+                          >
+                            <img
+                              src={currentJob.sourceImageUrl}
+                              alt="Used Face"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
+                              <span className="text-white text-[8px] font-bold uppercase tracking-wide">Used Face</span>
+                            </div>
+                            <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
+                              <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Source Badge - Bottom Left */}
+                      {currentJob && (
+                        <div className="absolute bottom-4 left-4 z-10">
                           {/* Source Badge (original target) */}
                           <button
                             onClick={async (e) => {
@@ -1158,37 +1194,6 @@ export default function FaceSwap() {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
                               <span className="text-white text-[10px] font-bold uppercase tracking-wide">Source</span>
-                            </div>
-                            <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
-                              <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                          </button>
-                          
-                          {/* Face Badge (source face used) */}
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              try {
-                                const response = await fetch(currentJob.sourceImageUrl, { mode: 'no-cors' });
-                                const blob = await response.blob();
-                                const file = new File([blob], 'face.jpg', { type: blob.type || 'image/jpeg' });
-                                setSourceFile(file);
-                                setSourcePreview(currentJob.sourceImageUrl);
-                                toast.success('Face loaded');
-                              } catch (error) {
-                                toast.error('Failed to load face');
-                              }
-                            }}
-                            className="group relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
-                            title="Click to use as source face"
-                          >
-                            <img
-                              src={currentJob.sourceImageUrl}
-                              alt="Face"
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
-                              <span className="text-white text-[10px] font-bold uppercase tracking-wide">Face</span>
                             </div>
                             <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
                               <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />

@@ -920,3 +920,10 @@
 - [x] Auto-save face without asking for name
 - [x] User can manually save via Save button if needed
 - [x] Simplify upload workflow for better UX
+
+
+## FACE Badge Repositioning - User Requested
+- [x] Move FACE badge from bottom-left to top-left corner
+- [x] Change badge text from "FACE" to "USED FACE"
+- [x] Keep SOURCE badge in bottom-left corner (unchanged)
+- [x] Maintain click functionality and hover effects
