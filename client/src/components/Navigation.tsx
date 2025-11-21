@@ -52,6 +52,7 @@ export function Navigation() {
             >
               <Sparkles className="h-5 w-5 text-yellow-400" />
               <span className="text-sm md:text-lg">AI FaceSwap</span>
+              <span className="text-sm md:text-lg italic text-pink-400 ml-1">STUDIO</span>
             </button>
 
             {/* Desktop Navigation - Icon Only */}

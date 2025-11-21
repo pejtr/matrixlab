@@ -1248,3 +1248,7 @@
 
 ## UI Adjustment - User Requested
 - [x] Zvětšit hlavní výsledkovou fotku o 33% (z 48vh na 64vh)
+
+
+## Branding Update - User Requested
+- [x] Přidat "STUDIO" kurzívou v růžové barvě vedle "AI FaceSwap" v navigaci
