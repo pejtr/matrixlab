@@ -1,6 +1,6 @@
 import { eq, and, isNull, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob } from "../drizzle/schema";
+import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob, wanAnimateJobs, InsertWanAnimateJob, WanAnimateJob } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -567,4 +567,83 @@ export async function updateCategoryName(userId: number, category: number, name:
       name,
     });
   }
+}
+
+
+// Wan Animate job queries
+export async function createWanAnimateJob(job: InsertWanAnimateJob): Promise<WanAnimateJob> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.insert(wanAnimateJobs).values(job);
+  const insertedId = Number(result[0].insertId);
+  
+  const inserted = await db.select().from(wanAnimateJobs).where(eq(wanAnimateJobs.id, insertedId)).limit(1);
+  
+  if (!inserted[0]) {
+    throw new Error("Failed to retrieve inserted Wan Animate job");
+  }
+  
+  return inserted[0];
+}
+
+export async function getWanAnimateJobById(jobId: number): Promise<WanAnimateJob | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(wanAnimateJobs).where(eq(wanAnimateJobs.id, jobId)).limit(1);
+  return result[0];
+}
+
+export async function getWanAnimateJobsByUserId(userId: number): Promise<WanAnimateJob[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(wanAnimateJobs).where(eq(wanAnimateJobs.userId, userId)).orderBy(desc(wanAnimateJobs.createdAt));
+}
+
+export async function updateWanAnimateJobStatus(
+  jobId: number,
+  status: "pending" | "processing" | "completed" | "failed" | "cancelled",
+  updates?: {
+    resultVideoKey?: string;
+    resultVideoUrl?: string;
+    errorMessage?: string;
+    completedAt?: Date;
+    progress?: number;
+    retryCount?: number;
+    predictionId?: string;
+  }
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const updateData: Record<string, unknown> = { status };
+  
+  if (updates?.resultVideoKey) updateData.resultVideoKey = updates.resultVideoKey;
+  if (updates?.resultVideoUrl) updateData.resultVideoUrl = updates.resultVideoUrl;
+  if (updates?.errorMessage) updateData.errorMessage = updates.errorMessage;
+  if (updates?.completedAt) updateData.completedAt = updates.completedAt;
+  if (updates?.progress !== undefined) updateData.progress = updates.progress;
+  if (updates?.retryCount !== undefined) updateData.retryCount = updates.retryCount;
+  if (updates?.predictionId) updateData.predictionId = updates.predictionId;
+
+  await db.update(wanAnimateJobs).set(updateData).where(eq(wanAnimateJobs.id, jobId));
+}
+
+export async function deleteWanAnimateJob(jobId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.delete(wanAnimateJobs).where(eq(wanAnimateJobs.id, jobId));
 }

@@ -190,3 +190,39 @@ export type InsertFavorite = typeof favorites.$inferInsert;
 export type FavoriteCategory = typeof favoriteCategories.$inferSelect;
 export type InsertFavoriteCategory = typeof favoriteCategories.$inferInsert;
 // Note: predictionId field needs to be added to faceSwapJobs table (line 53)
+
+/**
+ * Wan Animate Jobs table
+ * Tracks character animation and full body replacement operations
+ */
+export const wanAnimateJobs = mysqlTable("wanAnimateJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  
+  // Input file references (S3 keys and URLs)
+  characterImageKey: varchar("characterImageKey", { length: 512 }).notNull(),
+  characterImageUrl: text("characterImageUrl").notNull(),
+  referenceVideoKey: varchar("referenceVideoKey", { length: 512 }).notNull(),
+  referenceVideoUrl: text("referenceVideoUrl").notNull(),
+  
+  // Output file references
+  resultVideoKey: varchar("resultVideoKey", { length: 512 }),
+  resultVideoUrl: text("resultVideoUrl"),
+  
+  // Mode: "animation" = animate character, "replacement" = replace character in video
+  mode: mysqlEnum("mode", ["animation", "replacement"]).notNull(),
+  
+  // Status tracking
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed", "cancelled"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  progress: int("progress").default(0).notNull(), // 0-100
+  retryCount: int("retryCount").default(0).notNull(),
+  predictionId: varchar("predictionId", { length: 128 }), // Replicate prediction ID for webhook tracking
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type WanAnimateJob = typeof wanAnimateJobs.$inferSelect;
+export type InsertWanAnimateJob = typeof wanAnimateJobs.$inferInsert;

@@ -1,0 +1,20 @@
+CREATE TABLE `wanAnimateJobs` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`characterImageKey` varchar(512) NOT NULL,
+	`characterImageUrl` text NOT NULL,
+	`referenceVideoKey` varchar(512) NOT NULL,
+	`referenceVideoUrl` text NOT NULL,
+	`resultVideoKey` varchar(512),
+	`resultVideoUrl` text,
+	`mode` enum('animation','replacement') NOT NULL,
+	`status` enum('pending','processing','completed','failed','cancelled') NOT NULL DEFAULT 'pending',
+	`errorMessage` text,
+	`progress` int NOT NULL DEFAULT 0,
+	`retryCount` int NOT NULL DEFAULT 0,
+	`predictionId` varchar(128),
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`completedAt` timestamp,
+	CONSTRAINT `wanAnimateJobs_id` PRIMARY KEY(`id`)
+);
