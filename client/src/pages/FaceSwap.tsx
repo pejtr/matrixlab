@@ -157,7 +157,7 @@ export default function FaceSwap() {
     }
   };
 
-  const processSourceFile = (file: File) => {
+  const processSourceFile = async (file: File) => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
@@ -165,9 +165,37 @@ export default function FaceSwap() {
     }
     setSourceFile(file);
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       setSourcePreview(reader.result as string);
       toast.success('Source face loaded');
+      
+      // Auto-save face to saved faces
+      const faceName = prompt('Enter a name for this face:');
+      if (faceName) {
+        try {
+          // Upload the file
+          const formData = new FormData();
+          formData.append('file', file);
+          const uploadRes = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+          const uploadData = await uploadRes.json();
+
+          // Save to database
+          await saveFaceMutation.mutateAsync({
+            faceImageKey: uploadData.key || `saved-${Date.now()}`,
+            faceImageUrl: uploadData.url,
+            name: faceName,
+          });
+
+          toast.success(`Face "${faceName}" saved successfully!`);
+          await utils.savedFaces.getMySavedFaces.invalidate();
+        } catch (error) {
+          console.error('Failed to save face:', error);
+          toast.error('Failed to save face');
+        }
+      }
     };
     reader.onerror = () => {
       toast.error('Failed to read file');
@@ -892,71 +920,7 @@ export default function FaceSwap() {
                 )}
               </Button>
 
-              {/* Reference/Before Thumbnails */}
-              {currentJob && (
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  {/* Reference (Target - original image) */}
-                  <div className="group relative aspect-video rounded-lg overflow-hidden border border-white/20">
-                    <img
-                      src={currentJob.targetMediaUrl}
-                      alt="Reference"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                      <span className="text-white text-xs font-semibold">Reference</span>
-                    </div>
-                    {/* Use button */}
-                    <button
-                      onClick={async () => {
-                        try {
-                          const response = await fetch(currentJob.targetMediaUrl, { mode: 'no-cors' });
-                          const blob = await response.blob();
-                          const file = new File([blob], 'reference.jpg', { type: blob.type || 'image/jpeg' });
-                          setTargetFiles([file]);
-                          setTargetPreviews([currentJob.targetMediaUrl]);
-                          toast.success('Reference loaded as target');
-                        } catch (error) {
-                          toast.error('Failed to load reference');
-                        }
-                      }}
-                      className="absolute top-2 right-2 bg-pink-500/90 hover:bg-pink-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                      title="Use as target"
-                    >
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
-                  </div>
-                  {/* Before (Source face used) */}
-                  <div className="group relative aspect-video rounded-lg overflow-hidden border border-white/20">
-                    <img
-                      src={currentJob.sourceImageUrl}
-                      alt="Before"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                      <span className="text-white text-xs font-semibold">Before</span>
-                    </div>
-                    {/* Use button */}
-                    <button
-                      onClick={async () => {
-                        try {
-                          const response = await fetch(currentJob.sourceImageUrl, { mode: 'no-cors' });
-                          const blob = await response.blob();
-                          const file = new File([blob], 'source.jpg', { type: blob.type || 'image/jpeg' });
-                          setSourceFile(file);
-                          setSourcePreview(currentJob.sourceImageUrl);
-                          toast.success('Source face loaded');
-                        } catch (error) {
-                          toast.error('Failed to load source');
-                        }
-                      }}
-                      className="absolute top-2 right-2 bg-pink-500/90 hover:bg-pink-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
-                      title="Use as source"
-                    >
-                      <ArrowRight className="h-3 w-3" />
-                    </button>
-                  </div>
-                </div>
-              )}
+
 
             </div>
 
@@ -1173,23 +1137,92 @@ export default function FaceSwap() {
                     )}
 
                     {/* Result Display */}
-                    {currentJob?.targetMediaType === "video" ? (
-                      <video
-                        src={currentJob.resultMediaUrl!}
-                        className="w-full h-[70vh] object-contain"
-                        controls
-                      />
-                    ) : (
-                      <img
-                        src={currentJob?.resultMediaUrl || ""}
-                        alt="Result"
-                        className="w-full h-[70vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => {
-                          setLightboxIndex(currentResultIndex);
-                          setShowLightbox(true);
-                        }}
-                      />
-                    )}
+                    <div className="relative">
+                      {currentJob?.targetMediaType === "video" ? (
+                        <video
+                          src={currentJob.resultMediaUrl!}
+                          className="w-full h-[70vh] object-contain"
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={currentJob?.resultMediaUrl || ""}
+                          alt="Result"
+                          className="w-full h-[70vh] object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => {
+                            setLightboxIndex(currentResultIndex);
+                            setShowLightbox(true);
+                          }}
+                        />
+                      )}
+                      
+                      {/* Source/Face Badges - Bottom Left */}
+                      {currentJob && (
+                        <div className="absolute bottom-4 left-4 flex gap-2 z-10">
+                          {/* Source Badge (original target) */}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const response = await fetch(currentJob.targetMediaUrl, { mode: 'no-cors' });
+                                const blob = await response.blob();
+                                const file = new File([blob], 'source.jpg', { type: blob.type || 'image/jpeg' });
+                                setTargetFiles([file]);
+                                setTargetPreviews([currentJob.targetMediaUrl]);
+                                toast.success('Source loaded as target');
+                              } catch (error) {
+                                toast.error('Failed to load source');
+                              }
+                            }}
+                            className="group relative w-24 h-24 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
+                            title="Click to use as target"
+                          >
+                            <img
+                              src={currentJob.targetMediaUrl}
+                              alt="Source"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
+                              <span className="text-white text-[10px] font-bold uppercase tracking-wide">Source</span>
+                            </div>
+                            <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
+                              <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </button>
+                          
+                          {/* Face Badge (source face used) */}
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                const response = await fetch(currentJob.sourceImageUrl, { mode: 'no-cors' });
+                                const blob = await response.blob();
+                                const file = new File([blob], 'face.jpg', { type: blob.type || 'image/jpeg' });
+                                setSourceFile(file);
+                                setSourcePreview(currentJob.sourceImageUrl);
+                                toast.success('Face loaded');
+                              } catch (error) {
+                                toast.error('Failed to load face');
+                              }
+                            }}
+                            className="group relative w-24 h-24 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer"
+                            title="Click to use as source face"
+                          >
+                            <img
+                              src={currentJob.sourceImageUrl}
+                              alt="Face"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex items-end p-1.5">
+                              <span className="text-white text-[10px] font-bold uppercase tracking-wide">Face</span>
+                            </div>
+                            <div className="absolute inset-0 bg-pink-500/0 group-hover:bg-pink-500/20 transition-colors flex items-center justify-center">
+                              <ArrowRight className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </button>
+                        </div>
+                      )}
+                    </div>
 
 
                   </div>

@@ -880,3 +880,11 @@
 - [x] Fix saved faces not refreshing after adding new face
 - [x] Add cache invalidation to saveFace mutation
 - [x] Ensure new face thumbnail appears immediately
+
+
+## Badge Positioning & Add Face Error - User Requested
+- [x] Change "Reference" to "Source" in thumbnail badges
+- [x] Change "Before" to "Face" in thumbnail badges
+- [x] Move badges from separate thumbnails to main result image bottom-left corner
+- [x] Make badges occupy ~10% of main image area
+- [x] Fix add face button - auto-save after file selection with name prompt
