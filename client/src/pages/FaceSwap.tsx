@@ -80,6 +80,7 @@ export default function FaceSwap() {
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
   const [selectedJobs, setSelectedJobs] = useState<Set<number>>(new Set());
   const [isDownloadingZip, setIsDownloadingZip] = useState(false);
+  const [isExportMode, setIsExportMode] = useState(false);
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -1486,8 +1487,29 @@ export default function FaceSwap() {
                   ))}
                 </div>
                 <div className="flex gap-2 items-center">
-                  {/* Select All Checkbox */}
+                  {/* Export Button */}
                   {visibleJobs.filter(j => j.status === 'completed').length > 0 && (
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setIsExportMode(!isExportMode);
+                        if (isExportMode) {
+                          // Clear selection when exiting export mode
+                          setSelectedJobs(new Set());
+                        }
+                      }}
+                      className={`text-xs ${
+                        isExportMode
+                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                          : 'bg-transparent border-white/30 text-white hover:bg-white/10'
+                      }`}
+                      variant={isExportMode ? 'default' : 'outline'}
+                    >
+                      {isExportMode ? 'Cancel' : 'Export'}
+                    </Button>
+                  )}
+                  {/* Select All Checkbox */}
+                  {isExportMode && visibleJobs.filter(j => j.status === 'completed').length > 0 && (
                     <label className="flex items-center gap-2 text-white/70 text-xs cursor-pointer hover:text-white transition-colors">
                       <input
                         type="checkbox"
@@ -1510,7 +1532,7 @@ export default function FaceSwap() {
                     </label>
                   )}
                   {/* Download Selected Button */}
-                  {selectedJobs.size > 0 && (
+                  {isExportMode && selectedJobs.size > 0 && (
                     <Button
                       size="sm"
                       onClick={async () => {
@@ -1601,7 +1623,7 @@ export default function FaceSwap() {
                         )}
 
                         {/* Selection Checkbox (top-right) */}
-                        {job.status === "completed" && (
+                        {isExportMode && job.status === "completed" && (
                           <div className="absolute top-1 right-1 z-20">
                             <label className="flex items-center justify-center w-6 h-6 bg-black/70 backdrop-blur-sm rounded border-2 border-white/50 cursor-pointer hover:bg-black/90 transition-all">
                               <input
@@ -1687,7 +1709,7 @@ export default function FaceSwap() {
                         )}
                         
                         {/* Delete Icon (top-right) - 40% smaller */}
-                        {job.status === "completed" && (
+                        {!isExportMode && (job.status === "completed" || job.status === "pending" || job.status === "processing") && (
                           <div className="absolute top-1 right-1 z-10">
                             <Button
                               variant="ghost"
@@ -1710,7 +1732,7 @@ export default function FaceSwap() {
                             </Button>
                           </div>
                         )}
-                        {job.status === "failed" && (
+                        {!isExportMode && job.status === "failed" && (
                           <div className="absolute top-1 right-1 z-10">
                             <Button
                               variant="ghost"
@@ -1735,7 +1757,7 @@ export default function FaceSwap() {
                         )}
 
                         {/* Retry Button for Failed Jobs */}
-                        {job.status === "failed" && (
+                        {!isExportMode && job.status === "failed" && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-2 pointer-events-none">
                             <Button
                               variant="ghost"

@@ -67,12 +67,41 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         const buffer = Buffer.from(input.fileData, 'base64');
+        
+        // First upload to Forge storage
         const result = await storagePut(input.fileKey, buffer, input.contentType);
         
-        return {
-          url: result.url,
-          key: result.key,
-        };
+        // Then create a publicly accessible URL using manus-upload-file
+        const fs = await import('fs');
+        const os = await import('os');
+        const path = await import('path');
+        const { execSync } = await import('child_process');
+        
+        try {
+          // Write buffer to temp file
+          const tempDir = os.tmpdir();
+          const tempFile = path.join(tempDir, `upload-${Date.now()}-${input.fileKey.split('/').pop()}`);
+          fs.writeFileSync(tempFile, buffer);
+          
+          // Upload to public S3 using manus-upload-file
+          const publicUrl = execSync(`manus-upload-file "${tempFile}"`, { encoding: 'utf-8' }).trim();
+          
+          // Clean up temp file
+          fs.unlinkSync(tempFile);
+          
+          console.log(`[Storage] Created public URL: ${publicUrl}`);
+          
+          return {
+            url: publicUrl, // Use public URL for Replicate API
+            key: result.key,
+          };
+        } catch (error) {
+          console.error('[Storage] Failed to create public URL, falling back to Forge URL:', error);
+          return {
+            url: result.url,
+            key: result.key,
+          };
+        }
       }),
 
     // Create a new face swap job

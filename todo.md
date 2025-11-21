@@ -1313,3 +1313,21 @@
 - [x] Přidat "Download Selected as ZIP" tlačítko
 - [x] Stahovat result media files do ZIP archivu
 - [x] Otestovat batch download v All Jobs i Favorites sekcích
+
+## Export Mode Toggle - User Requested
+- [x] Přidat isExportMode state
+- [x] Přidat Export tlačítko vedle tab navigation
+- [x] Skrýt checkboxy když není export mode aktivní
+- [x] Zobrazit Select All a Download ZIP pouze v export mode
+- [x] Otestovat zapnutí/vypnutí export mode
+
+## Delete Pending Jobs - User Requested
+- [x] Přidat delete badge na pending/processing joby
+- [x] Umožnit smazání pending jobů kliknutím na trash ikonu
+- [x] Otestovat mazání pending jobů
+
+## Fix Target Image Loading - Critical Bug
+- [x] Zjistit proč target_image má 0 bytes v Replicate API
+- [x] Ověřit že target image URL je veřejně přístupná
+- [x] Opravit předávání target image URL do worker (použít manus-upload-file)
+- [x] Otestovat že target image se správně načítá
