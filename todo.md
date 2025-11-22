@@ -106,3 +106,14 @@ See git history for complete list of implemented features.
 - [x] Implementovat camera permission check s helper message
 - [x] Přidat camera settings - možnost nastavit rozlišení a framerate
 - [x] Přeložit info zprávu do češtiny
+
+## LiveCam Video Upload Feature
+- [x] Přidat "Upload Video" tlačítko pod "Start Camera"
+- [x] Validovat délku videa (max 10 sekund)
+- [x] Integrovat s existujícím face swap workflow
+
+## LiveCam Job Management
+- [x] Přidat backend API pro cancel job
+- [x] Přidat backend API pro delete job
+- [x] Přidat Cancel tlačítko pro běžící joby
+- [x] Přidat Delete tlačítko pro dokončené joby

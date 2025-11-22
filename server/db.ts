@@ -608,6 +608,18 @@ export async function getWanAnimateJobsByUserId(userId: number): Promise<WanAnim
   return db.select().from(wanAnimateJobs).where(eq(wanAnimateJobs.userId, userId)).orderBy(desc(wanAnimateJobs.createdAt));
 }
 
+export async function updateWanAnimateJob(
+  jobId: number,
+  updates: Partial<WanAnimateJob>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.update(wanAnimateJobs).set(updates).where(eq(wanAnimateJobs.id, jobId));
+}
+
 export async function updateWanAnimateJobStatus(
   jobId: number,
   status: "pending" | "processing" | "completed" | "failed" | "cancelled",
@@ -626,15 +638,11 @@ export async function updateWanAnimateJobStatus(
     throw new Error("Database not available");
   }
 
-  const updateData: Record<string, unknown> = { status };
+  const updateData: any = { status };
   
-  if (updates?.resultVideoKey) updateData.resultVideoKey = updates.resultVideoKey;
-  if (updates?.resultVideoUrl) updateData.resultVideoUrl = updates.resultVideoUrl;
-  if (updates?.errorMessage) updateData.errorMessage = updates.errorMessage;
-  if (updates?.completedAt) updateData.completedAt = updates.completedAt;
-  if (updates?.progress !== undefined) updateData.progress = updates.progress;
-  if (updates?.retryCount !== undefined) updateData.retryCount = updates.retryCount;
-  if (updates?.predictionId) updateData.predictionId = updates.predictionId;
+  if (updates) {
+    Object.assign(updateData, updates);
+  }
 
   await db.update(wanAnimateJobs).set(updateData).where(eq(wanAnimateJobs.id, jobId));
 }

@@ -3,7 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload, Video, VideoOff, Camera, RefreshCw, Play, Square, Download, Trash2 } from "lucide-react";
+import { Loader2, Upload, Video, VideoOff, Camera, RefreshCw, Play, Square, Download, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
@@ -47,6 +47,16 @@ export default function LiveCam() {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create job");
+    },
+  });
+
+  const cancelJobMutation = trpc.wanAnimate.cancelJob.useMutation({
+    onSuccess: () => {
+      refetchJobs();
+      toast.success("Job cancelled");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to cancel job");
     },
   });
 
@@ -169,7 +179,74 @@ export default function LiveCam() {
     toast.success("Camera list updated");
   };
 
-  const handleSourceImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('video/')) {
+      toast.error("Nahrajte prosím video soubor");
+      return;
+    }
+
+    // Create video element to check duration
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = async () => {
+      window.URL.revokeObjectURL(video.src);
+      
+      // Check duration (max 10 seconds)
+      if (video.duration > 10) {
+        toast.error(`Video je příliš dlouhé (${Math.round(video.duration)}s). Maximum je 10 sekund.`);
+        e.target.value = ''; // Reset input
+        return;
+      }
+
+      try {
+        toast.info("Nahrávám video...");
+        
+        // Upload character image
+        const charFormData = new FormData();
+        charFormData.append('file', sourceImage!);
+        const charUploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: charFormData,
+        });
+        if (!charUploadRes.ok) throw new Error('Failed to upload character image');
+        const charData = await charUploadRes.json();
+        
+        // Upload video
+        const videoFormData = new FormData();
+        videoFormData.append('file', file);
+        const videoUploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: videoFormData,
+        });
+        if (!videoUploadRes.ok) throw new Error('Failed to upload video');
+        const videoData = await videoUploadRes.json();
+        
+        // Submit to Wan Animate API
+        await createJobMutation.mutateAsync({
+          mode: 'replacement',
+          characterImageKey: charData.key,
+          characterImageUrl: charData.url,
+          referenceVideoKey: videoData.key,
+          referenceVideoUrl: videoData.url,
+        });
+        
+        e.target.value = ''; // Reset input
+      } catch (error: any) {
+        console.error('Upload error:', error);
+        toast.error(error.message || 'Nepodařilo se nahrát video');
+        e.target.value = ''; // Reset input
+      }
+    };
+
+    video.src = URL.createObjectURL(file);
+  };
+
+  const handleSourceImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSourceImage(file);
@@ -492,7 +569,7 @@ export default function LiveCam() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={handleSourceImageChange}
+                    onChange={handleSourceImageUpload}
                     className="hidden"
                     id="source-upload"
                   />
@@ -535,6 +612,35 @@ export default function LiveCam() {
                     <VideoOff className="w-4 h-4 mr-2" />
                     Stop Camera
                   </Button>
+                )}
+
+                {/* Upload Video Button */}
+                {!isCameraActive && (
+                  <div>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      id="video-upload"
+                      onChange={handleVideoUpload}
+                      disabled={!sourceImage}
+                    />
+                    <label htmlFor="video-upload">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full border-purple-600 text-purple-300 hover:bg-purple-900/30"
+                        disabled={!sourceImage}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          document.getElementById('video-upload')?.click();
+                        }}
+                      >
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Video (max 10s)
+                      </Button>
+                    </label>
+                  </div>
                 )}
 
                 {isCameraActive && !isRecording && (
@@ -618,6 +724,34 @@ export default function LiveCam() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {jobs.map((job) => (
                     <div key={job.id} className="relative group">
+                      {/* Action Buttons */}
+                      <div className="absolute top-2 right-2 z-10 flex gap-2">
+                        {(job.status === 'pending' || job.status === 'processing') && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0 border-red-600 text-red-400 hover:bg-red-900/30 bg-gray-900/80 backdrop-blur"
+                            onClick={() => cancelJobMutation.mutate({ jobId: job.id })}
+                            disabled={cancelJobMutation.isPending}
+                            title="Cancel job"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {(job.status === 'completed' || job.status === 'failed') && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0 border-gray-600 text-gray-400 hover:bg-gray-700 bg-gray-900/80 backdrop-blur"
+                            onClick={() => deleteJobMutation.mutate({ jobId: job.id })}
+                            disabled={deleteJobMutation.isPending}
+                            title="Delete job"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+
                       <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden border border-gray-700">
                         {job.status === 'completed' && job.resultVideoUrl ? (
                           <video

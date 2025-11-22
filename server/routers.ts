@@ -974,6 +974,43 @@ export const appRouter = router({
         return job;
       }),
 
+    // Cancel job
+    cancelJob: protectedProcedure
+      .input(z.object({ jobId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const { getWanAnimateJobById, updateWanAnimateJob } = await import("./db");
+        const job = await getWanAnimateJobById(input.jobId);
+        
+        if (!job) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Job not found",
+          });
+        }
+
+        if (job.userId !== ctx.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to cancel this job",
+          });
+        }
+
+        // Only allow canceling pending or processing jobs
+        if (job.status !== 'pending' && job.status !== 'processing') {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Can only cancel pending or processing jobs",
+          });
+        }
+
+        await updateWanAnimateJob(input.jobId, {
+          status: 'failed',
+          errorMessage: 'Cancelled by user',
+        });
+        
+        return { success: true };
+      }),
+
     // Delete job
     deleteJob: protectedProcedure
       .input(z.object({ jobId: z.number() }))
