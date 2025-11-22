@@ -119,8 +119,9 @@ export default function FullscreenLightbox({
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+      className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center h-screen w-screen"
       onClick={onClose}
+      style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, height: '100vh', width: '100vw' }}
     >
       {/* Close Button */}
       <Button
@@ -235,8 +236,9 @@ export default function FullscreenLightbox({
 
       {/* Image */}
       <div
-        className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
+        className="relative flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: '90vw', maxHeight: '90vh' }}
       >
         {currentImage?.url.endsWith('.mp4') || currentImage?.url.endsWith('.webm') || currentImage?.url.endsWith('.mov') ? (
           <video

@@ -163,3 +163,7 @@ See git history for complete list of implemented features.
 - [x] Add "Save as Face" button to action buttons (extract face from result and save to saved faces collection)
 - [x] Implement face extraction from generated result
 - [x] Show saved face in source faces gallery for reuse
+
+## Lightbox and Grid View Layout Fixes - Current Session
+- [x] Fix lightbox positioning - should be fixed at 100vh full-screen regardless of scroll position
+- [x] Optimize Grid View left panel - make it more compact and utilize empty space better
