@@ -979,8 +979,8 @@ export default function FaceSwap() {
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
                         className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
-                        <option value="high_quality" className="bg-gray-900">HQ (slower, better quality, no nude)</option>
-                        <option value="permissive" className="bg-gray-900">LQ (fast, nude allowed)</option>
+                        <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
+                        <option value="permissive" className="bg-gray-900">LQ (slower, better quality, nude allowed)</option>
                       </select>
                       
                       {/* Generate Button - 40% (4/10) */}
@@ -1128,28 +1128,35 @@ export default function FaceSwap() {
                 </div>
               ) : completedJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
-                  {/* Action Buttons - Floating */}
-                  <div className="absolute top-3 right-3 z-20 flex gap-2">
+                  {/* Action Buttons - Bottom Center */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-2">
                     <Button
                       size="sm"
                       onClick={async () => {
                         if (!currentJob?.resultMediaUrl) return;
                         try {
                           toast.info('Downloading...');
-                          const response = await fetch(currentJob.resultMediaUrl);
+                          const response = await fetch(currentJob.resultMediaUrl, {
+                            mode: 'cors',
+                            credentials: 'omit'
+                          });
+                          if (!response.ok) throw new Error('Download failed');
                           const blob = await response.blob();
                           const url = window.URL.createObjectURL(blob);
                           const a = document.createElement('a');
                           a.href = url;
                           a.download = `faceswap-result-${currentJob.id}.${currentJob.targetMediaType === 'video' ? 'mp4' : 'jpg'}`;
+                          a.style.display = 'none';
                           document.body.appendChild(a);
                           a.click();
-                          window.URL.revokeObjectURL(url);
-                          document.body.removeChild(a);
+                          setTimeout(() => {
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                          }, 100);
                           toast.success('Download started');
                         } catch (error) {
                           console.error('Download failed:', error);
-                          toast.error('Download failed');
+                          toast.error('Download failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
                         }
                       }}
                       className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"
@@ -1411,7 +1418,7 @@ export default function FaceSwap() {
                         <div className="absolute top-[4.5rem] left-2 md:top-[6.5rem] md:left-4 z-10">
                           <div className="px-2 py-1 rounded-md bg-black/60 backdrop-blur-sm border border-white/30 shadow-lg">
                             <span className="text-white text-[8px] md:text-[10px] font-semibold">
-                              {currentJob.modelPreference === 'high_quality' ? '⚡ HQ (Fast)' : '🎨 LQ (Quality)'}
+                              {currentJob.modelPreference === 'high_quality' ? '⚡ HQ (Fast)' : '🛡️ LQ (Quality)'}
                             </span>
                           </div>
                         </div>
@@ -1454,8 +1461,8 @@ export default function FaceSwap() {
                           className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <option value="high_quality" className="bg-gray-900">HQ (slower, better quality, no nude)</option>
-                          <option value="permissive" className="bg-gray-900">LQ (fast, nude allowed)</option>
+                          <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
+                          <option value="permissive" className="bg-gray-900">LQ (slower, better quality, nude allowed)</option>
                         </select>
                         
                         {/* Keep Body Checkbox */}

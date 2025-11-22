@@ -180,4 +180,11 @@ See git history for complete list of implemented features.
 ## Fix Model Labels and All Jobs Grid - Current Session
 - [x] Fix swapped model labels (HQ should be slower/better quality/no nude, LQ should be fast/nude allowed)
 - [x] Add Load More button to All Jobs grid in Detail View (both Detail and Grid views)
-- [ ] Test that more thumbnails load when clicking Load More
+- [x] Test that more thumbnails load when clicking Load More
+
+## Fix Model Labels Again and Action Buttons - Current Session
+- [x] Swap model labels back (HQ = fast/no nude, LQ = slower/better quality/nude allowed)
+- [x] Swap model badge icons back to match correct labels (HQ=⚡, LQ=🛡️)
+- [x] Move action buttons (Download, Regenerate, Crop, etc.) to bottom-center on desktop and tablet
+- [x] Fix Download button functionality with proper CORS handling and timeout
+- [x] Test all fixes
