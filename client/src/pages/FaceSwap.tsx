@@ -2066,124 +2066,8 @@ export default function FaceSwap() {
           )}
             </>
           ) : (
-            // GRID VIEW (fullscreen grid layout with compact left panel)
-            <div className="grid grid-cols-1 lg:grid-cols-[310px_1fr] gap-3 pb-20">
-              {/* Compact Left Panel - Controls */}
-              <div className="hidden lg:block space-y-2">
-                <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                  <CardContent className="p-3 space-y-3">
-                    {/* Source Face Selector */}
-                    <div>
-                      <label className="text-white text-xs font-medium mb-1.5 block">Source Face</label>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        {savedFaces?.slice(0, 4).map((face) => (
-                          <button
-                            key={face.id}
-                            onClick={() => {
-                              setSourcePreview(face.faceImageUrl);
-                              toast.success('Face selected');
-                            }}
-                            className="aspect-square rounded-full overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all hover:scale-105"
-                          >
-                            <img
-                              src={face.faceImageUrl}
-                              alt={face.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* AI Model Selector */}
-                    <div>
-                      <label className="text-white text-xs font-medium mb-1.5 block">AI Model</label>
-                      <select
-                        value={modelPreference}
-                        onChange={(e) => setModelPreference(e.target.value as 'high_quality' | 'permissive')}
-                        className="w-full h-8 text-xs bg-white/10 border border-white/30 rounded-lg text-white px-2 focus:ring-0 focus:outline-none"
-                      >
-                        <option value="high_quality">HQ (no nude)</option>
-                        <option value="permissive">LQ (nude allowed)</option>
-                      </select>
-                    </div>
-
-                    {/* Keep Body Proportions */}
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={preserveBody}
-                        onChange={(e) => setPreserveBody(e.target.checked)}
-                        className="h-3 w-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none"
-                      />
-                      <span className="text-white text-xs">Keep body proportions</span>
-                    </label>
-
-                    {/* Templates Button */}
-                    <Button
-                      onClick={() => setShowTemplateGallery(!showTemplateGallery)}
-                      className="w-full h-8 text-xs bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
-                    >
-                      <Users className="h-3 w-3 mr-1.5" />
-                      Templates
-                    </Button>
-
-                    {/* Filter Tabs */}
-                    <div className="pt-2 border-t border-white/20">
-                      <label className="text-white text-xs font-medium mb-1.5 block">Filter</label>
-                      <div className="flex flex-col gap-1">
-                        <Button
-                          size="sm"
-                          variant={activeTab === 'all' ? 'default' : 'outline'}
-                          onClick={() => setActiveTab('all')}
-                          className="h-7 text-xs justify-start"
-                        >
-                          All Jobs ({completedJobs.length})
-                        </Button>
-                        {[1, 2, 3, 4, 5].map(cat => (
-                          <Button
-                            key={cat}
-                            size="sm"
-                            variant={activeTab === 'favorites' && favoriteCategory === cat ? 'default' : 'outline'}
-                            onClick={() => {
-                              setActiveTab('favorites');
-                              setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
-                            }}
-                            className="h-7 text-xs justify-start"
-                          >
-                            F{cat}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Bottom Preview - Current Selected Result */}
-                {currentJob && (
-                  <Card className="bg-white/10 backdrop-blur-lg border-white/20">
-                    <CardContent className="p-0">
-                      {currentJob.targetMediaType === 'video' ? (
-                        <video
-                          src={currentJob.resultMediaUrl!}
-                          className="w-full h-auto object-contain"
-                          controls
-                          playsInline
-                        />
-                      ) : (
-                        <img
-                          src={currentJob.resultMediaUrl!}
-                          alt="Current result preview"
-                          className="w-full h-auto object-contain"
-                        />
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-
-              {/* Grid of Results */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
+            // GRID VIEW (fullscreen grid layout)
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pb-20">
               {completedJobs.map((job, idx) => (
                 <div
                   key={job.id}
@@ -2197,7 +2081,7 @@ export default function FaceSwap() {
                   {job.targetMediaType === 'video' ? (
                     <video
                       src={job.resultMediaUrl!}
-                      className="w-full aspect-[3/4] object-cover"
+                      className="w-full aspect-square object-cover"
                       muted
                       loop
                       playsInline
@@ -2211,7 +2095,7 @@ export default function FaceSwap() {
                     <img
                       src={job.resultMediaUrl!}
                       alt="Result"
-                      className="w-full aspect-[3/4] object-cover"
+                      className="w-full aspect-square object-cover"
                     />
                   )}
 
@@ -2287,7 +2171,6 @@ export default function FaceSwap() {
                   <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
                 </div>
               )}
-              </div>
             </div>
           )}
         </div>
