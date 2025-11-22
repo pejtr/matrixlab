@@ -16,7 +16,7 @@ export interface FaceSwapInput {
   sourceImageUrl: string;
   targetMediaUrl: string;
   targetMediaType: "image" | "video";
-  modelPreference?: "high_quality" | "permissive"; // Model selection: high_quality (NSFW filter) vs permissive (NSFW allowed)
+  modelPreference?: "high_quality" | "permissive"; // Model selection: high_quality (fast, NSFW filter) vs permissive (slower, better quality, NSFW allowed)
   webhookUrl?: string; // Optional webhook URL for instant notifications
 }
 
@@ -88,14 +88,14 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     } else {
       // For images, choose model based on preference
       if (modelPreference === "permissive") {
-        // Use fofr/face-swap-with-ideogram (NSFW-friendly, lower quality)
-        modelUsed = "fofr/face-swap-with-ideogram (permissive)";
-        console.log("[Replicate] Using model: fofr/face-swap-with-ideogram for IMAGE (NSFW-friendly)");
+        // Use easel/advanced-face-swap (NSFW-friendly, higher quality, slower)
+        modelUsed = "easel/advanced-face-swap (permissive)";
+        console.log("[Replicate] Using model: easel/advanced-face-swap for IMAGE (NSFW-friendly, higher quality)");
         const prediction = await replicate.predictions.create({
-          model: "fofr/face-swap-with-ideogram",
+          model: "easel/advanced-face-swap",
           input: {
-            character_image: input.sourceImageUrl,
             target_image: input.targetMediaUrl,
+            swap_image: input.sourceImageUrl,
           },
           webhook: input.webhookUrl,
           webhook_events_filter: ["completed"],
@@ -107,16 +107,16 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         output = await replicate.wait(prediction);
         output = output.output;
       } else {
-        // Use easel/advanced-face-swap (commercial-grade, NSFW filter)
-        modelUsed = "easel/advanced-face-swap (high quality)";
-        console.log("[Replicate] Using model: easel/advanced-face-swap for IMAGE (commercial-grade quality, NSFW filter)");
+        // Use fofr/face-swap-with-ideogram (faster, NSFW filter)
+        modelUsed = "fofr/face-swap-with-ideogram (high quality)";
+        console.log("[Replicate] Using model: fofr/face-swap-with-ideogram for IMAGE (faster, NSFW filter)");
         
         try {
           const prediction = await replicate.predictions.create({
-            model: "easel/advanced-face-swap",
+            model: "fofr/face-swap-with-ideogram",
             input: {
+              character_image: input.sourceImageUrl,
               target_image: input.targetMediaUrl,
-              swap_image: input.sourceImageUrl,
             },
             webhook: input.webhookUrl,
             webhook_events_filter: ["completed"],
@@ -133,14 +133,14 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
           if (!outputUrl || outputUrl === "" || (Array.isArray(output) && output.length === 0)) {
             console.log("[Replicate] High-quality model returned empty output (NSFW detected), falling back to permissive model...");
             
-            // Fallback to permissive model
-            modelUsed = "fofr/face-swap-with-ideogram (fallback)";
+            // Fallback to permissive model (easel/advanced-face-swap without NSFW filter)
+            modelUsed = "easel/advanced-face-swap (fallback)";
             output = await replicate.run(
-              "fofr/face-swap-with-ideogram",
+              "easel/advanced-face-swap",
               {
                 input: {
-                  character_image: input.sourceImageUrl,
                   target_image: input.targetMediaUrl,
+                  swap_image: input.sourceImageUrl,
                 },
               }
             );
@@ -148,14 +148,14 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         } catch (error) {
           console.error("[Replicate] High-quality model failed, falling back to permissive model:", error);
           
-          // Fallback to permissive model on error
-          modelUsed = "fofr/face-swap-with-ideogram (fallback)";
+          // Fallback to permissive model on error (easel/advanced-face-swap)
+          modelUsed = "easel/advanced-face-swap (fallback)";
           output = await replicate.run(
-            "fofr/face-swap-with-ideogram",
+            "easel/advanced-face-swap",
             {
               input: {
-                character_image: input.sourceImageUrl,
                 target_image: input.targetMediaUrl,
+                swap_image: input.sourceImageUrl,
               },
             }
           );

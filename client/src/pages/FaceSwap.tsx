@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowLeft, ChevronDown } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowLeft, ChevronDown, UserPlus, LayoutGrid, Maximize2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -62,9 +62,9 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
-  // Desktop: 12 thumbnails (1 row), Mobile: 6 thumbnails (1 row)
+  // Desktop: 24 thumbnails (8 rows of 3), Mobile: 12 thumbnails (4 rows of 3)
   const [visibleJobsCount, setVisibleJobsCount] = useState(
-    typeof window !== 'undefined' && window.innerWidth >= 768 ? 12 : 6
+    typeof window !== 'undefined' && window.innerWidth >= 768 ? 24 : 12
   );
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
@@ -82,6 +82,7 @@ export default function FaceSwap() {
   const [selectedJobs, setSelectedJobs] = useState<Set<number>>(new Set());
   const [isDownloadingZip, setIsDownloadingZip] = useState(false);
   const [isExportMode, setIsExportMode] = useState(false);
+  const [viewMode, setViewMode] = useState<'detail' | 'grid'>('detail'); // View mode: detail (current) or grid (fullscreen)
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
@@ -149,7 +150,7 @@ export default function FaceSwap() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          setVisibleJobsCount(prev => prev + 8);
+          setVisibleJobsCount(prev => prev + 12); // Load 12 more (4 rows of 3)
         }
       },
       { threshold: 0.1 }
@@ -702,9 +703,35 @@ export default function FaceSwap() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      {/* View Switcher - Top Right */}
+      {completedJobs.length > 0 && (
+        <div className="fixed top-4 right-4 z-50">
+          <Button
+            size="sm"
+            onClick={() => setViewMode(viewMode === 'detail' ? 'grid' : 'detail')}
+            className="bg-white/10 backdrop-blur-lg border border-white/30 hover:bg-white/20 text-white shadow-lg"
+          >
+            {viewMode === 'detail' ? (
+              <>
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Grid View
+              </>
+            ) : (
+              <>
+                <Maximize2 className="h-4 w-4 mr-2" />
+                Detail View
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="container mx-auto px-3 py-3">
         <div className="max-w-7xl mx-auto">
+          {viewMode === 'detail' ? (
+            // DETAIL VIEW (existing layout)
+            <>
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
           <div className="grid grid-cols-1 md:grid-cols-[1.2fr_3.8fr] gap-3">
             
@@ -952,8 +979,8 @@ export default function FaceSwap() {
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
                         className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
-                        <option value="high_quality" className="bg-gray-900">HQ (slower, better quality)</option>
-                        <option value="permissive" className="bg-gray-900">Fast (quicker, lower quality)</option>
+                        <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
+                        <option value="permissive" className="bg-gray-900">LQ (slower, better quality, nude allowed)</option>
                       </select>
                       
                       {/* Generate Button - 40% (4/10) */}
@@ -1324,6 +1351,29 @@ export default function FaceSwap() {
                     </Button>
                     {currentJob?.targetMediaType === 'image' && (
                       <>
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            if (!currentJob?.resultMediaUrl) return;
+                            try {
+                              toast.info('Saving face...');
+                              // Use result image as new source face
+                              const response = await fetch(currentJob.resultMediaUrl);
+                              const blob = await response.blob();
+                              const file = new File([blob], `saved-face-${Date.now()}.jpg`, { type: 'image/jpeg' });
+                              setSourceFile(file);
+                              setSourcePreview(currentJob.resultMediaUrl);
+                              toast.success('Face saved! Ready to use for generation.');
+                            } catch (error) {
+                              console.error('Failed to save face:', error);
+                              toast.error('Failed to save face');
+                            }
+                          }}
+                          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"
+                          title="Save as Face (use result as source face)"
+                        >
+                          <UserPlus className="h-4 w-4" />
+                        </Button>
                         <EnhanceButton 
                           imageUrl={currentJob.resultMediaUrl!}
                           jobId={currentJob.id}
@@ -1374,7 +1424,7 @@ export default function FaceSwap() {
                     {/* Navigation Arrows */}
                     {completedJobs.length > 1 && (
                       <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-3">
-                        <Button
+                          <Button
                           onClick={() => {
                             const newIndex = Math.max(0, currentResultIndex - 1);
                             setCurrentResultIndex(newIndex);
@@ -1383,6 +1433,10 @@ export default function FaceSwap() {
                             if (newJob?.targetMediaUrl) {
                               setTargetPreviews([newJob.targetMediaUrl]);
                             }
+                            // Update source preview (FACE badge) to match selected job
+                            if (newJob?.sourceImageUrl) {
+                              setSourcePreview(newJob.sourceImageUrl);
+                            }
                           }}
                           disabled={currentResultIndex === 0}
                           className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-12 w-12 p-0 shadow-lg"
@@ -1390,7 +1444,7 @@ export default function FaceSwap() {
                         >
                           <ChevronLeft className="h-6 w-6" />
                         </Button>
-                        <Button
+                          <Button
                           onClick={() => {
                             const newIndex = Math.min(completedJobs.length - 1, currentResultIndex + 1);
                             setCurrentResultIndex(newIndex);
@@ -1398,6 +1452,10 @@ export default function FaceSwap() {
                             const newJob = completedJobs[newIndex];
                             if (newJob?.targetMediaUrl) {
                               setTargetPreviews([newJob.targetMediaUrl]);
+                            }
+                            // Update source preview (FACE badge) to match selected job
+                            if (newJob?.sourceImageUrl) {
+                              setSourcePreview(newJob.sourceImageUrl);
                             }
                           }}
                           disabled={currentResultIndex === completedJobs.length - 1}
@@ -1517,6 +1575,16 @@ export default function FaceSwap() {
                         </div>
                       )}
                       
+                      {/* Model Info Badge - Below FACE badge */}
+                      {currentJob && (
+                        <div className="absolute top-[4.5rem] left-2 md:top-[6.5rem] md:left-4 z-10">
+                          <div className="px-2 py-1 rounded-md bg-black/60 backdrop-blur-sm border border-white/30 shadow-lg">
+                            <span className="text-white text-[8px] md:text-[10px] font-semibold">
+                              {currentJob.modelPreference === 'high_quality' ? '⚡ HQ (Fast)' : '🎨 LQ (Quality)'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
 
                       
                       {/* Generate Button - Bottom Right (Mobile only) */}
@@ -1555,8 +1623,8 @@ export default function FaceSwap() {
                           className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <option value="high_quality" className="bg-gray-900">HQ (slower, better quality)</option>
-                          <option value="permissive" className="bg-gray-900">Fast (quicker, lower quality)</option>
+                          <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
+                          <option value="permissive" className="bg-gray-900">LQ (slower, better quality, nude allowed)</option>
                         </select>
                         
                         {/* Keep Body Checkbox */}
@@ -1992,6 +2060,115 @@ export default function FaceSwap() {
                   <div className="hidden md:flex items-center justify-center">
                     <Loader2 className="h-6 w-6 text-purple-400 animate-spin" />
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+            </>
+          ) : (
+            // GRID VIEW (fullscreen grid layout)
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pb-20">
+              {completedJobs.map((job, idx) => (
+                <div
+                  key={job.id}
+                  className="relative group cursor-pointer bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden hover:border-pink-500 transition-all hover:scale-105"
+                  onClick={() => {
+                    setCurrentResultIndex(idx);
+                    setViewMode('detail');
+                  }}
+                >
+                  {/* Result Image/Video */}
+                  {job.targetMediaType === 'video' ? (
+                    <video
+                      src={job.resultMediaUrl!}
+                      className="w-full aspect-square object-cover"
+                      muted
+                      loop
+                      playsInline
+                      onMouseEnter={(e) => e.currentTarget.play()}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.pause();
+                        e.currentTarget.currentTime = 0;
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={job.resultMediaUrl!}
+                      alt="Result"
+                      className="w-full aspect-square object-cover"
+                    />
+                  )}
+
+                  {/* Hover Overlay with Actions */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                    {/* Quick Actions */}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (!job.resultMediaUrl) return;
+                          try {
+                            const response = await fetch(job.resultMediaUrl);
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `faceswap-${job.id}.${job.targetMediaType === 'video' ? 'mp4' : 'jpg'}`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            toast.success('Downloaded');
+                          } catch (error) {
+                            toast.error('Download failed');
+                          }
+                        }}
+                        className="bg-pink-500 hover:bg-pink-600 h-8 w-8 p-0"
+                        title="Download"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentResultIndex(idx);
+                          setLightboxIndex(idx);
+                          setShowLightbox(true);
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 h-8 w-8 p-0"
+                        title="View Full"
+                      >
+                        <Maximize2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {/* Model Badge */}
+                    <div className="px-2 py-1 rounded-md bg-black/80 border border-white/30">
+                      <span className="text-white text-[10px] font-semibold">
+                        {job.modelPreference === 'high_quality' ? '⚡ HQ' : '🎨 LQ'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Face Badge - Top Left */}
+                  <div className="absolute top-2 left-2 z-10">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-white/40 shadow-lg bg-white/10 backdrop-blur-sm">
+                      <img
+                        src={job.sourceImageUrl}
+                        alt="Face"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Load More Trigger */}
+              {hasMoreJobs && (
+                <div ref={loadMoreRef} className="col-span-full flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
                 </div>
               )}
             </div>

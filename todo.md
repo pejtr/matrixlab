@@ -149,3 +149,17 @@ See git history for complete list of implemented features.
 - [x] Add lightbox for TARGETS with navigation between all saved target images
 - [x] Collect all unique target images from completed jobs
 - [ ] Test navigation and synchronization
+
+## FACE Badge Sync and Grid View - Current Session
+- [x] Fix FACE badge synchronization - update when navigating with arrow buttons
+- [x] Increase All Jobs grid initial display (+3 rows minimum, 9-12 thumbnails) - now shows 24 thumbnails (8 rows)
+- [x] Add infinite scroll to All Jobs grid (dynamic loading on scroll) - loads 12 more on scroll
+- [x] Implement Grid View layout (fullscreen grid alternative to Detail View)
+- [x] Add view switcher toggle in header (Detail View ↔ Grid View)
+
+- [x] Swap model functionalities (HQ should be faster, LQ should be slower but better quality)
+- [x] Add model info display to show which model was used for each result
+
+- [x] Add "Save as Face" button to action buttons (extract face from result and save to saved faces collection)
+- [x] Implement face extraction from generated result
+- [x] Show saved face in source faces gallery for reuse
