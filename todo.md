@@ -193,3 +193,13 @@ See git history for complete list of implemented features.
 - [x] Clear target files and previews when deleting the last/only result
 - [x] Prevent stale target previews from previous batch uploads
 - [x] Test with batch upload (multiple targets) → delete all results → verify clean state
+
+## Add Favorite Count Badge to Favorites Tab - Current Session
+- [x] Add red badge with favorite count to Favorites tab (⭐ icon)
+- [x] Match styling of other category badges
+- [ ] Test badge updates when adding/removing favorites
+
+## Fix Lightbox Vertical Centering - Current Session
+- [x] Center lightbox image vertically in viewport
+- [x] Make image fill maximum viewport height (max-h-screen)
+- [x] Test with different image aspect ratios

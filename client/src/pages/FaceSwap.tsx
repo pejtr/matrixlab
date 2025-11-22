@@ -1533,13 +1533,18 @@ export default function FaceSwap() {
                             setActiveTab('favorites');
                             setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
                           }}
-                          className={`text-[10px] h-6 px-2 ${
+                          className={`text-[10px] h-6 px-2 relative ${
                             activeTab === 'favorites' && favoriteCategory === cat
                               ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
                               : 'bg-transparent border-white/30 text-white hover:bg-white/10'
                           }`}
                         >
-                          F{cat} ({favoriteCounts?.[cat] || 0})
+                          F{cat}
+                          {(favoriteCounts?.[cat] || 0) > 0 && (
+                            <span className="ml-1 bg-red-500 text-white text-[8px] rounded-full px-1.5 py-0.5 font-bold">
+                              {favoriteCounts?.[cat]}
+                            </span>
+                          )}
                         </Button>
                       ))}
                     </div>
@@ -1704,13 +1709,18 @@ export default function FaceSwap() {
                         setActiveTab('favorites');
                         setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
                       }}
-                      className={`text-xs ${
+                      className={`text-xs relative ${
                         activeTab === 'favorites' && favoriteCategory === cat
                           ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
                           : 'bg-transparent border-white/30 text-white hover:bg-white/10'
                       }`}
                     >
-                      F{cat} ({favoriteCounts?.[cat] || 0})
+                      F{cat}
+                      {(favoriteCounts?.[cat] || 0) > 0 && (
+                        <span className="ml-1 bg-red-500 text-white text-[8px] rounded-full px-1.5 py-0.5 font-bold">
+                          {favoriteCounts?.[cat]}
+                        </span>
+                      )}
                     </Button>
                   ))}
                 </div>
