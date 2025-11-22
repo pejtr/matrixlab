@@ -225,6 +225,20 @@ export default function FaceSwap() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentResultIndex, completedJobs.length, showLightbox]);
 
+  // Sync target preview when currentResultIndex changes (arrow navigation)
+  useEffect(() => {
+    if (completedJobs.length > 0 && currentJob) {
+      // Update target preview to match the current job
+      if (currentJob.targetMediaUrl) {
+        setTargetPreviews([currentJob.targetMediaUrl]);
+      }
+      // Update source preview to match the current job
+      if (currentJob.sourceImageUrl) {
+        setSourcePreview(currentJob.sourceImageUrl);
+      }
+    }
+  }, [currentResultIndex, currentJob]);
+
   const handleSourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -922,7 +936,7 @@ export default function FaceSwap() {
                                     }}
                                     className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                                   />
-                                  <span className="text-white/90 text-[9px]">Keep proportions</span>
+                                  <span className="text-white/90 text-[9px]">Protect</span>
                                 </div>
                               )}
 
@@ -1488,7 +1502,7 @@ export default function FaceSwap() {
                             }}
                             className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                           />
-                          <span className="text-white text-[9px] whitespace-nowrap">Keep proportions</span>
+                          <span className="text-white text-[9px] whitespace-nowrap">Protect</span>
                         </div>
                       </div>
                     </div>

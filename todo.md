@@ -203,3 +203,9 @@ See git history for complete list of implemented features.
 - [x] Center lightbox image vertically in viewport
 - [x] Make image fill maximum viewport height (max-h-screen)
 - [x] Test with different image aspect ratios
+
+## Fix Target Preview Navigation and Label - Current Session
+- [x] Fix target preview not updating when using arrow buttons to navigate
+- [x] Add automatic target preview sync when currentResultIndex changes
+- [x] Change "Keep proportions" label to "Protect" to save space
+- [x] Test arrow navigation updates target preview correctly
