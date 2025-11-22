@@ -209,3 +209,11 @@ See git history for complete list of implemented features.
 - [x] Add automatic target preview sync when currentResultIndex changes
 - [x] Change "Keep proportions" label to "Protect" to save space
 - [x] Test arrow navigation updates target preview correctly
+
+## All Jobs Grid - Single Row Horizontal Scroll - Current Session
+- [x] Change All Jobs grid from multi-row to single-row layout on desktop
+- [x] Add horizontal scrolling (overflow-x-auto)
+- [x] Limit viewport height to one row of thumbnails
+- [x] Fix infinite scroll - show all jobs by default (999 initial count)
+- [x] Ensure all jobs are accessible via horizontal scroll
+- [x] Remove Load More button (not needed with horizontal scroll)

@@ -62,9 +62,9 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
-  // Desktop: 24 thumbnails (8 rows of 3), Mobile: 12 thumbnails (4 rows of 3)
+  // Desktop: Show all jobs initially (horizontal scroll), Mobile: 12 thumbnails
   const [visibleJobsCount, setVisibleJobsCount] = useState(
-    typeof window !== 'undefined' && window.innerWidth >= 768 ? 24 : 12
+    typeof window !== 'undefined' && window.innerWidth >= 768 ? 999 : 12
   );
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
@@ -1563,9 +1563,9 @@ export default function FaceSwap() {
                       ))}
                     </div>
                   </div>
-                  {/* Scrollable Grid Container */}
-                  <div className="overflow-y-auto max-h-[35vh] pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
-                    <div className="grid grid-cols-6 gap-1.5">
+                  {/* Scrollable Grid Container - Single Row Horizontal Scroll */}
+                  <div className="overflow-x-auto overflow-y-hidden pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
+                    <div className="flex gap-1.5">
                       {visibleJobs.map((job, idx) => (
                         <div
                           key={job.id}
@@ -1580,7 +1580,7 @@ export default function FaceSwap() {
                               }
                             }
                           }}
-                          className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all ${
+                          className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all flex-shrink-0 w-24 h-24 ${
                             job.status === "completed" && currentJob?.id === job.id
                               ? "ring-2 ring-pink-500"
                               : "hover:ring-2 hover:ring-white/50"
