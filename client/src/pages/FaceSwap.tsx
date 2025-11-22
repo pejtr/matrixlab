@@ -1035,175 +1035,6 @@ export default function FaceSwap() {
 
             </div>
 
-            {/* All Jobs Grid - Desktop only, in left column */}
-            {jobs && jobs.length > 0 && (
-              <div className="hidden md:block mt-2">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex gap-1 items-center flex-wrap">
-                    <Button
-                      variant={activeTab === 'all' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setActiveTab('all')}
-                      className={`text-[10px] h-6 px-2 ${
-                        activeTab === 'all' 
-                          ? 'bg-pink-500 hover:bg-pink-600 text-white' 
-                          : 'bg-transparent border-white/30 text-white hover:bg-white/10'
-                      }`}
-                    >
-                      All ({jobs.length})
-                    </Button>
-                    {/* Favorites Category Buttons */}
-                    {[1, 2, 3, 4, 5].map((cat) => (
-                      <Button
-                        key={cat}
-                        variant={activeTab === 'favorites' && favoriteCategory === cat ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => {
-                          setActiveTab('favorites');
-                          setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
-                        }}
-                        className={`text-[10px] h-6 px-2 ${
-                          activeTab === 'favorites' && favoriteCategory === cat
-                            ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
-                            : 'bg-transparent border-white/30 text-white hover:bg-white/10'
-                        }`}
-                      >
-                        F{cat} ({favoriteCounts?.[cat] || 0})
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-                {/* Scrollable Grid Container - max-height matches right column */}
-                <div className="overflow-y-auto max-h-[60vh] pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {visibleJobs.map((job, idx) => (
-                      <div
-                        key={job.id}
-                        onClick={() => {
-                          if (job.status === "completed") {
-                            const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
-                            if (completedIndex !== -1) {
-                              setCurrentResultIndex(completedIndex);
-                              if (job.targetMediaUrl) {
-                                setTargetPreviews([job.targetMediaUrl]);
-                              }
-                            }
-                          }
-                        }}
-                        className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all ${
-                          job.status === "completed" && currentJob?.id === job.id
-                            ? "ring-2 ring-pink-500"
-                            : "hover:ring-2 hover:ring-white/50"
-                        }`}
-                      >
-                        <img
-                          src={job.status === "completed" && job.resultMediaUrl ? job.resultMediaUrl : job.targetMediaUrl}
-                          alt={`Job ${job.id}`}
-                          className="w-full h-full object-cover"
-                        />
-                        
-                        {/* Status Badge (only for non-completed) */}
-                        {job.status !== "completed" && (
-                          <div className="absolute top-0.5 left-0.5 scale-75 origin-top-left">
-                            {getStatusBadge(job.status, job.errorMessage)}
-                          </div>
-                        )}
-
-                        {/* Favorite Badge (top-right, always visible for completed jobs) */}
-                        {job.status === "completed" && allFavorites?.find(f => f.jobId === job.id) && (
-                          <div className="absolute top-0.5 right-0.5 bg-yellow-500 rounded-full p-0.5 shadow-lg z-10">
-                            <Bookmark className="h-2 w-2 text-white fill-white" />
-                          </div>
-                        )}
-
-                        {/* Delete Button (bottom-right, visible on hover) */}
-                        {!isExportMode && job.status === "completed" && (
-                          <div className="absolute bottom-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                if (confirm('Delete this job?')) {
-                                  try {
-                                    await deleteJobMutation.mutateAsync({ jobId: job.id });
-                                    toast.success('Job deleted successfully');
-                                    await utils.faceSwap.getMyJobs.invalidate();
-                                  } catch (error) {
-                                    toast.error('Failed to delete job');
-                                  }
-                                }
-                              }}
-                              className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
-                            >
-                              <Trash2 className="h-2 w-2" />
-                            </Button>
-                          </div>
-                        )}
-
-                        {/* Retry Button for Failed Jobs */}
-                        {!isExportMode && job.status === "failed" && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-1 pointer-events-none">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  const newJob = await createJobMutation.mutateAsync({
-                                    sourceImageKey: job.sourceImageKey,
-                                    sourceImageUrl: job.sourceImageUrl,
-                                    targetMediaKey: job.targetMediaKey,
-                                    targetMediaUrl: job.targetMediaUrl,
-                                    targetMediaType: job.targetMediaType,
-                                    modelPreference: job.modelPreference || "high_quality",
-                                  });
-                                  await deleteJobMutation.mutateAsync({ jobId: job.id });
-                                  await utils.faceSwap.getMyJobs.invalidate();
-                                  toast.success('Job retried');
-                                } catch (error) {
-                                  toast.error('Failed to retry job');
-                                }
-                              }}
-                              className="bg-yellow-500/90 hover:bg-yellow-600 text-white rounded px-1.5 py-0.5 text-[9px] font-semibold pointer-events-auto"
-                            >
-                              <RotateCcw className="h-2 w-2 mr-0.5" />
-                              Retry
-                            </Button>
-                          </div>
-                        )}
-
-                        {/* Cancel button for Pending/Processing (top-right) */}
-                        {(job.status === "pending" || job.status === "processing") && (
-                          <div className="absolute top-0.5 right-0.5 z-10">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                if (confirm('Cancel this job?')) {
-                                  try {
-                                    await cancelJobMutation.mutateAsync({ jobId: job.id });
-                                    toast.success('Job cancelled');
-                                    await utils.faceSwap.getMyJobs.invalidate();
-                                  } catch (error) {
-                                    toast.error('Failed to cancel job');
-                                  }
-                                }
-                              }}
-                              className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
-                            >
-                              <X className="h-2 w-2" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Right Column: Results (Desktop: full height, Mobile: below inputs) */}
             <div className="space-y-4">
               {/* Results Section */}
@@ -1661,6 +1492,175 @@ export default function FaceSwap() {
                   </div>
                 </div>
               )}
+
+              {/* All Jobs Grid - Desktop only, in right column below main result */}
+              {jobs && jobs.length > 0 && (
+                <div className="hidden md:block mt-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex gap-1 items-center flex-wrap">
+                      <Button
+                        variant={activeTab === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setActiveTab('all')}
+                        className={`text-[10px] h-6 px-2 ${
+                          activeTab === 'all' 
+                            ? 'bg-pink-500 hover:bg-pink-600 text-white' 
+                            : 'bg-transparent border-white/30 text-white hover:bg-white/10'
+                        }`}
+                      >
+                        All ({jobs.length})
+                      </Button>
+                      {/* Favorites Category Buttons */}
+                      {[1, 2, 3, 4, 5].map((cat) => (
+                        <Button
+                          key={cat}
+                          variant={activeTab === 'favorites' && favoriteCategory === cat ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            setActiveTab('favorites');
+                            setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
+                          }}
+                          className={`text-[10px] h-6 px-2 ${
+                            activeTab === 'favorites' && favoriteCategory === cat
+                              ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
+                              : 'bg-transparent border-white/30 text-white hover:bg-white/10'
+                          }`}
+                        >
+                          F{cat} ({favoriteCounts?.[cat] || 0})
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Scrollable Grid Container */}
+                  <div className="overflow-y-auto max-h-[35vh] pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
+                    <div className="grid grid-cols-6 gap-1.5">
+                      {visibleJobs.map((job, idx) => (
+                        <div
+                          key={job.id}
+                          onClick={() => {
+                            if (job.status === "completed") {
+                              const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
+                              if (completedIndex !== -1) {
+                                setCurrentResultIndex(completedIndex);
+                                if (job.targetMediaUrl) {
+                                  setTargetPreviews([job.targetMediaUrl]);
+                                }
+                              }
+                            }
+                          }}
+                          className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all ${
+                            job.status === "completed" && currentJob?.id === job.id
+                              ? "ring-2 ring-pink-500"
+                              : "hover:ring-2 hover:ring-white/50"
+                          }`}
+                        >
+                          <img
+                            src={job.status === "completed" && job.resultMediaUrl ? job.resultMediaUrl : job.targetMediaUrl}
+                            alt={`Job ${job.id}`}
+                            className="w-full h-full object-cover"
+                          />
+                          
+                          {/* Status Badge (only for non-completed) */}
+                          {job.status !== "completed" && (
+                            <div className="absolute top-0.5 left-0.5 scale-75 origin-top-left">
+                              {getStatusBadge(job.status, job.errorMessage)}
+                            </div>
+                          )}
+
+                          {/* Favorite Badge (top-right, always visible for completed jobs) */}
+                          {job.status === "completed" && allFavorites?.find(f => f.jobId === job.id) && (
+                            <div className="absolute top-0.5 right-0.5 bg-yellow-500 rounded-full p-0.5 shadow-lg z-10">
+                              <Bookmark className="h-2 w-2 text-white fill-white" />
+                            </div>
+                          )}
+
+                          {/* Delete Button (bottom-right, visible on hover) */}
+                          {!isExportMode && job.status === "completed" && (
+                            <div className="absolute bottom-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (confirm('Delete this job?')) {
+                                    try {
+                                      await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                      toast.success('Job deleted successfully');
+                                      await utils.faceSwap.getMyJobs.invalidate();
+                                    } catch (error) {
+                                      toast.error('Failed to delete job');
+                                    }
+                                  }
+                                }}
+                                className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                              >
+                                <Trash2 className="h-2 w-2" />
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Retry Button for Failed Jobs */}
+                          {!isExportMode && job.status === "failed" && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-1 pointer-events-none">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    const newJob = await createJobMutation.mutateAsync({
+                                      sourceImageKey: job.sourceImageKey,
+                                      sourceImageUrl: job.sourceImageUrl,
+                                      targetMediaKey: job.targetMediaKey,
+                                      targetMediaUrl: job.targetMediaUrl,
+                                      targetMediaType: job.targetMediaType,
+                                      modelPreference: job.modelPreference || "high_quality",
+                                    });
+                                    await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                    await utils.faceSwap.getMyJobs.invalidate();
+                                    toast.success('Job retried');
+                                  } catch (error) {
+                                    toast.error('Failed to retry job');
+                                  }
+                                }}
+                                className="bg-yellow-500/90 hover:bg-yellow-600 text-white rounded px-1.5 py-0.5 text-[9px] font-semibold pointer-events-auto"
+                              >
+                                <RotateCcw className="h-2 w-2 mr-0.5" />
+                                Retry
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Cancel button for Pending/Processing (top-right) */}
+                          {(job.status === "pending" || job.status === "processing") && (
+                            <div className="absolute top-0.5 right-0.5 z-10">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (confirm('Cancel this job?')) {
+                                    try {
+                                      await cancelJobMutation.mutateAsync({ jobId: job.id });
+                                      toast.success('Job cancelled');
+                                      await utils.faceSwap.getMyJobs.invalidate();
+                                    } catch (error) {
+                                      toast.error('Failed to cancel job');
+                                    }
+                                  }
+                                }}
+                                className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                              >
+                                <X className="h-2 w-2" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -2069,9 +2069,10 @@ export default function FaceSwap() {
             // GRID VIEW (left panel + grid layout)
             <div className="flex gap-4">
               {/* Left Panel - 310px wide */}
-              <div className="w-[310px] flex-shrink-0 space-y-4">
-                {/* Thumbnails Grid - 4:3 portrait */}
-                <div className="grid grid-cols-2 gap-2">
+              <div className="w-[310px] flex-shrink-0 space-y-3">
+                {/* Thumbnails Grid - 4:3 portrait with scrolling */}
+                <div className="max-h-[40vh] overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
+                  <div className="grid grid-cols-2 gap-2">
                   {completedJobs.map((job, idx) => (
                     <div
                       key={job.id}
@@ -2171,6 +2172,7 @@ export default function FaceSwap() {
                       </div>
                     </div>
                   ))}
+                  </div>
                 </div>
 
                 {/* Preview Area - Bottom of left panel */}
@@ -2209,7 +2211,7 @@ export default function FaceSwap() {
 
               {/* Right Grid Area - Takes remaining space */}
               <div className="flex-1 min-w-0">
-                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2">
                   {completedJobs.map((job, idx) => (
                     <div
                       key={job.id}

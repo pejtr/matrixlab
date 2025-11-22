@@ -170,3 +170,9 @@ See git history for complete list of implemented features.
 - [x] Add bottom preview area in left panel showing currently selected image
 - [x] Add right grid area with small square thumbnails for quick overview
 - [x] Add "Open Detail View" button in preview area
+
+## Detail View Layout Fix - Move All Jobs to Right Column
+- [x] Move All Jobs grid from left column to right column (below main result image)
+- [x] Fill empty purple space in right column with All Jobs thumbnails
+- [x] Fix Grid View layout - restore 310px left panel with preview and larger thumbnails in right grid
+- [ ] Ensure responsive behavior on mobile (All Jobs at bottom)
