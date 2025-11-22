@@ -188,3 +188,8 @@ See git history for complete list of implemented features.
 - [x] Move action buttons (Download, Regenerate, Crop, etc.) to bottom-center on desktop and tablet
 - [x] Fix Download button functionality with proper CORS handling and timeout
 - [x] Test all fixes
+
+## Fix Target Preview State After Job Deletion - Current Session
+- [x] Clear target files and previews when deleting the last/only result
+- [x] Prevent stale target previews from previous batch uploads
+- [x] Test with batch upload (multiple targets) → delete all results → verify clean state

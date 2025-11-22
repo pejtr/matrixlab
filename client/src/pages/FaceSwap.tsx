@@ -1245,6 +1245,12 @@ export default function FaceSwap() {
                           // Navigate to previous result if available
                           if (completedJobs.length === 1) {
                             setCurrentResultIndex(0);
+                            // Clear target files and previews when deleting the last result
+                            setTargetFiles([]);
+                            setTargetPreviews([]);
+                            if (targetInputRef.current) {
+                              targetInputRef.current.value = '';
+                            }
                           } else if (currentResultIndex >= completedJobs.length - 1) {
                             setCurrentResultIndex(Math.max(0, currentResultIndex - 1));
                           }
