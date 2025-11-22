@@ -135,3 +135,17 @@ See git history for complete list of implemented features.
 - [x] Display saved source faces as circular thumbnails below upload area
 - [x] Implement click handler to select saved source face
 - [ ] Test source face selection workflow
+
+## Desktop Layout Optimization - All Jobs Grid Repositioning
+- [x] Move All Jobs section from bottom to left column (below Generate button)
+- [x] Create scrollable grid container with max-height matching main photo height
+- [x] Implement vertical scrolling for job thumbnails
+- [x] Ensure grid doesn't exceed right column height (72vh)
+- [ ] Test responsive behavior on different screen sizes
+
+## Target Preview Sync and Navigation - User Requested
+- [x] Fix target preview not updating when navigating with arrow buttons
+- [x] Change "TARGET" label to "TARGETS"
+- [x] Add lightbox for TARGETS with navigation between all saved target images
+- [x] Collect all unique target images from completed jobs
+- [ ] Test navigation and synchronization
