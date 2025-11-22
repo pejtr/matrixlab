@@ -74,7 +74,7 @@ export default function FaceSwap() {
   const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
   const [showAnimateDialog, setShowAnimateDialog] = useState(false);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLButtonElement>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
   const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
@@ -979,8 +979,8 @@ export default function FaceSwap() {
                         onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
                         className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
                       >
-                        <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
-                        <option value="permissive" className="bg-gray-900">LQ (slower, better quality, nude allowed)</option>
+                        <option value="high_quality" className="bg-gray-900">HQ (slower, better quality, no nude)</option>
+                        <option value="permissive" className="bg-gray-900">LQ (fast, nude allowed)</option>
                       </select>
                       
                       {/* Generate Button - 40% (4/10) */}
@@ -1454,8 +1454,8 @@ export default function FaceSwap() {
                           className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
-                          <option value="permissive" className="bg-gray-900">LQ (slower, better quality, nude allowed)</option>
+                          <option value="high_quality" className="bg-gray-900">HQ (slower, better quality, no nude)</option>
+                          <option value="permissive" className="bg-gray-900">LQ (fast, nude allowed)</option>
                         </select>
                         
                         {/* Keep Body Checkbox */}
@@ -2045,21 +2045,17 @@ export default function FaceSwap() {
                 ))}
               </div>
               
-              {/* Load More - Desktop: Infinite Scroll Trigger, Mobile: Button */}
+              {/* Load More Button */}
               {hasMoreJobs && (
-                <div ref={loadMoreRef} className="flex justify-center mt-4">
-                  {/* Mobile: Show button */}
+                <div className="flex justify-center mt-4">
                   <button
-                    onClick={() => setVisibleJobsCount(prev => prev + 8)}
-                    className="md:hidden group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
-                    title={`Load ${jobs.length - visibleJobsCount} more jobs`}
+                    ref={loadMoreRef}
+                    onClick={() => setVisibleJobsCount(prev => prev + 12)}
+                    className="group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
+                    title={`Načíst další (${displayJobs.length - visibleJobsCount})`}
                   >
                     <ChevronDown className="h-5 w-5 text-white group-hover:animate-bounce" />
                   </button>
-                  {/* Desktop: Show loading indicator */}
-                  <div className="hidden md:flex items-center justify-center">
-                    <Loader2 className="h-6 w-6 text-purple-400 animate-spin" />
-                  </div>
                 </div>
               )}
             </div>
@@ -2247,10 +2243,16 @@ export default function FaceSwap() {
                     </div>
                   ))}
 
-                  {/* Load More Trigger */}
+                  {/* Load More Button */}
                   {hasMoreJobs && (
-                    <div ref={loadMoreRef} className="col-span-full flex items-center justify-center py-8">
-                      <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
+                    <div className="col-span-full flex items-center justify-center py-8">
+                      <button
+                        onClick={() => setVisibleJobsCount(prev => prev + 12)}
+                        className="group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
+                        title={`Načíst další (${displayJobs.length - visibleJobsCount})`}
+                      >
+                        <ChevronDown className="h-5 w-5 text-white group-hover:animate-bounce" />
+                      </button>
                     </div>
                   )}
                 </div>

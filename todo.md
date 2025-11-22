@@ -176,3 +176,8 @@ See git history for complete list of implemented features.
 - [x] Fill empty purple space in right column with All Jobs thumbnails
 - [x] Fix Grid View layout - restore 310px left panel with preview and larger thumbnails in right grid
 - [ ] Ensure responsive behavior on mobile (All Jobs at bottom)
+
+## Fix Model Labels and All Jobs Grid - Current Session
+- [x] Fix swapped model labels (HQ should be slower/better quality/no nude, LQ should be fast/nude allowed)
+- [x] Add Load More button to All Jobs grid in Detail View (both Detail and Grid views)
+- [ ] Test that more thumbnails load when clicking Load More
