@@ -97,3 +97,6 @@ See git history for complete list of implemented features.
 - [x] Integrovat s Wan 2.2 Replacement mode pro face swap ve videu
 - [x] Přidat video galerii s přehrávačem a download
 - [x] Start/Stop Recording tlačítka s countdown timerem
+
+## LiveCam Bug Fixes - Current Session
+- [x] Opravit error handling v generateCameraPreviews (skip kamery bez deviceId nebo s access errorem)

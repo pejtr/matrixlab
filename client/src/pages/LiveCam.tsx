@@ -113,6 +113,12 @@ export default function LiveCam() {
     const newPreviews = new Map<string, string>();
     
     for (const device of videoDevices) {
+      // Skip devices without deviceId
+      if (!device.deviceId) {
+        console.warn(`Skipping camera without deviceId: ${device.label}`);
+        continue;
+      }
+      
       try {
         // Capture a single frame from each camera
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -141,7 +147,8 @@ export default function LiveCam() {
         // Stop the stream
         stream.getTracks().forEach(track => track.stop());
       } catch (error) {
-        console.error(`Failed to generate preview for camera ${device.label}:`, error);
+        // Silently skip cameras that fail to generate preview
+        console.warn(`Failed to generate preview for camera ${device.label || 'Unknown'}:`, error);
       }
     }
     
