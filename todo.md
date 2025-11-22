@@ -88,3 +88,12 @@ See git history for complete list of implemented features.
 - [x] Enumerovat všechny dostupné video input zařízení
 - [x] Umožnit uživateli přepínat mezi kamerami
 - [x] Auto-select první nepřímé kameru (ne XSplit, OBS, Virtual)
+
+## LiveCam Enhancements - User Requested
+- [x] Přidat "Refresh Cameras" tlačítko pro aktualizaci seznamu kamer bez reloadu
+- [x] Uložit preferovanou kameru do localStorage (zapamatovat výběr)
+- [x] Zobrazit camera preview thumbnails v dropdown menu pro snadnější identifikaci
+- [x] Implementovat video recording (5-10 sekund)
+- [x] Integrovat s Wan 2.2 Replacement mode pro face swap ve videu
+- [x] Přidat video galerii s přehrávačem a download
+- [x] Start/Stop Recording tlačítka s countdown timerem
