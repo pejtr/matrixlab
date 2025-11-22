@@ -100,3 +100,9 @@ See git history for complete list of implemented features.
 
 ## LiveCam Bug Fixes - Current Session
 - [x] Opravit error handling v generateCameraPreviews (skip kamery bez deviceId nebo s access errorem)
+
+## LiveCam UX Improvements - User Requested
+- [x] Přidat loading skeleton pro camera preview thumbnails během generování
+- [x] Implementovat camera permission check s helper message
+- [x] Přidat camera settings - možnost nastavit rozlišení a framerate
+- [x] Přeložit info zprávu do češtiny

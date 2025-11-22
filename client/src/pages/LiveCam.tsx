@@ -23,6 +23,10 @@ export default function LiveCam() {
   const [selectedCameraId, setSelectedCameraId] = useState<string>("");
   const [cameraPreviewUrls, setCameraPreviewUrls] = useState<Map<string, string>>(new Map());
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isGeneratingPreviews, setIsGeneratingPreviews] = useState(false);
+  const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
+  const [videoQuality, setVideoQuality] = useState<'720p' | '1080p'>('720p');
+  const [frameRate, setFrameRate] = useState<number>(30);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -110,6 +114,7 @@ export default function LiveCam() {
   };
 
   const generateCameraPreviews = async (videoDevices: MediaDeviceInfo[]) => {
+    setIsGeneratingPreviews(true);
     const newPreviews = new Map<string, string>();
     
     for (const device of videoDevices) {
@@ -153,6 +158,7 @@ export default function LiveCam() {
     }
     
     setCameraPreviewUrls(newPreviews);
+    setIsGeneratingPreviews(false);
   };
 
   const handleRefreshCameras = async () => {
@@ -175,14 +181,18 @@ export default function LiveCam() {
 
   const startCamera = async () => {
     try {
+      const resolution = videoQuality === '1080p' ? { width: 1920, height: 1080 } : { width: 1280, height: 720 };
+      
       const constraints: MediaStreamConstraints = {
         video: selectedCameraId ? {
           deviceId: { exact: selectedCameraId },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: resolution.width },
+          height: { ideal: resolution.height },
+          frameRate: { ideal: frameRate },
         } : {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: resolution.width },
+          height: { ideal: resolution.height },
+          frameRate: { ideal: frameRate },
           facingMode: "user",
         },
         audio: false,
@@ -198,7 +208,13 @@ export default function LiveCam() {
       }
     } catch (error: any) {
       console.error("Camera access error:", error);
-      toast.error("Failed to access camera. Please grant camera permissions.");
+      
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setCameraPermissionDenied(true);
+        toast.error("Přístup ke kameře byl zamítnut. Povolte prosím přístup v nastavení prohlížeče.");
+      } else {
+        toast.error("Nepodařilo se spustit kameru. Zkontrolujte připojení kamery.");
+      }
     }
   };
 
@@ -369,6 +385,15 @@ export default function LiveCam() {
             <Card className="bg-gray-800/50 border-gray-700 p-6">
               <h2 className="text-xl font-semibold mb-4">Setup</h2>
 
+              {/* Camera Permission Warning */}
+              {cameraPermissionDenied && (
+                <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-700/50 rounded-lg">
+                  <p className="text-xs text-yellow-300">
+                    <strong>Přístup ke kameře zamítnut.</strong> Povolte prosím přístup ke kameře v nastavení prohlížeče a obnovte stránku.
+                  </p>
+                </div>
+              )}
+
               {/* Camera Selector */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
@@ -396,7 +421,9 @@ export default function LiveCam() {
                       return (
                         <SelectItem key={camera.deviceId} value={camera.deviceId}>
                           <div className="flex items-center gap-2">
-                            {previewUrl ? (
+                            {isGeneratingPreviews ? (
+                              <div className="w-20 h-11 bg-gray-700 rounded border border-gray-600 animate-pulse" />
+                            ) : previewUrl ? (
                               <img 
                                 src={previewUrl} 
                                 alt={camera.label}
@@ -414,6 +441,44 @@ export default function LiveCam() {
                         </SelectItem>
                       );
                     })}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Camera Quality Settings */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Kvalita videa
+                </label>
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <Button
+                    size="sm"
+                    variant={videoQuality === '720p' ? 'default' : 'outline'}
+                    onClick={() => setVideoQuality('720p')}
+                    className={videoQuality === '720p' ? 'bg-purple-600 hover:bg-purple-700' : ''}
+                  >
+                    720p
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={videoQuality === '1080p' ? 'default' : 'outline'}
+                    onClick={() => setVideoQuality('1080p')}
+                    className={videoQuality === '1080p' ? 'bg-purple-600 hover:bg-purple-700' : ''}
+                  >
+                    1080p
+                  </Button>
+                </div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Snímková frekvence: {frameRate} FPS
+                </label>
+                <Select value={frameRate.toString()} onValueChange={(v) => setFrameRate(Number(v))}>
+                  <SelectTrigger className="bg-gray-700/50 border-gray-600">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="24">24 FPS</SelectItem>
+                    <SelectItem value="30">30 FPS</SelectItem>
+                    <SelectItem value="60">60 FPS</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -498,7 +563,7 @@ export default function LiveCam() {
               {/* Info */}
               <div className="mt-6 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
                 <p className="text-xs text-blue-300">
-                  <strong>How it works:</strong> Upload a source face, start your camera, and record a 5-10 second video. We'll process it with Wan 2.2 face swap.
+                  <strong>Jak to funguje:</strong> Nahrajte zdrojový obličej, spusťte kameru a nahrajte 5-10 sekundové video. Zpracujeme ho pomocí Wan 2.2 face swap a můžete ho přehrát nebo uložit.
                 </p>
               </div>
             </Card>
