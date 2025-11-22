@@ -2066,111 +2066,193 @@ export default function FaceSwap() {
           )}
             </>
           ) : (
-            // GRID VIEW (fullscreen grid layout)
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 pb-20">
-              {completedJobs.map((job, idx) => (
-                <div
-                  key={job.id}
-                  className="relative group cursor-pointer bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden hover:border-pink-500 transition-all hover:scale-105"
-                  onClick={() => {
-                    setCurrentResultIndex(idx);
-                    setViewMode('detail');
-                  }}
-                >
-                  {/* Result Image/Video */}
-                  {job.targetMediaType === 'video' ? (
-                    <video
-                      src={job.resultMediaUrl!}
-                      className="w-full aspect-square object-cover"
-                      muted
-                      loop
-                      playsInline
-                      onMouseEnter={(e) => e.currentTarget.play()}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.pause();
-                        e.currentTarget.currentTime = 0;
+            // GRID VIEW (left panel + grid layout)
+            <div className="flex gap-4">
+              {/* Left Panel - 310px wide */}
+              <div className="w-[310px] flex-shrink-0 space-y-4">
+                {/* Thumbnails Grid - 4:3 portrait */}
+                <div className="grid grid-cols-2 gap-2">
+                  {completedJobs.map((job, idx) => (
+                    <div
+                      key={job.id}
+                      className={`relative group cursor-pointer bg-white/10 backdrop-blur-lg border rounded-lg overflow-hidden hover:border-pink-500 transition-all ${
+                        currentJob?.id === job.id
+                          ? "ring-2 ring-pink-500 border-pink-500"
+                          : "border-white/20"
+                      }`}
+                      onClick={() => {
+                        setCurrentResultIndex(idx);
                       }}
-                    />
-                  ) : (
-                    <img
-                      src={job.resultMediaUrl!}
-                      alt="Result"
-                      className="w-full aspect-square object-cover"
-                    />
-                  )}
+                    >
+                      {/* Result Image/Video - 4:3 portrait aspect ratio */}
+                      {job.targetMediaType === 'video' ? (
+                        <video
+                          src={job.resultMediaUrl!}
+                          className="w-full aspect-[3/4] object-cover"
+                          muted
+                          loop
+                          playsInline
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.pause();
+                            e.currentTarget.currentTime = 0;
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={job.resultMediaUrl!}
+                          alt="Result"
+                          className="w-full aspect-[3/4] object-cover"
+                        />
+                      )}
 
-                  {/* Hover Overlay with Actions */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
-                    {/* Quick Actions */}
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (!job.resultMediaUrl) return;
-                          try {
-                            const response = await fetch(job.resultMediaUrl);
-                            const blob = await response.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `faceswap-${job.id}.${job.targetMediaType === 'video' ? 'mp4' : 'jpg'}`;
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-                            toast.success('Downloaded');
-                          } catch (error) {
-                            toast.error('Download failed');
-                          }
-                        }}
-                        className="bg-pink-500 hover:bg-pink-600 h-8 w-8 p-0"
-                        title="Download"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCurrentResultIndex(idx);
-                          setLightboxIndex(idx);
-                          setShowLightbox(true);
-                        }}
-                        className="bg-blue-500 hover:bg-blue-600 h-8 w-8 p-0"
-                        title="View Full"
-                      >
-                        <Maximize2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                      {/* Hover Overlay with Actions */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
+                        {/* Quick Actions */}
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (!job.resultMediaUrl) return;
+                              try {
+                                const response = await fetch(job.resultMediaUrl);
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `faceswap-${job.id}.${job.targetMediaType === 'video' ? 'mp4' : 'jpg'}`;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                document.body.removeChild(a);
+                                toast.success('Downloaded');
+                              } catch (error) {
+                                toast.error('Download failed');
+                              }
+                            }}
+                            className="bg-pink-500 hover:bg-pink-600 h-6 w-6 p-0"
+                            title="Download"
+                          >
+                            <Download className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCurrentResultIndex(idx);
+                              setLightboxIndex(idx);
+                              setShowLightbox(true);
+                            }}
+                            className="bg-blue-500 hover:bg-blue-600 h-6 w-6 p-0"
+                            title="View Full"
+                          >
+                            <Maximize2 className="h-3 w-3" />
+                          </Button>
+                        </div>
 
-                    {/* Model Badge */}
-                    <div className="px-2 py-1 rounded-md bg-black/80 border border-white/30">
-                      <span className="text-white text-[10px] font-semibold">
-                        {job.modelPreference === 'high_quality' ? '⚡ HQ' : '🎨 LQ'}
-                      </span>
+                        {/* Model Badge */}
+                        <div className="px-1.5 py-0.5 rounded-md bg-black/80 border border-white/30">
+                          <span className="text-white text-[8px] font-semibold">
+                            {job.modelPreference === 'high_quality' ? '⚡ HQ' : '🎨 LQ'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Face Badge - Top Left */}
+                      <div className="absolute top-1 left-1 z-10">
+                        <div className="w-8 h-8 rounded-lg overflow-hidden border-2 border-white/40 shadow-lg bg-white/10 backdrop-blur-sm">
+                          <img
+                            src={job.sourceImageUrl}
+                            alt="Face"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </div>
                     </div>
+                  ))}
+                </div>
+
+                {/* Preview Area - Bottom of left panel */}
+                {currentJob && (
+                  <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg p-3 space-y-2">
+                    <div className="text-white text-sm font-semibold">Preview</div>
+                    <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-black/20">
+                      {currentJob.targetMediaType === 'video' ? (
+                        <video
+                          src={currentJob.resultMediaUrl!}
+                          className="w-full h-full object-contain"
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={currentJob.resultMediaUrl!}
+                          alt="Preview"
+                          className="w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => {
+                            setLightboxIndex(currentResultIndex);
+                            setShowLightbox(true);
+                          }}
+                        />
+                      )}
+                    </div>
+                    <Button
+                      onClick={() => setViewMode('detail')}
+                      className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                      size="sm"
+                    >
+                      Open Detail View
+                    </Button>
                   </div>
+                )}
+              </div>
 
-                  {/* Face Badge - Top Left */}
-                  <div className="absolute top-2 left-2 z-10">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-white/40 shadow-lg bg-white/10 backdrop-blur-sm">
+              {/* Right Grid Area - Takes remaining space */}
+              <div className="flex-1 min-w-0">
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-14 gap-2">
+                  {completedJobs.map((job, idx) => (
+                    <div
+                      key={job.id}
+                      onClick={() => {
+                        if (job.status === "completed") {
+                          const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
+                          if (completedIndex !== -1) {
+                            setCurrentResultIndex(completedIndex);
+                            if (job.targetMediaUrl) {
+                              setTargetPreviews([job.targetMediaUrl]);
+                            }
+                          }
+                        }
+                      }}
+                      className={`group relative aspect-square rounded overflow-hidden cursor-pointer transition-all ${
+                        job.status === "completed" && currentJob?.id === job.id
+                          ? "ring-2 ring-pink-500"
+                          : "hover:ring-2 hover:ring-white/50"
+                      }`}
+                    >
                       <img
-                        src={job.sourceImageUrl}
-                        alt="Face"
+                        src={job.status === "completed" && job.resultMediaUrl ? job.resultMediaUrl : job.targetMediaUrl}
+                        alt={`Job ${job.id}`}
                         className="w-full h-full object-cover"
                       />
+                      
+                      {/* Status Badge (only for non-completed) */}
+                      {job.status !== "completed" && (
+                        <div className="absolute top-1 left-1 scale-75 origin-top-left">
+                          {getStatusBadge(job.status, job.errorMessage)}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
-              ))}
+                  ))}
 
-              {/* Load More Trigger */}
-              {hasMoreJobs && (
-                <div ref={loadMoreRef} className="col-span-full flex items-center justify-center py-8">
-                  <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
+                  {/* Load More Trigger */}
+                  {hasMoreJobs && (
+                    <div ref={loadMoreRef} className="col-span-full flex items-center justify-center py-8">
+                      <Loader2 className="h-8 w-8 text-purple-400 animate-spin" />
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>

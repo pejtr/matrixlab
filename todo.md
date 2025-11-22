@@ -163,3 +163,10 @@ See git history for complete list of implemented features.
 - [x] Add "Save as Face" button to action buttons (extract face from result and save to saved faces collection)
 - [x] Implement face extraction from generated result
 - [x] Show saved face in source faces gallery for reuse
+
+## Grid View Layout Improvements - Current Session
+- [x] Widen left panel to 310px (from original fullscreen grid)
+- [x] Change grid thumbnails to 4:3 portrait aspect ratio (aspect-[3/4])
+- [x] Add bottom preview area in left panel showing currently selected image
+- [x] Add right grid area with small square thumbnails for quick overview
+- [x] Add "Open Detail View" button in preview area
