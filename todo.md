@@ -167,3 +167,8 @@ See git history for complete list of implemented features.
 ## Lightbox and Grid View Layout Fixes - Current Session
 - [x] Fix lightbox positioning - should be fixed at 100vh full-screen regardless of scroll position
 - [x] Optimize Grid View left panel - make it more compact and utilize empty space better
+
+## Grid View Layout Improvements - Current Session
+- [x] Widen left panel by 11% (from 280px to ~310px)
+- [x] Change grid thumbnails to 4:3 portrait aspect ratio (aspect-[3/4])
+- [x] Fix bottom preview - stretch and center properly to show full image

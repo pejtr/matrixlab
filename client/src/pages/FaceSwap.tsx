@@ -2067,7 +2067,7 @@ export default function FaceSwap() {
             </>
           ) : (
             // GRID VIEW (fullscreen grid layout with compact left panel)
-            <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-3 pb-20">
+            <div className="grid grid-cols-1 lg:grid-cols-[310px_1fr] gap-3 pb-20">
               {/* Compact Left Panel - Controls */}
               <div className="hidden lg:block space-y-2">
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20">
@@ -2158,6 +2158,28 @@ export default function FaceSwap() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Bottom Preview - Current Selected Result */}
+                {currentJob && (
+                  <Card className="bg-white/10 backdrop-blur-lg border-white/20">
+                    <CardContent className="p-0">
+                      {currentJob.targetMediaType === 'video' ? (
+                        <video
+                          src={currentJob.resultMediaUrl!}
+                          className="w-full h-auto object-contain"
+                          controls
+                          playsInline
+                        />
+                      ) : (
+                        <img
+                          src={currentJob.resultMediaUrl!}
+                          alt="Current result preview"
+                          className="w-full h-auto object-contain"
+                        />
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               {/* Grid of Results */}
@@ -2175,7 +2197,7 @@ export default function FaceSwap() {
                   {job.targetMediaType === 'video' ? (
                     <video
                       src={job.resultMediaUrl!}
-                      className="w-full aspect-square object-cover"
+                      className="w-full aspect-[3/4] object-cover"
                       muted
                       loop
                       playsInline
@@ -2189,7 +2211,7 @@ export default function FaceSwap() {
                     <img
                       src={job.resultMediaUrl!}
                       alt="Result"
-                      className="w-full aspect-square object-cover"
+                      className="w-full aspect-[3/4] object-cover"
                     />
                   )}
 
