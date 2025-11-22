@@ -69,3 +69,16 @@ See git history for complete list of implemented features.
 - [x] Přidat Delete/Cancel tlačítko pro běžící Wan Animate joby
 - [ ] Implementovat webhook pro real-time progress updates (volitelné)
 - [ ] Otestovat animaci s reálným výsledkem
+
+## Deep-Live-Cam Features - User Requested
+- [x] Webcam Live Preview s real-time face swap
+  - [x] Vytvořit LiveCam stránku s webcam přístupem
+  - [x] MediaStream API pro přístup ke kameře
+  - [x] Canvas pro real-time rendering
+  - [ ] WebSocket server pro streaming frames (připraveno pro budoucí implementaci)
+  - [ ] Real-time face swap processing (připraveno pro budoucí implementaci)
+  - [ ] Návrat zpracovaných frames zpět do browseru (připraveno pro budoucí implementaci)
+- [x] Face Enhancement (vylepšení kvality po face swapu)
+  - [x] Enhance tlačítko vedle Animate
+  - [x] Real-ESRGAN 2x vylepšení (optimalizováno pro obličeje)
+  - [x] UI pro preview before/after s download

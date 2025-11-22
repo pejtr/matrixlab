@@ -85,7 +85,7 @@ export function Navigation() {
   const navItems = [
     { path: "/", label: "Home", icon: Home },
     { path: "/swap", label: "Face Swap", icon: Sparkles, auth: true },
-    { path: "/wan-animate", label: "Animate", icon: Film, auth: true },
+    { path: "/live-cam", label: "Live Cam", icon: Video, auth: true },
     { path: "/history", label: "History", icon: History, auth: true },
   ];
 

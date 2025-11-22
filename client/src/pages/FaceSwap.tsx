@@ -18,6 +18,7 @@ import SavedFacesDialog from "@/components/SavedFacesDialog";
 import RegenerateDialog from "@/components/RegenerateDialog";
 import CropDialog from "@/components/CropDialog";
 import AnimateDialog from "@/components/AnimateDialog";
+import EnhanceButton from "@/components/EnhanceButton";
 
 /**
  * Get video duration in seconds
@@ -1126,22 +1127,28 @@ export default function FaceSwap() {
                       <Crop className="h-4 w-4" />
                     </Button>
                     {currentJob?.targetMediaType === 'image' && (
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          if (!currentJob) return;
-                          setShowAnimateDialog(true);
-                        }}
-                        disabled={animateResultMutation.isPending}
-                        className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 h-8 w-8 p-0 shadow-lg"
-                        title="Animate with AI (Image to Video)"
-                      >
-                        {animateResultMutation.isPending ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Film className="h-4 w-4" />
-                        )}
-                      </Button>
+                      <>
+                        <EnhanceButton 
+                          imageUrl={currentJob.resultMediaUrl!}
+                          jobId={currentJob.id}
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            if (!currentJob) return;
+                            setShowAnimateDialog(true);
+                          }}
+                          disabled={animateResultMutation.isPending}
+                          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 h-8 w-8 p-0 shadow-lg"
+                          title="Animate with AI (Image to Video)"
+                        >
+                          {animateResultMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Film className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </>
                     )}
                     <Button
                       size="sm"

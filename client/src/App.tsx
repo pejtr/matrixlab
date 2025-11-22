@@ -16,6 +16,7 @@ import ImageGenerator from "./pages/ImageGenerator";
 import VideoGenerator from "./pages/VideoGenerator";
 import MusicGenerator from "./pages/MusicGenerator";
 import WanAnimate from "./pages/WanAnimate";
+import LiveCam from "./pages/LiveCam";
 
 function Router() {
   return (
@@ -33,6 +34,7 @@ function Router() {
       <Route path={"/ai/video-generator"} component={VideoGenerator} />
       <Route path={"/ai/music-generator"} component={MusicGenerator} />
       <Route path={"/wan-animate"} component={WanAnimate} />
+      <Route path={"/live-cam"} component={LiveCam} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
