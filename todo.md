@@ -82,3 +82,9 @@ See git history for complete list of implemented features.
   - [x] Enhance tlačítko vedle Animate
   - [x] Real-ESRGAN 2x vylepšení (optimalizováno pro obličeje)
   - [x] UI pro preview before/after s download
+
+## LiveCam Bug Fixes - User Reported
+- [x] Přidat dropdown selector pro výběr kamery (místo automatického výběru)
+- [x] Enumerovat všechny dostupné video input zařízení
+- [x] Umožnit uživateli přepínat mezi kamerami
+- [x] Auto-select první nepřímé kameru (ne XSplit, OBS, Virtual)

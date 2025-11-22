@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Upload, Video, VideoOff, Play, Square, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { APP_TITLE, getLoginUrl } from "@/const";
@@ -16,12 +17,19 @@ export default function LiveCam() {
   const [sourcePreview, setSourcePreview] = useState<string>("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [selectedCameraId, setSelectedCameraId] = useState<string>("");
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const animationFrameRef = useRef<number | null>(null);
+
+  // Enumerate cameras on mount
+  useEffect(() => {
+    enumerateCameras();
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -32,6 +40,29 @@ export default function LiveCam() {
       }
     };
   }, []);
+
+  const enumerateCameras = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      setCameras(videoDevices);
+      
+      // Auto-select first non-virtual camera or first camera
+      const realCamera = videoDevices.find(d => 
+        !d.label.toLowerCase().includes('virtual') && 
+        !d.label.toLowerCase().includes('xsplit') &&
+        !d.label.toLowerCase().includes('obs')
+      );
+      
+      if (realCamera) {
+        setSelectedCameraId(realCamera.deviceId);
+      } else if (videoDevices.length > 0) {
+        setSelectedCameraId(videoDevices[0].deviceId);
+      }
+    } catch (error) {
+      console.error('Failed to enumerate cameras:', error);
+    }
+  };
 
   const handleSourceImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -45,14 +76,20 @@ export default function LiveCam() {
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
+      const constraints: MediaStreamConstraints = {
+        video: selectedCameraId ? {
+          deviceId: { exact: selectedCameraId },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        } : {
           width: { ideal: 1280 },
           height: { ideal: 720 },
           facingMode: "user",
         },
         audio: false,
-      });
+      };
+      
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -157,6 +194,25 @@ export default function LiveCam() {
           <div className="lg:col-span-1">
             <Card className="bg-gray-800/50 border-gray-700 p-6">
               <h2 className="text-xl font-semibold mb-4">Setup</h2>
+
+              {/* Camera Selector */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Select Camera
+                </label>
+                <Select value={selectedCameraId} onValueChange={setSelectedCameraId}>
+                  <SelectTrigger className="bg-gray-700/50 border-gray-600">
+                    <SelectValue placeholder="Choose camera..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cameras.map((camera) => (
+                      <SelectItem key={camera.deviceId} value={camera.deviceId}>
+                        {camera.label || `Camera ${cameras.indexOf(camera) + 1}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               {/* Source Face Upload */}
               <div className="mb-6">
