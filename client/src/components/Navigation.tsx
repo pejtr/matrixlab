@@ -15,6 +15,7 @@ import {
   Video,
   Music,
   Palette,
+  Film,
 } from "lucide-react";
 import { useColorTheme, COLOR_THEMES, type ColorTheme } from "@/contexts/ColorThemeContext";
 
@@ -84,7 +85,7 @@ export function Navigation() {
   const navItems = [
     { path: "/", label: "Home", icon: Home },
     { path: "/swap", label: "Face Swap", icon: Sparkles, auth: true },
-    { path: "/ai/dashboard", label: "AI Studio", icon: Image, auth: true },
+    { path: "/wan-animate", label: "Animate", icon: Film, auth: true },
     { path: "/history", label: "History", icon: History, auth: true },
   ];
 

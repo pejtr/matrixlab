@@ -60,3 +60,12 @@ See git history for complete list of implemented features.
 - [ ] Processing animace POUZE v miniaturách v "All Jobs" sekci
 - [ ] Hlavní preview zůstává čistý bez processing overlays
 - [ ] Progress bar a status pouze v job thumbnails
+
+## Current Session - User Requests
+- [x] Přidat Animate tlačítko do hlavního menu (vedle Home, FaceSwap, atd.)
+- [x] Přepnout Animate na Replicate I2V API (místo MiniMax)
+- [x] Přidat detailní progress indikátor s procenty (0% → 100%)
+- [x] Zobrazit odhadovaný čas generování ("Usually takes 2-3 minutes")
+- [x] Přidat Delete/Cancel tlačítko pro běžící Wan Animate joby
+- [ ] Implementovat webhook pro real-time progress updates (volitelné)
+- [ ] Otestovat animaci s reálným výsledkem

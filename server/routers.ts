@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { createFaceSwapJob, getFaceSwapJobById, getUserFaceSwapJobs, updateFaceSwapJobStatus, deleteFaceSwapJob, softDeleteSourceImage, createAIJob, getAIJobById, getUserAIJobs } from "./db";
 import * as minimaxService from "./minimaxService";
+import * as replicateService from "./replicateService";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 
@@ -550,29 +551,29 @@ export const appRouter = router({
           });
         }
 
-        // Generate video from result image using MiniMax I2V
+        // Generate video from result image using Replicate Stable Video Diffusion
         const prompt = input.prompt || "Natural facial expressions and subtle head movement";
         
         console.log(`[I2V] Animating job #${input.jobId} with prompt: ${prompt}`);
         
-        const i2vResult = await minimaxService.generateVideoFromImage({
+        const i2vResult = await replicateService.generateVideoFromImage({
+          imageUrl: job.resultMediaUrl,
           prompt,
-          firstFrameImage: job.resultMediaUrl,
         });
 
-        if (!i2vResult.success || !i2vResult.outputPath) {
+        if (!i2vResult.success || !i2vResult.videoUrl) {
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
             message: i2vResult.error || 'Failed to generate video animation',
           });
         }
 
-        console.log(`[I2V] Animation generated: ${i2vResult.outputPath}`);
+        console.log(`[I2V] Animation generated: ${i2vResult.videoUrl}`);
 
         return {
           success: true,
-          videoUrl: i2vResult.outputPath,
-          taskId: i2vResult.taskId,
+          videoUrl: i2vResult.videoUrl,
+          predictionId: i2vResult.predictionId,
         };
       }),
   }),

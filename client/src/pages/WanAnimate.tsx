@@ -4,7 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Upload, Sparkles, Users, Bookmark, Play } from "lucide-react";
+import { Loader2, Upload, Sparkles, Users, Bookmark, Play, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { APP_TITLE, getLoginUrl } from "@/const";
 
@@ -42,6 +42,23 @@ export default function WanAnimate() {
       toast.error(error.message || "Failed to create job");
     },
   });
+
+  const deleteJobMutation = trpc.wanAnimate.deleteJob.useMutation({
+    onSuccess: () => {
+      toast.success("Job deleted");
+      refetchJobs();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete job");
+    },
+  });
+
+  const handleDeleteJob = (jobId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm("Are you sure you want to delete this job?")) {
+      deleteJobMutation.mutate({ jobId });
+    }
+  };
 
   const handleCharacterImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -277,11 +294,28 @@ export default function WanAnimate() {
                         controls
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-full h-full flex flex-col items-center justify-center p-4">
                         {job.status === "processing" ? (
-                          <div className="text-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-purple-400 mx-auto mb-2" />
-                            <div className="text-xs text-gray-400">{job.progress}%</div>
+                          <div className="text-center w-full">
+                            <Loader2 className="w-10 h-10 animate-spin text-purple-400 mx-auto mb-3" />
+                            
+                            {/* Progress Bar */}
+                            <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+                              <div 
+                                className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+                                style={{ width: `${job.progress || 0}%` }}
+                              />
+                            </div>
+                            
+                            {/* Progress Percentage */}
+                            <div className="text-lg font-semibold text-white mb-1">
+                              {job.progress || 0}%
+                            </div>
+                            
+                            {/* Estimated Time */}
+                            <div className="text-[10px] text-gray-400 leading-tight">
+                              Usually takes 2-3 minutes
+                            </div>
                           </div>
                         ) : job.status === "failed" ? (
                           <div className="text-center text-red-400 text-sm px-4">
@@ -289,8 +323,11 @@ export default function WanAnimate() {
                           </div>
                         ) : (
                           <div className="text-center">
-                            <Loader2 className="w-6 h-6 animate-spin text-gray-500 mx-auto mb-2" />
-                            <div className="text-xs text-gray-500">Pending...</div>
+                            <Loader2 className="w-8 h-8 animate-spin text-gray-500 mx-auto mb-2" />
+                            <div className="text-sm text-gray-400 mb-1">Starting...</div>
+                            <div className="text-[10px] text-gray-500 leading-tight">
+                              Usually takes 2-3 minutes
+                            </div>
                           </div>
                         )}
                       </div>
@@ -303,10 +340,22 @@ export default function WanAnimate() {
                       </div>
                     )}
 
-                    {/* Bookmark Icon */}
-                    <button className="absolute top-2 right-2 p-1.5 bg-black/50 rounded hover:bg-black/70 transition-colors">
-                      <Bookmark className="w-4 h-4 text-white" />
-                    </button>
+                    {/* Action Buttons */}
+                    <div className="absolute top-2 right-2 flex gap-1">
+                      {/* Delete Button */}
+                      <button 
+                        onClick={(e) => handleDeleteJob(job.id, e)}
+                        className="p-1.5 bg-black/50 rounded hover:bg-red-600/80 transition-colors group/delete"
+                        title="Delete job"
+                      >
+                        <Trash2 className="w-4 h-4 text-white group-hover/delete:text-white" />
+                      </button>
+                      
+                      {/* Bookmark Icon */}
+                      <button className="p-1.5 bg-black/50 rounded hover:bg-black/70 transition-colors">
+                        <Bookmark className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
                   </div>
 
                   {/* Job Info */}

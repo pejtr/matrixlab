@@ -29,6 +29,19 @@ export interface FaceSwapResult {
   predictionId?: string; // Replicate prediction ID for webhook tracking
 }
 
+export interface ImageToVideoInput {
+  imageUrl: string;
+  prompt?: string;
+  webhookUrl?: string;
+}
+
+export interface ImageToVideoResult {
+  success: boolean;
+  videoUrl?: string;
+  error?: string;
+  predictionId?: string;
+}
+
 /**
  * Perform face swap using Replicate API
  */
@@ -180,6 +193,72 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     return {
       success: false,
       error: error.message || "Unknown error occurred during face swap",
+    };
+  }
+}
+
+/**
+ * Generate video from image using Stable Video Diffusion
+ * Model: stability-ai/stable-video-diffusion
+ * Cost: ~$0.05 per run, ~2-3 minutes
+ */
+export async function generateVideoFromImage(input: ImageToVideoInput): Promise<ImageToVideoResult> {
+  if (!replicate) {
+    return {
+      success: false,
+      error: "Replicate API token not configured. Please set REPLICATE_API_TOKEN environment variable.",
+    };
+  }
+
+  try {
+    console.log("[Replicate I2V] Starting image-to-video generation...");
+    console.log("[Replicate I2V] Image:", input.imageUrl);
+    console.log("[Replicate I2V] Prompt:", input.prompt || "(none)");
+
+    // Use Stable Video Diffusion for I2V
+    // Model: stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438
+    const prediction = await replicate.predictions.create({
+      version: "stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438",
+      input: {
+        input_image: input.imageUrl,
+        sizing_strategy: "maintain_aspect_ratio",
+        frames_per_second: 6,
+        motion_bucket_id: 127,
+      },
+      webhook: input.webhookUrl,
+      webhook_events_filter: ["completed"],
+    });
+
+    const predictionId = prediction.id;
+    console.log("[Replicate I2V] Prediction ID:", predictionId);
+
+    // Wait for prediction to complete
+    const result = await replicate.wait(prediction);
+    const output = result.output;
+
+    console.log("[Replicate I2V] Raw output:", JSON.stringify(output));
+
+    // Output is typically a video URL
+    const videoUrl = Array.isArray(output) ? output[0] : output;
+
+    if (!videoUrl || typeof videoUrl !== "string") {
+      console.error("[Replicate I2V] Invalid output:", output);
+      return {
+        success: false,
+        error: "Failed to generate video. Invalid output from model.",
+      };
+    }
+
+    return {
+      success: true,
+      videoUrl,
+      predictionId,
+    };
+  } catch (error: any) {
+    console.error("[Replicate I2V] Generation failed:", error);
+    return {
+      success: false,
+      error: error.message || "Unknown error occurred during video generation",
     };
   }
 }
