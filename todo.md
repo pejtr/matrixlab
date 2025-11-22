@@ -117,3 +117,21 @@ See git history for complete list of implemented features.
 - [x] Přidat backend API pro delete job
 - [x] Přidat Cancel tlačítko pro běžící joby
 - [x] Přidat Delete tlačítko pro dokončené joby
+
+## UI Improvements for 2K-4K Monitors - User Requested
+- [x] Add responsive scaling CSS for 2K-4K monitors (transform scale)
+- [x] Remove TARGET badge from bottom-left corner of result image
+- [x] Add click handler to TARGET label in left column preview (opens lightbox)
+- [x] Add click handler to target preview image area (opens file picker)
+- [ ] Test on different screen resolutions
+
+## Wan Animate Bug Fixes - User Reported
+- [x] Fix duplicate delete button (křížek) in video cards (LiveCam)
+- [x] Fix video freezing/loading issue in Wan Animate jobs (added key prop and preload)
+
+## LiveCam Source Face Selection - User Requested
+- [x] Add "Source Face Image" upload section to LiveCam page
+- [x] Fetch unique source faces from completed swap jobs (tRPC procedure)
+- [x] Display saved source faces as circular thumbnails below upload area
+- [x] Implement click handler to select saved source face
+- [ ] Test source face selection workflow

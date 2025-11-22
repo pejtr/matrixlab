@@ -576,6 +576,13 @@ export const appRouter = router({
           predictionId: i2vResult.predictionId,
         };
       }),
+
+    // Get unique saved source faces for selection
+    getSavedSourceFaces: protectedProcedure
+      .query(async ({ ctx }) => {
+        const { getUniqueSavedSourceFaces } = await import("./db");
+        return getUniqueSavedSourceFaces(ctx.user.id);
+      }),
   }),
 
   // MiniMax AI Tools

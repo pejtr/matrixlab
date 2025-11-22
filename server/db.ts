@@ -164,6 +164,42 @@ export async function getUserFaceSwapJobs(userId: number): Promise<FaceSwapJob[]
   return db.select().from(faceSwapJobs).where(eq(faceSwapJobs.userId, userId)).orderBy(desc(faceSwapJobs.createdAt));
 }
 
+export async function getUniqueSavedSourceFaces(userId: number): Promise<Array<{ sourceImageUrl: string; sourceImageKey: string }>> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Get completed jobs with source images that haven't been deleted
+  const jobs = await db
+    .select({
+      sourceImageUrl: faceSwapJobs.sourceImageUrl,
+      sourceImageKey: faceSwapJobs.sourceImageKey,
+    })
+    .from(faceSwapJobs)
+    .where(
+      and(
+        eq(faceSwapJobs.userId, userId),
+        eq(faceSwapJobs.status, 'completed'),
+        isNull(faceSwapJobs.sourceDeletedAt)
+      )
+    )
+    .orderBy(desc(faceSwapJobs.createdAt));
+
+  // Remove duplicates based on sourceImageUrl
+  const uniqueFaces = new Map<string, { sourceImageUrl: string; sourceImageKey: string }>();
+  for (const job of jobs) {
+    if (job.sourceImageUrl && !uniqueFaces.has(job.sourceImageUrl)) {
+      uniqueFaces.set(job.sourceImageUrl, {
+        sourceImageUrl: job.sourceImageUrl,
+        sourceImageKey: job.sourceImageKey || '',
+      });
+    }
+  }
+
+  return Array.from(uniqueFaces.values());
+}
+
 export async function updateFaceSwapJobStatus(
   jobId: number,
   status: "pending" | "processing" | "completed" | "failed" | "cancelled",

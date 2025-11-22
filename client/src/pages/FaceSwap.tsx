@@ -825,7 +825,14 @@ export default function FaceSwap() {
                       multiple
                     />
                     <div
-                      onClick={() => targetInputRef.current?.click()}
+                      onClick={(e) => {
+                        // Only trigger file picker if clicking on empty area or outside image
+                        const target = e.target as HTMLElement;
+                        const isImageClick = target.tagName === 'IMG' || target.closest('.target-label');
+                        if (!isImageClick) {
+                          targetInputRef.current?.click();
+                        }
+                      }}
                       onDrop={handleTargetDrop}
                       onDragOver={handleTargetDragOver}
                       onDragLeave={handleTargetDragLeave}
@@ -842,13 +849,33 @@ export default function FaceSwap() {
                               <img 
                                 src={preview} 
                                 alt={`Target ${idx + 1}`} 
-                                onClick={() => {
-                                  setLightboxType('target');
-                                  setLightboxIndex(idx);
-                                  setShowLightbox(true);
+                                onClick={(e) => {
+                                  // Click on image area (not on label) opens file picker
+                                  const target = e.target as HTMLElement;
+                                  const labelClicked = target.closest('.target-label');
+                                  if (!labelClicked) {
+                                    targetInputRef.current?.click();
+                                  }
                                 }}
                                 className={targetPreviews.length === 1 ? "w-full max-h-[12vh] md:max-h-[27vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-8 md:h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
+                              
+                              {/* TARGET label - click to open lightbox */}
+                              {targetPreviews.length === 1 && (
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1 pointer-events-none">
+                                  <span
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setLightboxType('target');
+                                      setLightboxIndex(idx);
+                                      setShowLightbox(true);
+                                    }}
+                                    className="target-label text-white text-[8px] md:text-[10px] font-semibold hover:text-purple-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40 cursor-pointer"
+                                  >
+                                    TARGET
+                                  </span>
+                                </div>
+                              )}
                               
                               {/* Keep Body Proportions Badge - only on single preview */}
                               {targetPreviews.length === 1 && (
@@ -1305,79 +1332,7 @@ export default function FaceSwap() {
                         </div>
                       )}
                       
-                      {/* Target Badge - Bottom Left (Desktop shows current, Mobile shows selector) */}
-                      {(currentJob || !currentJob) && (
-                        <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4 z-10">
-                          {/* Source Badge (original target) */}
-                          <button
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              // Mobile: Open target selector
-                              if (window.innerWidth < 768) {
-                                targetInputRef.current?.click();
-                                return;
-                              }
-                              // Desktop: Load current job's target
-                              if (!currentJob) return;
-                              try {
-                                const response = await fetch(currentJob.targetMediaUrl, { mode: 'no-cors' });
-                                const blob = await response.blob();
-                                const file = new File([blob], 'target.jpg', { type: blob.type || 'image/jpeg' });
-                                setTargetFiles([file]);
-                                setTargetPreviews([currentJob.targetMediaUrl]);
-                                toast.success('Target loaded');
-                              } catch (error) {
-                                toast.error('Failed to load target');
-                              }
-                            }}
-                            className="group relative w-14 h-14 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-white/40 hover:border-pink-500 transition-all shadow-lg hover:scale-105 cursor-pointer bg-white/10 backdrop-blur-sm"
-                            title={currentJob ? "Click to use as target" : "Select target"}
-                          >
-                            {targetPreviews[0] || currentJob?.targetMediaUrl ? (
-                              <img
-                                src={targetPreviews[0] || currentJob?.targetMediaUrl}
-                                alt="Target"
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Users className="h-8 w-8 md:h-12 md:w-12 text-white/70" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1 pointer-events-none">
-                              <span
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (currentJob?.targetMediaUrl) {
-                                    setLightboxType('target');
-                                    setLightboxIndex(0);
-                                    setShowLightbox(true);
-                                  }
-                                }}
-                                className="text-white text-[8px] md:text-[10px] font-semibold hover:text-purple-400 transition-colors pointer-events-auto px-2 py-0.5 rounded bg-black/20 hover:bg-black/40 cursor-pointer"
-                              >
-                                TARGET
-                              </span>
-                            </div>
-                            {/* Upload Progress Overlay */}
-                            {isUploading && targetFiles.length > 0 && (
-                              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
-                                <Loader2 className="h-6 w-6 text-purple-400 animate-spin mb-1" />
-                                <span className="text-white text-[8px] font-semibold">Uploading...</span>
-                              </div>
-                            )}
-                            {/* Generating Progress Overlay */}
-                            {!isUploading && hasActiveJobs && (
-                              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
-                                <Loader2 className="h-6 w-6 text-purple-400 animate-spin mb-1" />
-                                <span className="text-white text-[8px] font-semibold">
-                                  {averageProgress > 0 ? `${averageProgress}%` : "Pending..."}
-                                </span>
-                              </div>
-                            )}
-                          </button>
-                        </div>
-                      )}
+
                       
                       {/* Generate Button - Bottom Right (Mobile only) */}
                       <div className="md:hidden absolute bottom-2 right-2 z-10">

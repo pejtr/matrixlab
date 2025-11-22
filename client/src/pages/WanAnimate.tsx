@@ -289,9 +289,11 @@ export default function WanAnimate() {
                   <div className="relative aspect-video bg-gray-900">
                     {job.status === "completed" && job.resultVideoUrl ? (
                       <video
+                        key={job.resultVideoUrl}
                         src={job.resultVideoUrl}
                         className="w-full h-full object-cover"
                         controls
+                        preload="metadata"
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center p-4">

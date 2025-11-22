@@ -40,6 +40,11 @@ export default function LiveCam() {
     refetchInterval: 3000, // Poll every 3 seconds for updates
   });
 
+  // Fetch saved source faces
+  const { data: savedSourceFaces } = trpc.faceSwap.getSavedSourceFaces.useQuery(undefined, {
+    enabled: !!user,
+  });
+
   const createJobMutation = trpc.wanAnimate.createJob.useMutation({
     onSuccess: () => {
       refetchJobs();
@@ -591,6 +596,40 @@ export default function LiveCam() {
                     )}
                   </label>
                 </div>
+
+                {/* Saved Source Faces */}
+                {savedSourceFaces && savedSourceFaces.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs text-gray-400 mb-2">Or select from saved faces:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {savedSourceFaces.map((face, idx) => (
+                        <button
+                          key={idx}
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(face.sourceImageUrl);
+                              const blob = await response.blob();
+                              const file = new File([blob], 'source.jpg', { type: blob.type || 'image/jpeg' });
+                              setSourceImage(file);
+                              setSourcePreview(face.sourceImageUrl);
+                              toast.success('Source face selected');
+                            } catch (error) {
+                              toast.error('Failed to load source face');
+                            }
+                          }}
+                          className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-600 hover:border-purple-500 transition-all hover:scale-110"
+                          title="Click to select this face"
+                        >
+                          <img
+                            src={face.sourceImageUrl}
+                            alt="Saved face"
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Camera Controls */}
@@ -785,32 +824,7 @@ export default function LiveCam() {
                         )}
                       </div>
 
-                      {/* Action Buttons */}
-                      <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {job.status === 'completed' && job.resultVideoUrl && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="bg-gray-900/80 border-gray-700"
-                            onClick={() => {
-                              const a = document.createElement('a');
-                              a.href = job.resultVideoUrl!;
-                              a.download = `faceswap-${job.id}.mp4`;
-                              a.click();
-                            }}
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-gray-900/80 border-red-700 text-red-500 hover:bg-red-500/10"
-                          onClick={() => handleDeleteJob(job.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+
 
                       {/* Timestamp */}
                       <div className="absolute bottom-2 left-2 bg-black/70 px-2 py-1 rounded text-xs">

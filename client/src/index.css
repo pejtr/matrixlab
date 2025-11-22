@@ -188,4 +188,23 @@
       max-width: 1280px; /* Standard content width */
     }
   }
+
+  /* Responsive scaling for 2K-4K monitors */
+  @media (min-width: 2560px) {
+    body {
+      transform: scale(1.5);
+      transform-origin: top left;
+      width: 66.67%; /* 100% / 1.5 */
+      height: 66.67%;
+    }
+  }
+
+  @media (min-width: 3840px) {
+    body {
+      transform: scale(2);
+      transform-origin: top left;
+      width: 50%; /* 100% / 2 */
+      height: 50%;
+    }
+  }
 }
