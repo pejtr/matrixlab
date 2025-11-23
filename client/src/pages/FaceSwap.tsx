@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
-import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowLeft, ChevronDown, UserPlus, LayoutGrid, Maximize2 } from "lucide-react";
+import { Sparkles, Loader2, UserCircle, Users, Library, ChevronLeft, ChevronRight, Download, CheckCircle, XCircle, Clock, Trash2, Bookmark, RotateCcw, Crop, X, Plus, Film, ArrowLeft, ChevronDown, UserPlus, LayoutGrid, Maximize2, Upload } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -1142,8 +1142,18 @@ export default function FaceSwap() {
                 </div>
               ) : completedJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
-                  {/* Action Buttons - Top Right (Desktop/Tablet), Bottom Center (Mobile) */}
-                  <div className="absolute md:top-3 md:right-3 bottom-3 left-1/2 md:left-auto -translate-x-1/2 md:translate-x-0 z-20 flex gap-2">
+                  {/* Action Buttons - Top Center */}
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        targetInputRef.current?.click();
+                      }}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-8 w-8 p-0 shadow-lg"
+                      title="Upload target image"
+                    >
+                      <Upload className="h-4 w-4" />
+                    </Button>
                     <Button
                       size="sm"
                       onClick={async () => {

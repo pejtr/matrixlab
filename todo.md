@@ -223,3 +223,10 @@ See git history for complete list of implemented features.
 - [x] Move action buttons from bottom-center to top-right of result image on desktop/tablet
 - [x] Ensure TARGET badge opens file picker for target upload
 - [x] Keep action buttons at bottom-center on mobile for better thumb reach
+
+## Action Buttons Redesign - Current Session
+- [x] Move all 7 action icons from bottom-center to top of result image
+- [x] Add Upload target icon as first button (before Download)
+- [x] Ensure Upload button opens file picker for target media
+- [x] Keep all buttons visible and accessible on mobile
+- [x] Test icon arrangement and functionality
