@@ -1142,8 +1142,8 @@ export default function FaceSwap() {
                 </div>
               ) : completedJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
-                  {/* Action Buttons - Bottom Center */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                  {/* Action Buttons - Top Right (Desktop/Tablet), Bottom Center (Mobile) */}
+                  <div className="absolute md:top-3 md:right-3 bottom-3 left-1/2 md:left-auto -translate-x-1/2 md:translate-x-0 z-20 flex gap-2">
                     <Button
                       size="sm"
                       onClick={async () => {
@@ -1445,6 +1445,41 @@ export default function FaceSwap() {
                       )}
 
                       
+                      {/* TARGET Badge - Bottom Left (Mobile only) */}
+                      <div className="md:hidden absolute bottom-2 left-2 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            targetInputRef.current?.click();
+                          }}
+                          className="group relative w-14 h-14 rounded-lg overflow-hidden border-2 border-white/40 hover:border-purple-500 transition-all shadow-lg hover:scale-105 cursor-pointer bg-white/10 backdrop-blur-sm"
+                          title="Upload target media"
+                        >
+                          {targetPreviews.length > 0 ? (
+                            <img
+                              src={targetPreviews[0]}
+                              alt="Target"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Users className="h-8 w-8 text-white/70" />
+                            </div>
+                          )}
+                          {/* Label */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end justify-center pb-1 pointer-events-none">
+                            <span className="text-white text-[8px] font-semibold">TARGET</span>
+                          </div>
+                          {/* Upload Progress Overlay */}
+                          {isUploading && targetFiles.length > 0 && (
+                            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                              <Loader2 className={`h-6 w-6 text-${themeConfig.accent} animate-spin mb-1`} />
+                              <span className="text-white text-[8px] font-semibold">Uploading...</span>
+                            </div>
+                          )}
+                        </button>
+                      </div>
+
                       {/* Generate Button - Bottom Right (Mobile only) */}
                       <div className="md:hidden absolute bottom-2 right-2 z-10">
                         <button

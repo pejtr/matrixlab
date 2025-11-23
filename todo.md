@@ -217,3 +217,9 @@ See git history for complete list of implemented features.
 - [x] Fix infinite scroll - show all jobs by default (999 initial count)
 - [x] Ensure all jobs are accessible via horizontal scroll
 - [x] Remove Load More button (not needed with horizontal scroll)
+
+## Mobile UI Fixes - Current Session
+- [x] Add TARGET badge back to mobile overlay (bottom-left position)
+- [x] Move action buttons from bottom-center to top-right of result image on desktop/tablet
+- [x] Ensure TARGET badge opens file picker for target upload
+- [x] Keep action buttons at bottom-center on mobile for better thumb reach
