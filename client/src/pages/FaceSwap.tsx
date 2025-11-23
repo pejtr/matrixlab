@@ -989,9 +989,9 @@ export default function FaceSwap() {
                       
                       {/* AI Model Select - 40% (4/10) */}
                       <select
-                        value={modelPreference}
-                        onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
-                        className="col-span-4 h-7 md:h-9 px-2 rounded-md bg-white/10 backdrop-blur-lg border border-white/20 text-white text-[10px] focus:outline-none focus:ring-0"
+                      value={modelPreference}
+                      onChange={(e) => setModelPreference(e.target.value as 'high_quality' | 'permissive')}
+                      className="h-7 md:h-9 text-[10px] md:text-sm bg-white/10 border border-white/20 rounded-lg px-1 md:px-2 text-white focus:ring-0 focus:outline-none w-1/2"
                       >
                         <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
                         <option value="permissive" className="bg-gray-900">LQ (slower, better quality, nude allowed)</option>
@@ -1142,8 +1142,8 @@ export default function FaceSwap() {
                 </div>
               ) : completedJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
-                  {/* Action Buttons - Top Center */}
-                  <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+                  {/* Action Buttons - Above Image */}
+                  <div className="flex justify-center gap-2 p-3 border-b border-white/10">
                     <Button
                       size="sm"
                       onClick={() => {
@@ -1288,7 +1288,7 @@ export default function FaceSwap() {
                     </Button>
                   </div>
                   
-                  <div className="relative">
+                  <div className="relative h-[72vh] overflow-hidden">
                     {/* Navigation Arrows */}
                     {completedJobs.length > 1 && (
                       <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-3">
@@ -1340,17 +1340,17 @@ export default function FaceSwap() {
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
-                          className="w-full h-[72vh] object-contain"
+                          className="w-full h-full object-cover"
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-[72vh]">
+                        <div className="relative w-full h-full">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img
                               src={currentJob.targetMediaUrl}
                               alt="Original"
-                              className="absolute inset-0 w-full h-full object-contain"
+                              className="absolute inset-0 w-full h-full object-cover"
                             />
                           )}
                           {/* Show result with fade-in animation when completed */}
@@ -1359,7 +1359,7 @@ export default function FaceSwap() {
                               key={currentJob.id}
                               src={currentJob.resultMediaUrl}
                               alt="Result"
-                              className="absolute inset-0 w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
+                              className="absolute inset-0 w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
                               onClick={() => {
                                 setLightboxIndex(currentResultIndex);
                                 setShowLightbox(true);
@@ -2261,7 +2261,7 @@ export default function FaceSwap() {
                       {currentJob.targetMediaType === 'video' ? (
                         <video
                           src={currentJob.resultMediaUrl!}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover"
                           controls
                         />
                       ) : (

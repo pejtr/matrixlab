@@ -230,3 +230,9 @@ See git history for complete list of implemented features.
 - [x] Ensure Upload button opens file picker for target media
 - [x] Keep all buttons visible and accessible on mobile
 - [x] Test icon arrangement and functionality
+
+## Mobile UI Improvements - Current Session
+- [x] Move badge icons (Upload, Download, Crop, etc.) ABOVE main image instead of overlaying it
+- [x] Stretch main result image to full height without gaps top/bottom
+- [x] Reduce AI model selector width by 50%
+- [ ] Fix NotFoundError on page refresh (removeChild error in routing/navigation)
