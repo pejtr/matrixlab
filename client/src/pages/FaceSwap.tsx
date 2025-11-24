@@ -1784,49 +1784,69 @@ export default function FaceSwap() {
                   ))}
                 </div>
                 <div className="flex gap-2 items-center">
-                  {/* Export Button */}
+                  {/* Select All Button - Activates Export Mode */}
                   {visibleJobs.filter(j => j.status === 'completed').length > 0 && (
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setIsExportMode(!isExportMode);
-                        if (isExportMode) {
-                          // Clear selection when exiting export mode
-                          setSelectedJobs(new Set());
-                        }
-                      }}
-                      className={`text-xs ${
-                        isExportMode
-                          ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                          : 'bg-transparent border-white/30 text-white hover:bg-white/10'
-                      }`}
-                      variant={isExportMode ? 'default' : 'outline'}
-                    >
-                      {isExportMode ? 'Cancel' : 'Export'}
-                    </Button>
-                  )}
-                  {/* Select All Checkbox */}
-                  {isExportMode && visibleJobs.filter(j => j.status === 'completed').length > 0 && (
-                    <label className="flex items-center gap-2 text-white/70 text-xs cursor-pointer hover:text-white transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={visibleJobs.filter(j => j.status === 'completed').every(j => selectedJobs.has(j.id))}
-                        onChange={(e) => {
-                          const completedJobIds = visibleJobs.filter(j => j.status === 'completed').map(j => j.id);
-                          if (e.target.checked) {
-                            const newSet = new Set(selectedJobs);
+                    <>
+                      {!isExportMode ? (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setIsExportMode(true);
+                            // Auto-select all completed jobs
+                            const completedJobIds = visibleJobs.filter(j => j.status === 'completed').map(j => j.id);
+                            const newSet = new Set<number>();
                             completedJobIds.forEach(id => newSet.add(id));
                             setSelectedJobs(newSet);
-                          } else {
-                            const newSet = new Set(selectedJobs);
-                            completedJobIds.forEach(id => newSet.delete(id));
-                            setSelectedJobs(newSet);
-                          }
-                        }}
-                        className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
-                      />
-                      Select All
-                    </label>
+                          }}
+                          className="text-xs bg-transparent border-white/30 text-white hover:bg-white/10"
+                          variant="outline"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={false}
+                            readOnly
+                            className="w-3 h-3 mr-1.5 rounded border-white/30 bg-white/10 pointer-events-none"
+                          />
+                          Select All
+                        </Button>
+                      ) : (
+                        <>
+                          {/* Cancel Button */}
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              setIsExportMode(false);
+                              setSelectedJobs(new Set());
+                            }}
+                            className="text-xs bg-transparent border-white/30 text-white hover:bg-white/10"
+                            variant="outline"
+                          >
+                            Cancel
+                          </Button>
+                          {/* Select All Checkbox */}
+                          <label className="flex items-center gap-2 text-white/70 text-xs cursor-pointer hover:text-white transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={visibleJobs.filter(j => j.status === 'completed').every(j => selectedJobs.has(j.id))}
+                              onChange={(e) => {
+                                const completedJobIds = visibleJobs.filter(j => j.status === 'completed').map(j => j.id);
+                                if (e.target.checked) {
+                                  const newSet = new Set(selectedJobs);
+                                  completedJobIds.forEach(id => newSet.add(id));
+                                  setSelectedJobs(newSet);
+                                } else {
+                                  const newSet = new Set(selectedJobs);
+                                  completedJobIds.forEach(id => newSet.delete(id));
+                                  setSelectedJobs(newSet);
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
+                            />
+                            Select All
+                          </label>
+                        </>
+                      )}
+                    </>
                   )}
                   {/* Download Selected Button */}
                   {isExportMode && selectedJobs.size > 0 && (

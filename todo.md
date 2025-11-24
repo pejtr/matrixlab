@@ -241,3 +241,7 @@ See git history for complete list of implemented features.
 - [x] Fix mobile layout overflow (wider than viewport)
 - [x] Add TARGET badge thumbnail to main result image (missing on mobile)
 - [x] Add Generate button to mobile overlay (bottom-right corner missing)
+
+## Checkbox Visibility Bug - Current Session
+- [x] Fix checkbox visibility - checkboxes should only appear after clicking "Select All" button (Export mode)
+- [x] Hide delete icons when Export mode is active (prevent conflicts with checkboxes)
