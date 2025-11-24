@@ -240,3 +240,4 @@ See git history for complete list of implemented features.
 ## Mobile Bug Fixes - Current Session
 - [x] Fix mobile layout overflow (wider than viewport)
 - [x] Add TARGET badge thumbnail to main result image (missing on mobile)
+- [x] Add Generate button to mobile overlay (bottom-right corner missing)

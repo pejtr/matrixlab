@@ -1516,7 +1516,7 @@ export default function FaceSwap() {
                       </div>
                       
                       {/* AI Model Selector + Keep Body - Bottom Center (Mobile only) */}
-                      <div className="md:hidden absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex flex-col gap-1 items-center">
+                      <div className="md:hidden absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col gap-1 items-center">
                         <select
                           value={modelPreference}
                           onChange={(e) => {
