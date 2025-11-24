@@ -236,3 +236,7 @@ See git history for complete list of implemented features.
 - [x] Stretch main result image to full height without gaps top/bottom
 - [x] Reduce AI model selector width by 50%
 - [ ] Fix NotFoundError on page refresh (removeChild error in routing/navigation)
+
+## Mobile Bug Fixes - Current Session
+- [x] Fix mobile layout overflow (wider than viewport)
+- [x] Add TARGET badge thumbnail to main result image (missing on mobile)

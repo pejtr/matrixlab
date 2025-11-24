@@ -1143,7 +1143,7 @@ export default function FaceSwap() {
               ) : completedJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
                   {/* Action Buttons - Above Image */}
-                  <div className="flex justify-center gap-2 p-3 border-b border-white/10">
+                  <div className="flex flex-wrap justify-center gap-2 p-3 border-b border-white/10">
                     <Button
                       size="sm"
                       onClick={() => {
@@ -1455,8 +1455,8 @@ export default function FaceSwap() {
                       )}
 
                       
-                      {/* TARGET Badge - Bottom Left (Mobile only) */}
-                      <div className="md:hidden absolute bottom-2 left-2 z-10">
+                      {/* TARGET Badge - Bottom Left (All devices) */}
+                      <div className="absolute bottom-2 left-2 md:bottom-4 md:left-4 z-10">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
