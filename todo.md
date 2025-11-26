@@ -251,3 +251,15 @@ See git history for complete list of implemented features.
 - [x] Debug why image container has height but image is not visible (parent div lacked height)
 - [x] Add h-[60vh] md:h-full to relative container wrapping the image
 - [x] Verify object-cover and positioning classes work on mobile
+
+## Mobile Navigation Overflow - Current Session
+- [x] Fix action buttons row exceeding viewport width on mobile
+- [x] Make button container responsive (prevent horizontal scroll)
+- [x] Reduce button sizes (h-7 w-7 on mobile, h-8 w-8 on desktop) and gaps (gap-1 on mobile)
+- [x] Test that all buttons remain accessible and visible
+
+## Lightbox Mobile Fullscreen - Current Session
+- [x] Make lightbox image fill entire viewport on mobile (100vw × 100vh)
+- [x] Remove max-width/max-height constraints on mobile (px-0 py-0 on mobile)
+- [x] Use object-cover to fill screen completely (w-full h-full object-cover on mobile)
+- [x] Keep desktop centered with padding (md:px-24 md:py-20 md:object-contain)

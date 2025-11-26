@@ -235,7 +235,7 @@ export default function FullscreenLightbox({
 
       {/* Image */}
       <div
-        className="relative w-full h-full flex items-center justify-center px-24 py-20"
+        className="relative w-full h-full flex items-center justify-center px-0 py-0 md:px-24 md:py-20"
         onClick={(e) => e.stopPropagation()}
       >
         {currentImage?.url.endsWith('.mp4') || currentImage?.url.endsWith('.webm') || currentImage?.url.endsWith('.mov') ? (
@@ -243,13 +243,13 @@ export default function FullscreenLightbox({
             src={currentImage.url}
             controls
             autoPlay
-            className="max-w-full max-h-full h-full w-auto object-contain"
+            className="w-full h-full md:max-w-full md:max-h-full md:h-full md:w-auto object-cover md:object-contain"
           />
         ) : (
           <img
             src={currentImage?.url}
             alt={`Result ${currentIndex + 1}`}
-            className="max-w-full max-h-full h-full w-auto object-contain"
+            className="w-full h-full md:max-w-full md:max-h-full md:h-full md:w-auto object-cover md:object-contain"
           />
         )}
       </div>

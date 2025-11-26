@@ -1143,13 +1143,13 @@ export default function FaceSwap() {
               ) : completedJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
                   {/* Action Buttons - Above Image */}
-                  <div className="flex flex-wrap justify-center gap-2 p-3 border-b border-white/10">
+                  <div className="flex flex-wrap justify-center gap-1 md:gap-2 p-1.5 md:p-3 border-b border-white/10">
                     <Button
                       size="sm"
                       onClick={() => {
                         targetInputRef.current?.click();
                       }}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-8 w-8 p-0 shadow-lg"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 h-7 w-7 md:h-8 md:w-8 p-0 shadow-lg"
                       title="Upload target image"
                     >
                       <Upload className="h-4 w-4" />
@@ -1183,7 +1183,7 @@ export default function FaceSwap() {
                           toast.error('Download failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
                         }
                       }}
-                      className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"
+                      className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 h-7 w-7 md:h-8 md:w-8 p-0 shadow-lg"
                       title="Download"
                     >
                       <Download className="h-4 w-4" />
@@ -1195,7 +1195,7 @@ export default function FaceSwap() {
                         setRegenerateJob(currentJob);
                         setShowRegenerateDialog(true);
                       }}
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-8 w-8 p-0 shadow-lg"
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-7 w-7 md:h-8 md:w-8 p-0 shadow-lg"
                       title="Generate with different face"
                     >
                       <RotateCcw className="h-4 w-4" />
@@ -1206,7 +1206,7 @@ export default function FaceSwap() {
                         if (!currentJob) return;
                         setShowCropDialog(true);
                       }}
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-8 w-8 p-0 shadow-lg"
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-7 w-7 md:h-8 md:w-8 p-0 shadow-lg"
                       title="Crop image"
                     >
                       <Crop className="h-4 w-4" />
@@ -1231,7 +1231,7 @@ export default function FaceSwap() {
                               toast.error('Failed to save face');
                             }
                           }}
-                          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 h-8 w-8 p-0 shadow-lg"
+                          className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 h-7 w-7 md:h-8 md:w-8 p-0 shadow-lg"
                           title="Save as Face (use result as source face)"
                         >
                           <UserPlus className="h-4 w-4" />
@@ -1247,7 +1247,7 @@ export default function FaceSwap() {
                             setShowAnimateDialog(true);
                           }}
                           disabled={animateResultMutation.isPending}
-                          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 h-8 w-8 p-0 shadow-lg"
+                          className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 h-7 w-7 md:h-8 md:w-8 p-0 shadow-lg"
                           title="Animate with AI (Image to Video)"
                         >
                           {animateResultMutation.isPending ? (
