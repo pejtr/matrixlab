@@ -1288,7 +1288,7 @@ export default function FaceSwap() {
                     </Button>
                   </div>
                   
-                  <div className="relative h-[72vh] overflow-hidden">
+                  <div className="relative h-[60vh] md:h-[72vh] overflow-hidden">
                     {/* Navigation Arrows */}
                     {completedJobs.length > 1 && (
                       <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-3">
@@ -1344,7 +1344,7 @@ export default function FaceSwap() {
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-full">
+                        <div className="relative w-full h-[60vh] md:h-full">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img

@@ -245,3 +245,8 @@ See git history for complete list of implemented features.
 ## Checkbox Visibility Bug - Current Session
 - [x] Fix checkbox visibility - checkboxes should only appear after clicking "Select All" button (Export mode)
 - [x] Hide delete icons when Export mode is active (prevent conflicts with checkboxes)
+
+## Mobile Display Bug - Current Session
+- [x] Fix main result image not displaying on mobile devices
+- [x] Ensure image/video shows correctly in main preview area
+- [x] Test navigation arrows work with visible content
