@@ -1336,7 +1336,7 @@ export default function FaceSwap() {
                     )}
 
                     {/* Result Display */}
-                    <div className="relative">
+                    <div className="relative h-[60vh] md:h-full">
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}

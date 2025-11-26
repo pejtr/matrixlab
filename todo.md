@@ -247,6 +247,7 @@ See git history for complete list of implemented features.
 - [x] Hide delete icons when Export mode is active (prevent conflicts with checkboxes)
 
 ## Mobile Display Bug - Current Session
-- [x] Fix main result image not displaying on mobile devices
-- [x] Ensure image/video shows correctly in main preview area
-- [x] Test navigation arrows work with visible content
+- [x] Fix main result image not displaying on mobile devices (added explicit height to relative parent)
+- [x] Debug why image container has height but image is not visible (parent div lacked height)
+- [x] Add h-[60vh] md:h-full to relative container wrapping the image
+- [x] Verify object-cover and positioning classes work on mobile
