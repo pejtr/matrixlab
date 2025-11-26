@@ -293,7 +293,11 @@ export default function FaceSwap() {
 
   const handleTargetFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    processTargetFiles(files);
+    if (files.length > 0) {
+      processTargetFiles(files);
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
   };
 
   const processTargetFiles = (files: File[]) => {
@@ -1515,15 +1519,15 @@ export default function FaceSwap() {
                         </button>
                       </div>
                       
-                      {/* AI Model Selector + Keep Body - Bottom Center (Mobile only) */}
-                      <div className="md:hidden absolute bottom-20 left-1/2 -translate-x-1/2 z-10 flex flex-col gap-1 items-center">
+                      {/* AI Model Selector + Keep Body - Bottom of Image (Mobile only) */}
+                      <div className="md:hidden absolute bottom-2 left-1/2 -translate-x-1/2 z-10 flex flex-col gap-1 items-center w-1/2">
                         <select
                           value={modelPreference}
                           onChange={(e) => {
                             e.stopPropagation();
                             setModelPreference(e.target.value as "high_quality" | "permissive");
                           }}
-                          className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
+                          className="w-full px-2 py-1 rounded-md bg-white/10 backdrop-blur-lg border border-white/40 text-white text-[9px] font-semibold focus:outline-none focus:ring-0 shadow-lg"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <option value="high_quality" className="bg-gray-900">HQ (fast, no nude)</option>
@@ -1582,8 +1586,8 @@ export default function FaceSwap() {
                       >
                         All ({jobs.length})
                       </Button>
-                      {/* Favorites Category Buttons */}
-                      {[1, 2, 3, 4, 5].map((cat) => (
+                      {/* Favorites Category Buttons - Icon Only */}
+                      {[1, 2, 3].map((cat) => (
                         <Button
                           key={cat}
                           variant={activeTab === 'favorites' && favoriteCategory === cat ? 'default' : 'outline'}
@@ -1592,15 +1596,16 @@ export default function FaceSwap() {
                             setActiveTab('favorites');
                             setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
                           }}
-                          className={`text-[10px] h-6 px-2 relative ${
+                          className={`h-6 w-6 p-0 relative ${
                             activeTab === 'favorites' && favoriteCategory === cat
                               ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
                               : 'bg-transparent border-white/30 text-white hover:bg-white/10'
                           }`}
+                          title={`Favorites ${cat}`}
                         >
-                          F{cat}
+                          <Bookmark className="h-3 w-3" fill={activeTab === 'favorites' && favoriteCategory === cat ? 'white' : 'none'} />
                           {(favoriteCounts?.[cat] || 0) > 0 && (
-                            <span className="ml-1 bg-red-500 text-white text-[8px] rounded-full px-1.5 py-0.5 font-bold">
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] rounded-full w-3 h-3 flex items-center justify-center font-bold">
                               {favoriteCounts?.[cat]}
                             </span>
                           )}
@@ -1758,8 +1763,8 @@ export default function FaceSwap() {
                   >
                     All Jobs ({jobs.length})
                   </Button>
-                  {/* Favorites Category Buttons */}
-                  {[1, 2, 3, 4, 5].map((cat) => (
+                  {/* Favorites Category Buttons - Icon Only */}
+                  {[1, 2, 3].map((cat) => (
                     <Button
                       key={cat}
                       variant={activeTab === 'favorites' && favoriteCategory === cat ? 'default' : 'outline'}
@@ -1768,15 +1773,16 @@ export default function FaceSwap() {
                         setActiveTab('favorites');
                         setFavoriteCategory(cat as 1 | 2 | 3 | 4 | 5);
                       }}
-                      className={`text-xs relative ${
+                      className={`h-7 w-7 p-0 relative ${
                         activeTab === 'favorites' && favoriteCategory === cat
                           ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
                           : 'bg-transparent border-white/30 text-white hover:bg-white/10'
                       }`}
+                      title={`Favorites ${cat}`}
                     >
-                      F{cat}
+                      <Bookmark className="h-3.5 w-3.5" fill={activeTab === 'favorites' && favoriteCategory === cat ? 'white' : 'none'} />
                       {(favoriteCounts?.[cat] || 0) > 0 && (
-                        <span className="ml-1 bg-red-500 text-white text-[8px] rounded-full px-1.5 py-0.5 font-bold">
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold">
                           {favoriteCounts?.[cat]}
                         </span>
                       )}

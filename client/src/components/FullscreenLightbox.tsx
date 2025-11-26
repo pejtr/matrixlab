@@ -102,18 +102,37 @@ export default function FullscreenLightbox({
   const handleDownload = async () => {
     if (!currentImage) return;
     try {
-      const response = await fetch(currentImage.url);
+      // Use CORS proxy for cross-origin downloads
+      const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(currentImage.url)}`;
+      const response = await fetch(proxyUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'image/*,video/*',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+      
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `image-${Date.now()}.${blob.type.split('/')[1] || 'jpg'}`;
+      
+      // Determine file extension from URL or blob type
+      const urlExt = currentImage.url.split('.').pop()?.split('?')[0];
+      const blobExt = blob.type.split('/')[1];
+      const extension = urlExt || blobExt || 'jpg';
+      
+      a.download = `faceswap-${Date.now()}.${extension}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
       console.error('Download failed:', error);
+      alert('Download failed. Please try again.');
     }
   };
 
@@ -249,7 +268,7 @@ export default function FullscreenLightbox({
           <img
             src={currentImage?.url}
             alt={`Result ${currentIndex + 1}`}
-            className="w-full h-full md:max-w-full md:max-h-full md:h-full md:w-auto object-cover md:object-contain"
+            className="max-h-[85vh] max-w-[95vw] md:max-h-[80vh] md:max-w-[90vw] object-contain"
           />
         )}
       </div>

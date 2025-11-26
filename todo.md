@@ -263,3 +263,13 @@ See git history for complete list of implemented features.
 - [x] Remove max-width/max-height constraints on mobile (px-0 py-0 on mobile)
 - [x] Use object-cover to fill screen completely (w-full h-full object-cover on mobile)
 - [x] Keep desktop centered with padding (md:px-24 md:py-20 md:object-contain)
+
+## Mobile UI Overflow Fixes - Current Session
+- [x] Fix lightbox image sizing - too stretched on mobile (adjusted to max-h-[85vh])
+- [x] Fix download button not working (added CORS proxy endpoint)
+- [x] Fix TARGET badge upload on mobile - added input reset after file selection
+- [x] Reduce Favorites tabs to icon-only display (removed text labels, show only Bookmark icons)
+- [x] Reduce number of Favorites categories to 3 (was 5, now 3)
+- [x] Move AI model selector from bottom-20 to bottom-2 (near bottom of image)
+- [x] Make AI model selector 50% narrower (w-1/2 class)
+- [ ] Test on mobile Chrome to verify all fixes work

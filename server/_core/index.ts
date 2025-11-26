@@ -41,6 +41,31 @@ async function startServer() {
   app.use(uploadHandler);
   // Replicate webhook endpoint
   app.post("/api/replicate-webhook", handleReplicateWebhook);
+  
+  // Download proxy endpoint for CORS-protected resources
+  app.get("/api/download-proxy", async (req, res) => {
+    try {
+      const url = req.query.url as string;
+      if (!url) {
+        return res.status(400).send('Missing url parameter');
+      }
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        return res.status(response.status).send(`Failed to fetch: ${response.statusText}`);
+      }
+      
+      const contentType = response.headers.get('content-type') || 'application/octet-stream';
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      
+      const buffer = await response.arrayBuffer();
+      res.send(Buffer.from(buffer));
+    } catch (error) {
+      console.error('[Download Proxy] Error:', error);
+      res.status(500).send('Download failed');
+    }
+  });
   // tRPC API
   app.use(
     "/api/trpc",
