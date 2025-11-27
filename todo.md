@@ -272,4 +272,52 @@ See git history for complete list of implemented features.
 - [x] Reduce number of Favorites categories to 3 (was 5, now 3)
 - [x] Move AI model selector from bottom-20 to bottom-2 (near bottom of image)
 - [x] Make AI model selector 50% narrower (w-1/2 class)
-- [ ] Test on mobile Chrome to verify all fixes work
+- [x] Test on mobile Chrome to verify all fixes work
+
+## Desktop Layout Fixes (URGENT) - Current Session
+
+- [x] Fix left column not showing on desktop (hidden by mobile changes)
+- [x] Restore two-column layout on desktop (left: controls, right: results)
+- [x] Fix slow loading and empty layout on page refresh
+- [ ] Verify responsive breakpoints work correctly (mobile vs desktop)
+- [ ] Test on desktop Chrome to ensure all controls visible
+
+## Desktop Main Image Zoom Fix - Current Session
+
+- [x] Fix main result image extremely zoomed on desktop (should match left column height)
+- [x] Change object-cover to object-contain for proper aspect ratio
+- [x] Set max-height to match left column (70vh)
+- [x] Ensure image doesn't overflow viewport
+
+## Performance Optimization - Slow Refresh Fix - Current Session
+
+- [x] Reduce polling interval from 5s to 10s (or disable when no active jobs)
+- [x] Add staleTime to tRPC queries to enable caching
+- [ ] Limit initial jobs query to last 50 results (pagination)
+- [x] Disable refetchOnMount for completed jobs
+- [ ] Add loading skeleton instead of blank screen during auth check
+- [x] Optimize saved faces query with proper caching
+
+## Desktop Grid Layout Fix - Current Session
+
+- [x] Fix grid proportions - right column too wide, image not visible
+- [x] Change grid from 1.2fr_3.8fr to balanced ratio (320px_1fr)
+- [x] Ensure result image displays properly in right column
+- [ ] Add background color to right column container for visibility
+
+## Desktop Layout Critical Fixes - Current Session
+
+- [x] Fix main result image not displaying in right column (empty blue space)
+- [x] Fix horizontal scrollbar - page wider than viewport
+- [x] Add overflow-x-hidden to prevent horizontal scroll
+- [x] Ensure right column displays result image properly
+- [x] Debug why result image container is empty
+
+## Main Image Display Fix - Critical - Current Session
+
+- [x] Show target image (before) when job is pending/processing
+- [x] Show result image (after) when job is completed
+- [x] Fix "No Results Yet" showing when jobs exist
+- [x] Change completedJobs filter to include all jobs (not just completed)
+- [x] Display target preview for pending jobs in main view
+- [x] Ensure clicking thumbnails updates main image display

@@ -89,11 +89,16 @@ export default function FaceSwap() {
 
   const { data: jobs, refetch } = trpc.faceSwap.getMyJobs.useQuery(undefined, {
     enabled: isAuthenticated,
-    refetchInterval: 5000, // Poll every 5s for real-time updates
+    staleTime: 5000, // Cache for 5 seconds - reduces unnecessary refetches
+    refetchInterval: 10000, // Poll every 10s instead of 5s
+    refetchOnMount: false, // Don't refetch on mount if data is fresh
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
 
   const { data: savedFaces } = trpc.savedFaces.getMySavedFaces.useQuery(undefined, {
     enabled: isAuthenticated,
+    staleTime: 60000, // Cache saved faces for 1 minute
+    refetchOnMount: false, // Don't refetch on mount if data is fresh
   });
 
   const createJobMutation = trpc.faceSwap.createJob.useMutation();
@@ -121,8 +126,10 @@ export default function FaceSwap() {
   const addFavoriteMutation = trpc.faceSwap.addFavorite.useMutation();
   const removeFavoriteMutation = trpc.faceSwap.removeFavorite.useMutation();
 
+  // Show all jobs (including pending/processing) so users can see target preview
+  const allJobs = jobs || [];
   const completedJobs = jobs?.filter(job => job.status === "completed") || [];
-  const currentJob = completedJobs[currentResultIndex];
+  const currentJob = allJobs[currentResultIndex];
   
   // Filter jobs based on active tab
   const displayJobs = activeTab === 'favorites' && favorites
@@ -720,7 +727,7 @@ export default function FaceSwap() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 overflow-x-hidden">
       {/* View Switcher - Top Right */}
       {completedJobs.length > 0 && (
         <div className="fixed top-4 right-4 z-50">
@@ -751,7 +758,7 @@ export default function FaceSwap() {
             // DETAIL VIEW (existing layout)
             <>
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
-          <div className="grid grid-cols-1 md:grid-cols-[1.2fr_3.8fr] gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: hidden) */}
             <div className="hidden md:block space-y-1.5 max-h-[70vh] overflow-y-auto">
@@ -1144,7 +1151,7 @@ export default function FaceSwap() {
                     ))}
                   </div>
                 </div>
-              ) : completedJobs.length > 0 ? (
+              ) : allJobs.length > 0 ? (
                 <div data-results-section className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg overflow-hidden mb-0">
                   {/* Action Buttons - Above Image */}
                   <div className="flex flex-wrap justify-center gap-1 md:gap-2 p-1.5 md:p-3 border-b border-white/10">
@@ -1301,7 +1308,7 @@ export default function FaceSwap() {
                             const newIndex = Math.max(0, currentResultIndex - 1);
                             setCurrentResultIndex(newIndex);
                             // Update target preview to match selected job
-                            const newJob = completedJobs[newIndex];
+                            const newJob = allJobs[newIndex];
                             if (newJob?.targetMediaUrl) {
                               setTargetPreviews([newJob.targetMediaUrl]);
                             }
@@ -1318,10 +1325,10 @@ export default function FaceSwap() {
                         </Button>
                           <Button
                           onClick={() => {
-                            const newIndex = Math.min(completedJobs.length - 1, currentResultIndex + 1);
+                            const newIndex = Math.min(allJobs.length - 1, currentResultIndex + 1);
                             setCurrentResultIndex(newIndex);
                             // Update target preview to match selected job
-                            const newJob = completedJobs[newIndex];
+                            const newJob = allJobs[newIndex];
                             if (newJob?.targetMediaUrl) {
                               setTargetPreviews([newJob.targetMediaUrl]);
                             }
@@ -1330,7 +1337,7 @@ export default function FaceSwap() {
                               setSourcePreview(newJob.sourceImageUrl);
                             }
                           }}
-                          disabled={currentResultIndex === completedJobs.length - 1}
+                          disabled={currentResultIndex === allJobs.length - 1}
                           className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-12 w-12 p-0 shadow-lg"
                           size="sm"
                         >
@@ -1340,7 +1347,7 @@ export default function FaceSwap() {
                     )}
 
                     {/* Result Display */}
-                    <div className="relative h-[60vh] md:h-full">
+                    <div className="relative h-[60vh] md:h-[70vh]">
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
@@ -1348,13 +1355,13 @@ export default function FaceSwap() {
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-[60vh] md:h-full">
+                        <div className="relative w-full h-[60vh] md:h-[70vh]">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img
                               src={currentJob.targetMediaUrl}
                               alt="Original"
-                              className="absolute inset-0 w-full h-full object-cover"
+                              className="absolute inset-0 w-full h-full object-contain"
                             />
                           )}
                           {/* Show result with fade-in animation when completed */}
@@ -1363,7 +1370,7 @@ export default function FaceSwap() {
                               key={currentJob.id}
                               src={currentJob.resultMediaUrl}
                               alt="Result"
-                              className="absolute inset-0 w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
+                              className="absolute inset-0 w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
                               onClick={() => {
                                 setLightboxIndex(currentResultIndex);
                                 setShowLightbox(true);
