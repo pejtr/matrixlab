@@ -1697,7 +1697,7 @@ export default function FaceSwap() {
                   </div>
                   {/* Scrollable Grid Container - Single Row Horizontal Scroll */}
                   <div className="overflow-x-auto overflow-y-hidden pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-1.5 max-w-[1200px]">
                       {visibleJobs.map((job, idx) => (
                         <div
                           key={job.id}
@@ -1734,6 +1734,43 @@ export default function FaceSwap() {
                           {job.status === "completed" && allFavorites?.find(f => f.jobId === job.id) && (
                             <div className="absolute top-0.5 right-0.5 bg-yellow-500 rounded-full p-0.5 shadow-lg z-10">
                               <Bookmark className="h-2 w-2 text-white fill-white" />
+                            </div>
+                          )}
+
+                          {/* Download Button (bottom-left, visible on hover) */}
+                          {!isExportMode && job.status === "completed" && job.resultMediaUrl && (
+                            <div className="absolute bottom-0.5 left-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    toast.info('Downloading...');
+                                    const response = await fetch(job.resultMediaUrl!, {
+                                      mode: 'cors',
+                                      credentials: 'omit',
+                                    });
+                                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                                    const blob = await response.blob();
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `faceswap-result-${job.id}.${job.targetMediaType === 'video' ? 'mp4' : 'jpg'}`;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    window.URL.revokeObjectURL(url);
+                                    document.body.removeChild(a);
+                                    toast.success('Download started');
+                                  } catch (error) {
+                                    console.error('Download error:', error);
+                                    toast.error('Download failed');
+                                  }
+                                }}
+                                className="h-4 w-4 p-0 bg-green-500/80 hover:bg-green-600 text-white rounded-full"
+                              >
+                                <Download className="h-2 w-2" />
+                              </Button>
                             </div>
                           )}
 
@@ -1990,7 +2027,7 @@ export default function FaceSwap() {
                   )}
                 </div>
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-2">
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-12 gap-2 max-w-[1400px] mx-auto">
                 {visibleJobs.map((job, idx) => (
                       <div
                         key={job.id}
@@ -2045,6 +2082,43 @@ export default function FaceSwap() {
                                 className="w-4 h-4 rounded border-white bg-white/20 checked:bg-green-500 checked:border-green-500 focus:ring-0 focus:outline-none cursor-pointer"
                               />
                             </label>
+                          </div>
+                        )}
+
+                        {/* Download Button (bottom-right, visible on hover) */}
+                        {!isExportMode && job.status === "completed" && job.resultMediaUrl && (
+                          <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                  toast.info('Downloading...');
+                                  const response = await fetch(job.resultMediaUrl!, {
+                                    mode: 'cors',
+                                    credentials: 'omit',
+                                  });
+                                  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                                  const blob = await response.blob();
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `faceswap-result-${job.id}.${job.targetMediaType === 'video' ? 'mp4' : 'jpg'}`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                  toast.success('Download started');
+                                } catch (error) {
+                                  console.error('Download error:', error);
+                                  toast.error('Download failed');
+                                }
+                              }}
+                              className="h-5 w-5 p-0 bg-green-500/80 hover:bg-green-600 text-white rounded-full"
+                            >
+                              <Download className="h-2.5 w-2.5" />
+                            </Button>
                           </div>
                         )}
 

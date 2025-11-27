@@ -372,3 +372,14 @@ See git history for complete list of implemented features.
 - [x] Show 5 empty slots with Plus icon when user has 0 saved faces
 - [x] Ensure clicking empty slot triggers file picker for face upload
 - [x] Fix grid layout to always show available upload slots
+
+## Download Icon on Thumbnails - Current Session
+- [x] Add download icon to All Jobs grid thumbnails
+- [x] Show download icon on hover over completed job thumbnails
+- [x] Implement click handler to download result directly from thumbnail
+- [x] Test download functionality on both desktop and mobile
+
+## Large Monitor Grid Width Fix - Current Session
+- [x] Add max-width constraint to All Jobs grid container (prevent thumbnails from being too wide)
+- [x] Limit thumbnail size to reasonable dimensions on 2K/4K monitors
+- [x] Test responsive behavior on different screen sizes
