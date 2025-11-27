@@ -239,6 +239,48 @@ export default function FaceSwap() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentResultIndex, completedJobs.length, showLightbox]);
 
+  // Detect faces when Protect is toggled on (after files are already uploaded)
+  useEffect(() => {
+    const detectFacesOnToggle = async () => {
+      // Only run if:
+      // 1. Protect is enabled
+      // 2. Exactly one target file
+      // 3. Target file is an image (not video)
+      // 4. Face detection is ready
+      // 5. No faces detected yet (avoid re-running)
+      if (
+        preserveBody &&
+        targetFiles.length === 1 &&
+        targetFiles[0].type.startsWith('image/') &&
+        isFaceDetectionReady &&
+        detectedFaces.length === 0
+      ) {
+        try {
+          toast.info('Detecting faces for Protect mode...');
+          const faces = await detectFaces(targetFiles[0]);
+          setDetectedFaces(faces);
+          
+          if (faces.length === 0) {
+            toast.warning('No faces detected. Protect mode will use full image.');
+          } else if (faces.length === 1) {
+            toast.success('1 face detected - only face region will be sent to API');
+          } else {
+            toast.success(`${faces.length} faces detected (max 2 will be processed)`);
+          }
+        } catch (error) {
+          console.error('Face detection failed:', error);
+          toast.error('Face detection failed');
+          setDetectedFaces([]);
+        }
+      } else if (!preserveBody) {
+        // Clear detected faces when Protect is disabled
+        setDetectedFaces([]);
+      }
+    };
+
+    detectFacesOnToggle();
+  }, [preserveBody, targetFiles, isFaceDetectionReady, detectedFaces.length, detectFaces]);
+
   // Sync target preview when currentResultIndex changes (arrow navigation)
   // BUT: Don't override if user has uploaded new target files (targetFiles.length > 0)
   useEffect(() => {
