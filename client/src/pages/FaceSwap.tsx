@@ -846,6 +846,7 @@ export default function FaceSwap() {
                     
                     {/* Grid of Saved Faces - reduced size by 40% */}
                     <div className="grid grid-cols-4 gap-0">
+                      {/* Show saved faces */}
                       {savedFaces?.map((face) => (
                           <div
                             key={face.id}
@@ -921,15 +922,20 @@ export default function FaceSwap() {
                           </div>
                         ))}
                       
-                      {/* Add Face Button - inline, only show if < 5 faces */}
-                      {(savedFaces?.length ?? 0) < 5 && (
+                      {/* Add Face Button - always show when < 5 faces */}
+                      {Array.from({ length: Math.max(1, 5 - (savedFaces?.length ?? 0)) }).map((_, index) => (
                         <div
-                          onClick={() => sourceInputRef.current?.click()}
+                          key={`empty-${index}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            sourceInputRef.current?.click();
+                          }}
                           className="aspect-square border-2 border-dashed border-white/30 cursor-pointer hover:border-pink-500 hover:bg-white/5 transition-all flex items-center justify-center"
                         >
                           <Plus className="h-4 w-4 text-white/50" />
                         </div>
-                      )}
+                      ))}
                     </div>
                   </CardContent>
                 </Card>

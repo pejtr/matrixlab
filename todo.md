@@ -366,3 +366,9 @@ See git history for complete list of implemented features.
 - [x] Test with single face photos (nude + normal)
 - [x] Test with 2-face photos (group shots)
 - [x] Update UI to show face count detection ("1 face detected", "2 faces detected")
+
+## Face Upload Bug Fix - Current Session
+- [x] Fix Add Face button not showing for new users with no saved faces
+- [x] Show 5 empty slots with Plus icon when user has 0 saved faces
+- [x] Ensure clicking empty slot triggers file picker for face upload
+- [x] Fix grid layout to always show available upload slots
