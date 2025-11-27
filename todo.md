@@ -383,3 +383,9 @@ See git history for complete list of implemented features.
 - [x] Add max-width constraint to All Jobs grid container (prevent thumbnails from being too wide)
 - [x] Limit thumbnail size to reasonable dimensions on 2K/4K monitors
 - [x] Test responsive behavior on different screen sizes
+
+## Main Result Image Not Displaying After Thumbnail Click - Current Session
+- [x] Debug why main result image is empty when clicking All Jobs thumbnails
+- [x] Fix currentJob and displayJobs index synchronization
+- [x] Ensure resultMediaUrl is properly loaded and displayed
+- [ ] Test thumbnail click on both desktop and mobile

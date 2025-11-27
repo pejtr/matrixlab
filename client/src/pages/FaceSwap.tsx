@@ -1383,7 +1383,7 @@ export default function FaceSwap() {
                             const newIndex = Math.max(0, currentResultIndex - 1);
                             setCurrentResultIndex(newIndex);
                             // Update target preview to match selected job
-                            const newJob = allJobs[newIndex];
+                            const newJob = displayJobs[newIndex];
                             if (newJob?.targetMediaUrl) {
                               setTargetPreviews([newJob.targetMediaUrl]);
                             }
@@ -1400,10 +1400,10 @@ export default function FaceSwap() {
                         </Button>
                           <Button
                           onClick={() => {
-                            const newIndex = Math.min(allJobs.length - 1, currentResultIndex + 1);
+                            const newIndex = Math.min(displayJobs.length - 1, currentResultIndex + 1);
                             setCurrentResultIndex(newIndex);
                             // Update target preview to match selected job
-                            const newJob = allJobs[newIndex];
+                            const newJob = displayJobs[newIndex];
                             if (newJob?.targetMediaUrl) {
                               setTargetPreviews([newJob.targetMediaUrl]);
                             }
@@ -1412,7 +1412,7 @@ export default function FaceSwap() {
                               setSourcePreview(newJob.sourceImageUrl);
                             }
                           }}
-                          disabled={currentResultIndex === allJobs.length - 1}
+                          disabled={currentResultIndex === displayJobs.length - 1}
                           className="pointer-events-auto bg-white/90 hover:bg-white text-gray-900 rounded-full h-12 w-12 p-0 shadow-lg"
                           size="sm"
                         >
