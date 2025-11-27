@@ -1,0 +1,18 @@
+{
+  "query": "SHOW COLUMNS FROM faceSwapJobs LIKE 'faceBoxes'",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SHOW COLUMNS FROM faceSwapJobs LIKE 'faceBoxes'",
+  "rows": [
+    {
+      "Field": "faceBoxes",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nfaceBoxes\ttext\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 392
+}

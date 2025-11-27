@@ -1,0 +1,1 @@
+ALTER TABLE `faceSwapJobs` ADD `faceBoxes` text;

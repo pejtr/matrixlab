@@ -115,6 +115,7 @@ export const appRouter = router({
         targetMediaType: z.enum(["image", "video"]),
         modelPreference: z.enum(["high_quality", "permissive"]).optional(),
         preserveBody: z.number().optional(), // 0 = disabled, 1 = enabled
+        faceBoxes: z.string().optional(), // JSON array of detected face coordinates
       }))
       .mutation(async ({ ctx, input }) => {
         const job = await createFaceSwapJob({
@@ -126,6 +127,7 @@ export const appRouter = router({
           targetMediaType: input.targetMediaType,
           modelPreference: input.modelPreference || "high_quality",
           preserveBody: input.preserveBody || 0,
+          faceBoxes: input.faceBoxes || null,
           status: "pending",
         });
 

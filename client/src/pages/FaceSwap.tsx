@@ -19,6 +19,7 @@ import RegenerateDialog from "@/components/RegenerateDialog";
 import CropDialog from "@/components/CropDialog";
 import AnimateDialog from "@/components/AnimateDialog";
 import EnhanceButton from "@/components/EnhanceButton";
+import { useFaceDetection, DetectedFace } from "@/hooks/useFaceDetection";
 
 /**
  * Get video duration in seconds
@@ -79,6 +80,7 @@ export default function FaceSwap() {
   const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
+  const [detectedFaces, setDetectedFaces] = useState<DetectedFace[]>([]); // Detected faces for Protect mode
   const [selectedJobs, setSelectedJobs] = useState<Set<number>>(new Set());
   const [isDownloadingZip, setIsDownloadingZip] = useState(false);
   const [isExportMode, setIsExportMode] = useState(false);
@@ -86,6 +88,9 @@ export default function FaceSwap() {
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
+
+  // Face detection for Protect mode
+  const { isReady: isFaceDetectionReady, detectFaces } = useFaceDetection();
 
   const { data: jobs, refetch } = trpc.faceSwap.getMyJobs.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -249,6 +254,39 @@ export default function FaceSwap() {
     }
   }, [currentResultIndex, currentJob, targetFiles.length]);
 
+  // Re-detect faces when Protect toggle changes
+  useEffect(() => {
+    const detectFacesOnToggle = async () => {
+      if (preserveBody && targetFiles.length === 1 && targetFiles[0].type.startsWith('image/')) {
+        if (!isFaceDetectionReady) {
+          toast.info('Face detection loading...');
+          return;
+        }
+
+        try {
+          const faces = await detectFaces(targetFiles[0]);
+          setDetectedFaces(faces);
+          
+          if (faces.length === 0) {
+            toast.warning('No faces detected. Protect mode will use full image.');
+          } else if (faces.length === 1) {
+            toast.success('1 face detected');
+          } else {
+            toast.success(`${faces.length} faces detected (max 2 will be processed)`);
+          }
+        } catch (error) {
+          console.error('Face detection failed:', error);
+          toast.error('Face detection failed');
+          setDetectedFaces([]);
+        }
+      } else {
+        setDetectedFaces([]); // Clear faces if Protect is off
+      }
+    };
+
+    detectFacesOnToggle();
+  }, [preserveBody, isFaceDetectionReady]); // Re-run when Protect toggle or detection ready changes
+
   const handleSourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -310,7 +348,7 @@ export default function FaceSwap() {
     e.target.value = '';
   };
 
-  const processTargetFiles = (files: File[]) => {
+  const processTargetFiles = async (files: File[]) => {
     // Limit to 5 files maximum
     if (files.length > 5) {
       toast.error('Maximum 5 target media files allowed');
@@ -350,6 +388,33 @@ export default function FaceSwap() {
         };
         reader.readAsDataURL(file);
       });
+
+      // Detect faces if Protect mode is enabled and only one image file
+      if (preserveBody && files.length === 1 && files[0].type.startsWith('image/')) {
+        if (!isFaceDetectionReady) {
+          toast.info('Face detection loading...');
+          return;
+        }
+
+        try {
+          const faces = await detectFaces(files[0]);
+          setDetectedFaces(faces);
+          
+          if (faces.length === 0) {
+            toast.warning('No faces detected. Protect mode will use full image.');
+          } else if (faces.length === 1) {
+            toast.success('1 face detected');
+          } else {
+            toast.success(`${faces.length} faces detected (max 2 will be processed)`);
+          }
+        } catch (error) {
+          console.error('Face detection failed:', error);
+          toast.error('Face detection failed');
+          setDetectedFaces([]);
+        }
+      } else {
+        setDetectedFaces([]); // Clear faces if Protect is off or multiple files
+      }
     }
   };
 
@@ -653,6 +718,7 @@ export default function FaceSwap() {
           targetMediaType,
           modelPreference,
           preserveBody: preserveBody ? 1 : 0, // Convert boolean to 0/1 for database
+          faceBoxes: detectedFaces.length > 0 ? JSON.stringify(detectedFaces) : undefined,
         });
 
       }

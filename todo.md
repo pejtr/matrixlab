@@ -353,3 +353,16 @@ See git history for complete list of implemented features.
 - [x] Check if currentResultIndex=0 points to wrong job (pending instead of completed)
 - [x] Fix initial state to show first completed job by default
 - [x] Test page load displays first result correctly
+
+
+## Protect Feature Enhancement - Face-Only Processing with Multi-Face Support
+
+- [x] Integrate MediaPipe Face Detection in frontend (browser-based)
+- [x] Detect up to 2 faces in target image before upload
+- [x] Send face coordinates array to backend with image
+- [x] Backend: Crop each detected face with 150% margin
+- [x] Backend: Send each cropped face to Replicate API separately
+- [x] Backend: Composite all swapped faces back to original positions
+- [x] Test with single face photos (nude + normal)
+- [x] Test with 2-face photos (group shots)
+- [x] Update UI to show face count detection ("1 face detected", "2 faces detected")
