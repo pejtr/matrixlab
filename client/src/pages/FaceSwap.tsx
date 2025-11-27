@@ -129,12 +129,14 @@ export default function FaceSwap() {
   // Show all jobs (including pending/processing) so users can see target preview
   const allJobs = jobs || [];
   const completedJobs = jobs?.filter(job => job.status === "completed") || [];
-  const currentJob = allJobs[currentResultIndex];
   
   // Filter jobs based on active tab
   const displayJobs = activeTab === 'favorites' && favorites
     ? favorites // favorites already contains full job data from JOIN
     : jobs || [];
+  
+  // Get current job from displayJobs (consistent with thumbnail clicks)
+  const currentJob = displayJobs[currentResultIndex];
   
   const visibleJobs = displayJobs.slice(0, visibleJobsCount);
   const hasMoreJobs = displayJobs.length > visibleJobsCount;
@@ -1628,8 +1630,8 @@ export default function FaceSwap() {
                         <div
                           key={job.id}
                           onClick={() => {
-                            // Find index in allJobs array
-                            const jobIndex = allJobs.findIndex(j => j.id === job.id);
+                            // Find index in displayJobs array (consistent with currentJob)
+                            const jobIndex = displayJobs.findIndex(j => j.id === job.id);
                             if (jobIndex !== -1) {
                               setCurrentResultIndex(jobIndex);
                               if (job.targetMediaUrl) {
@@ -1921,8 +1923,8 @@ export default function FaceSwap() {
                       <div
                         key={job.id}
                         onClick={() => {
-                          // Find index in allJobs array (same as desktop)
-                          const jobIndex = allJobs.findIndex(j => j.id === job.id);
+                          // Find index in displayJobs array (consistent with currentJob)
+                          const jobIndex = displayJobs.findIndex(j => j.id === job.id);
                           if (jobIndex !== -1) {
                             setCurrentResultIndex(jobIndex);
                             // Update target preview to match selected job

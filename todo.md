@@ -345,3 +345,11 @@ See git history for complete list of implemented features.
 - [x] Check if previous target preview fix broke main image rendering
 - [x] Fix main result image display logic
 - [x] Test clicking thumbnails shows correct result in main view
+
+
+## Main Result Image Empty on Page Load - Current Session
+
+- [x] Investigate why main result image is empty when page loads with existing jobs
+- [x] Check if currentResultIndex=0 points to wrong job (pending instead of completed)
+- [x] Fix initial state to show first completed job by default
+- [x] Test page load displays first result correctly
