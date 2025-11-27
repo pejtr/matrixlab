@@ -233,10 +233,11 @@ export default function FaceSwap() {
   }, [currentResultIndex, completedJobs.length, showLightbox]);
 
   // Sync target preview when currentResultIndex changes (arrow navigation)
+  // BUT: Don't override if user has uploaded new target files (targetFiles.length > 0)
   useEffect(() => {
     if (completedJobs.length > 0 && currentJob) {
-      // Update target preview to match the current job
-      if (currentJob.targetMediaUrl) {
+      // Only update target preview if user hasn't uploaded new files
+      if (currentJob.targetMediaUrl && targetFiles.length === 0) {
         setTargetPreviews([currentJob.targetMediaUrl]);
       }
       // Update source preview to match the current job
@@ -244,7 +245,7 @@ export default function FaceSwap() {
         setSourcePreview(currentJob.sourceImageUrl);
       }
     }
-  }, [currentResultIndex, currentJob]);
+  }, [currentResultIndex, currentJob, targetFiles.length]);
 
   const handleSourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1920,15 +1921,13 @@ export default function FaceSwap() {
                       <div
                         key={job.id}
                         onClick={() => {
-                          if (job.status === "completed") {
-                            const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
-                            if (completedIndex !== -1) {
-                              setCurrentResultIndex(completedIndex);
-                              // Update target preview to match selected job
-                              if (job.targetMediaUrl) {
-                                setTargetPreviews([job.targetMediaUrl]);
-                              }
-                              // Removed auto-scroll to prevent cutting off header
+                          // Find index in allJobs array (same as desktop)
+                          const jobIndex = allJobs.findIndex(j => j.id === job.id);
+                          if (jobIndex !== -1) {
+                            setCurrentResultIndex(jobIndex);
+                            // Update target preview to match selected job
+                            if (job.targetMediaUrl) {
+                              setTargetPreviews([job.targetMediaUrl]);
                             }
                           }
                         }}

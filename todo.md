@@ -329,3 +329,19 @@ See git history for complete list of implemented features.
 - [x] Fix onClick handler to properly update currentResultIndex
 - [x] Ensure clicked thumbnail's job is displayed in main view
 - [x] Test navigation with arrow buttons after thumbnail click
+
+
+## Target Preview Revert Bug - Current Session
+
+- [x] Investigate why target preview reverts to original after 2 seconds when uploading new target
+- [x] Find useEffect or state sync causing the automatic revert
+- [x] Fix state management to persist user-uploaded target preview
+- [x] Test target upload and verify preview stays updated
+
+
+## Main Result Image Not Displaying - Current Session
+
+- [x] Investigate why main result image is empty when clicking thumbnails
+- [x] Check if previous target preview fix broke main image rendering
+- [x] Fix main result image display logic
+- [x] Test clicking thumbnails shows correct result in main view
