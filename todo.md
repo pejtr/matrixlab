@@ -321,3 +321,11 @@ See git history for complete list of implemented features.
 - [x] Change completedJobs filter to include all jobs (not just completed)
 - [x] Display target preview for pending jobs in main view
 - [x] Ensure clicking thumbnails updates main image display
+
+
+## Thumbnail Click Handler Fix - Current Session
+
+- [x] Investigate why clicking All Jobs thumbnails doesn't update main image
+- [x] Fix onClick handler to properly update currentResultIndex
+- [x] Ensure clicked thumbnail's job is displayed in main view
+- [x] Test navigation with arrow buttons after thumbnail click

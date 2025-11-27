@@ -1627,13 +1627,12 @@ export default function FaceSwap() {
                         <div
                           key={job.id}
                           onClick={() => {
-                            if (job.status === "completed") {
-                              const completedIndex = completedJobs.findIndex(cj => cj.id === job.id);
-                              if (completedIndex !== -1) {
-                                setCurrentResultIndex(completedIndex);
-                                if (job.targetMediaUrl) {
-                                  setTargetPreviews([job.targetMediaUrl]);
-                                }
+                            // Find index in allJobs array
+                            const jobIndex = allJobs.findIndex(j => j.id === job.id);
+                            if (jobIndex !== -1) {
+                              setCurrentResultIndex(jobIndex);
+                              if (job.targetMediaUrl) {
+                                setTargetPreviews([job.targetMediaUrl]);
                               }
                             }
                           }}
