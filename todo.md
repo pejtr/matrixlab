@@ -404,3 +404,8 @@ See git history for complete list of implemented features.
 ## Current Issue - Missing Bookmark Icon
 - [ ] Add bookmark icon back to thumbnail images in bottom gallery
 - [ ] Ensure bookmark icon is visible and clickable
+
+## Current Issue - Video Preview Shows Spinner
+- [x] Fix video preview - show video thumbnail instead of spinner when video is uploaded as target
+- [x] Generate video thumbnail from first frame
+- [x] Display thumbnail in target preview area

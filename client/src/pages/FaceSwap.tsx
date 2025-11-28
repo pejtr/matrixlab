@@ -43,6 +43,57 @@ function getVideoDuration(file: File): Promise<number> {
   });
 }
 
+/**
+ * Generate thumbnail from video file (first frame)
+ */
+function generateVideoThumbnail(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+    
+    video.onloadeddata = () => {
+      // Seek to 0.1 second to avoid black frame
+      video.currentTime = 0.1;
+    };
+    
+    video.onseeked = () => {
+      try {
+        // Create canvas and draw video frame
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+        
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Convert to data URL
+        const thumbnail = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Cleanup
+        window.URL.revokeObjectURL(video.src);
+        resolve(thumbnail);
+      } catch (error) {
+        window.URL.revokeObjectURL(video.src);
+        reject(error);
+      }
+    };
+    
+    video.onerror = () => {
+      window.URL.revokeObjectURL(video.src);
+      reject(new Error('Failed to load video'));
+    };
+    
+    video.src = URL.createObjectURL(file);
+  });
+}
+
 export default function FaceSwap() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
@@ -390,27 +441,31 @@ export default function FaceSwap() {
     
     if (files.length > 0) {
       setTargetFiles(files);
-      const previews: string[] = new Array(files.length);
-      let loadedCount = 0;
-
-      files.forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          previews[index] = reader.result as string;
-          loadedCount++;
-
-          if (loadedCount === files.length) {
-            setTargetPreviews(previews);
+      
+      // Generate previews for all files (images and videos)
+      const previewPromises = files.map(async (file) => {
+        try {
+          if (file.type.startsWith('video/')) {
+            // Generate thumbnail for video
+            return await generateVideoThumbnail(file);
+          } else {
+            // Use FileReader for images
+            return await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
           }
-        };
-        reader.onerror = () => {
-          console.error('Failed to load preview for:', file.name);
-          loadedCount++;
-          if (loadedCount === files.length) {
-            setTargetPreviews(previews.filter(p => p)); // Filter out undefined
-          }
-        };
-        reader.readAsDataURL(file);
+        } catch (error) {
+          console.error('Failed to load preview for:', file.name, error);
+          return ''; // Return empty string on error
+        }
+      });
+      
+      // Wait for all previews to load
+      Promise.all(previewPromises).then((previews) => {
+        setTargetPreviews(previews.filter(p => p)); // Filter out empty strings
       });
 
       // Detect faces if Protect mode is enabled and only one image file
