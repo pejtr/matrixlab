@@ -389,3 +389,18 @@ See git history for complete list of implemented features.
 - [x] Fix currentJob and displayJobs index synchronization
 - [x] Ensure resultMediaUrl is properly loaded and displayed
 - [ ] Test thumbnail click on both desktop and mobile
+
+## Current Issue - Face Upload Not Working
+- [x] Debug why uploaded face appears briefly then disappears (auto-save was removed)
+- [x] Fix face upload handler to save face properly (added S3 upload + DB save)
+- [x] Ensure uploaded face shows in left grid thumbnails (invalidate cache after save)
+- [ ] Test face upload end-to-end
+
+## Current Issue - Generate Uses Wrong Target
+- [ ] Debug why Generate button uses old target instead of newly selected one
+- [ ] Fix Generate button to use correct target from current state
+- [ ] Test that clicking thumbnail + Generate uses that target
+
+## Current Issue - Missing Bookmark Icon
+- [ ] Add bookmark icon back to thumbnail images in bottom gallery
+- [ ] Ensure bookmark icon is visible and clickable

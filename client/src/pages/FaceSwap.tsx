@@ -308,7 +308,31 @@ export default function FaceSwap() {
       setSourcePreview(reader.result as string);
       toast.success('Source face loaded');
       
-      // Auto-save removed - user can manually save via Save button if needed
+      // Auto-save newly uploaded face
+      try {
+        // Upload to S3 first
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const uploadData = await uploadRes.json();
+
+        // Save metadata to database
+        await saveFaceMutation.mutateAsync({
+          faceImageKey: uploadData.key || `saved-${Date.now()}`,
+          faceImageUrl: uploadData.url,
+          name: `Face ${new Date().toLocaleString()}`,
+        });
+        
+        // Invalidate cache to refresh saved faces list
+        await utils.savedFaces.getMySavedFaces.invalidate();
+        toast.success('Face saved automatically');
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+        // Don't show error toast - user can still use the face even if save fails
+      }
     };
     reader.onerror = () => {
       toast.error('Failed to read file');
@@ -1707,7 +1731,10 @@ export default function FaceSwap() {
                             if (jobIndex !== -1) {
                               setCurrentResultIndex(jobIndex);
                               if (job.targetMediaUrl) {
+                                // Update both preview AND files state
                                 setTargetPreviews([job.targetMediaUrl]);
+                                // Load target as file for generation
+                                loadTargetFromJob(job);
                               }
                             }
                           }}
