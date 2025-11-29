@@ -424,9 +424,9 @@ export default function FaceSwap() {
   };
 
   const processTargetFiles = async (files: File[]) => {
-    // Limit to 5 files maximum
-    if (files.length > 5) {
-      toast.error('Maximum 5 target media files allowed');
+    // Limit to 50 files maximum
+    if (files.length > 50) {
+      toast.error('Maximum 50 target media files allowed');
       if (targetInputRef.current) targetInputRef.current.value = '';
       return;
     }
@@ -534,9 +534,9 @@ export default function FaceSwap() {
   const handleUseTemplates = async () => {
     const templateUrls = selectedTemplates.map(t => t.mediaUrl);
     
-    // Limit to 5 templates maximum
-    if (templateUrls.length > 5) {
-      toast.error('Maximum 5 templates allowed');
+    // Limit to 50 templates maximum
+    if (templateUrls.length > 50) {
+      toast.error('Maximum 50 templates allowed');
       return;
     }
     
@@ -706,9 +706,9 @@ export default function FaceSwap() {
       return;
     }
 
-    // Limit to 5 jobs maximum
-    if (targetFiles.length > 5) {
-      toast.error('Maximum 5 target media files allowed');
+    // Limit to 50 jobs maximum
+    if (targetFiles.length > 50) {
+      toast.error('Maximum 50 target media files allowed');
       return;
     }
 
@@ -755,6 +755,20 @@ export default function FaceSwap() {
             method: "POST",
             body: sourceFormData,
           });
+          
+          if (!sourceUploadRes.ok) {
+            const errorText = await sourceUploadRes.text();
+            console.error('[Upload] Source upload failed:', sourceUploadRes.status, errorText);
+            throw new Error(`Source upload failed: ${sourceUploadRes.status} - ${errorText.substring(0, 100)}`);
+          }
+          
+          const contentType = sourceUploadRes.headers.get('content-type');
+          if (!contentType?.includes('application/json')) {
+            const responseText = await sourceUploadRes.text();
+            console.error('[Upload] Expected JSON, got:', contentType, responseText.substring(0, 200));
+            throw new Error(`Upload failed: Server returned ${contentType} instead of JSON`);
+          }
+          
           sourceUploadData = await sourceUploadRes.json();
         } else if (sourcePreview) {
           // Use sourcePreview URL (from saved face)
@@ -784,6 +798,20 @@ export default function FaceSwap() {
             method: "POST",
             body: targetFormData,
           });
+          
+          if (!targetUploadRes.ok) {
+            const errorText = await targetUploadRes.text();
+            console.error('[Upload] Target upload failed:', targetUploadRes.status, errorText);
+            throw new Error(`Target upload failed: ${targetUploadRes.status} - ${errorText.substring(0, 100)}`);
+          }
+          
+          const contentType = targetUploadRes.headers.get('content-type');
+          if (!contentType?.includes('application/json')) {
+            const responseText = await targetUploadRes.text();
+            console.error('[Upload] Expected JSON, got:', contentType, responseText.substring(0, 200));
+            throw new Error(`Upload failed: Server returned ${contentType} instead of JSON`);
+          }
+          
           targetUploadData = await targetUploadRes.json();
         }
 
@@ -818,7 +846,14 @@ export default function FaceSwap() {
       // The useEffect will handle notification and index update
     } catch (error) {
       console.error("Upload failed:", error);
-      toast.error("Failed to create jobs");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Upload failed: ${errorMessage}`);
+      
+      // Show detailed error in console for debugging
+      if (error instanceof Error && error.message.includes('JSON')) {
+        console.error('[Upload] JSON parse error - server may have returned HTML error page');
+        console.error('[Upload] Check browser Network tab for actual response');
+      }
       
       // Keep form data for easy retry
       setSelectedTemplates([]);
@@ -1130,10 +1165,10 @@ export default function FaceSwap() {
                       )}
                     </div>
                     {targetFiles.length > 0 && (
-                      <p className="text-white/70 text-[9px] mt-1 text-center">{targetFiles.length} / 5 file(s)</p>
+                      <p className="text-white/70 text-[9px] mt-1 text-center">{targetFiles.length} / 50 file(s)</p>
                     )}
                     {targetFiles.length === 0 && (
-                      <p className="text-white/50 text-[9px] mt-0.5 text-center">Max 5 files</p>
+                      <p className="text-white/50 text-[9px] mt-0.5 text-center">Max 50 files</p>
                     )}
                     
                     {/* Templates + AI Model + Generate Row (20:40:40) */}

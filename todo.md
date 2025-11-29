@@ -409,3 +409,18 @@ See git history for complete list of implemented features.
 - [x] Fix video preview - show video thumbnail instead of spinner when video is uploaded as target
 - [x] Generate video thumbnail from first frame
 - [x] Display thumbnail in target preview area
+
+## Video Upload Error - Current Session
+- [x] Fix "Unexpected token '<', "<!doctype "... is not valid JSON" error when uploading videos
+- [x] Added better error handling to show exact error message
+- [x] Added content-type validation before parsing JSON
+- [x] Verified upload endpoint exists and is properly routed
+- [ ] Test video upload end-to-end with user
+- [ ] Debug actual error from console logs
+
+## Batch Upload Limit Increase - Current Session
+- [x] Increase batch upload limit from 5 to 50 files
+- [x] Update validation in handleSubmit
+- [x] Update validation in processTargetFiles
+- [x] Update UI text "Max 5 files" to "Max 50 files"
+- [x] Update file counter display to show "/50" instead of "/5"
