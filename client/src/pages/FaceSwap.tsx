@@ -1357,13 +1357,12 @@ export default function FaceSwap() {
                     <Button
                       size="sm"
                       onClick={async () => {
-                        if (!currentJob?.resultMediaUrl) return;
+                        if (!currentJob || !currentJob.resultMediaUrl) return;
                         try {
                           toast.info('Downloading...');
-                          const response = await fetch(currentJob.resultMediaUrl, {
-                            mode: 'cors',
-                            credentials: 'omit'
-                          });
+                          // Use proxy endpoint to avoid CORS issues
+                          const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(currentJob.resultMediaUrl)}`;
+                          const response = await fetch(proxyUrl);
                           if (!response.ok) throw new Error('Download failed');
                           const blob = await response.blob();
                           const url = window.URL.createObjectURL(blob);
@@ -1862,12 +1861,12 @@ export default function FaceSwap() {
                                 size="sm"
                                 onClick={async (e) => {
                                   e.stopPropagation();
+                                  if (!job.resultMediaUrl) return;
                                   try {
                                     toast.info('Downloading...');
-                                    const response = await fetch(job.resultMediaUrl!, {
-                                      mode: 'cors',
-                                      credentials: 'omit',
-                                    });
+                                    // Use proxy endpoint to avoid CORS issues
+                                    const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(job.resultMediaUrl)}`;
+                                    const response = await fetch(proxyUrl);
                                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                                     const blob = await response.blob();
                                     const url = window.URL.createObjectURL(blob);
@@ -2210,12 +2209,12 @@ export default function FaceSwap() {
                               size="sm"
                               onClick={async (e) => {
                                 e.stopPropagation();
+                                if (!job.resultMediaUrl) return;
                                 try {
                                   toast.info('Downloading...');
-                                  const response = await fetch(job.resultMediaUrl!, {
-                                    mode: 'cors',
-                                    credentials: 'omit',
-                                  });
+                                  // Use proxy endpoint to avoid CORS issues
+                                  const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(job.resultMediaUrl)}`;
+                                  const response = await fetch(proxyUrl);
                                   if (!response.ok) throw new Error(`HTTP ${response.status}`);
                                   const blob = await response.blob();
                                   const url = window.URL.createObjectURL(blob);
@@ -2491,7 +2490,11 @@ export default function FaceSwap() {
                               e.stopPropagation();
                               if (!job.resultMediaUrl) return;
                               try {
-                                const response = await fetch(job.resultMediaUrl);
+                                toast.info('Downloading...');
+                                // Use proxy endpoint to avoid CORS issues
+                                const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(job.resultMediaUrl)}`;
+                                const response = await fetch(proxyUrl);
+                                if (!response.ok) throw new Error('Download failed');
                                 const blob = await response.blob();
                                 const url = window.URL.createObjectURL(blob);
                                 const a = document.createElement('a');
@@ -2503,6 +2506,7 @@ export default function FaceSwap() {
                                 document.body.removeChild(a);
                                 toast.success('Downloaded');
                               } catch (error) {
+                                console.error('Download error:', error);
                                 toast.error('Download failed');
                               }
                             }}
