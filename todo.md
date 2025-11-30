@@ -424,3 +424,18 @@ See git history for complete list of implemented features.
 - [x] Update validation in processTargetFiles
 - [x] Update UI text "Max 5 files" to "Max 50 files"
 - [x] Update file counter display to show "/50" instead of "/5"
+
+## Protect Mode Fix & Multi-Face Swap - Current Session
+- [x] Analyze current Protect implementation (imageBlendingService.ts)
+- [x] Implement MediaPipe face detection in browser for precise face cropping
+- [x] Update worker to crop only face regions (with margin) before sending to API
+- [x] Implement multi-face processing (detect up to 5 faces)
+- [x] Process each face separately via Replicate API
+- [x] Composite all swapped faces back to original positions
+- [ ] Test with nude photos to verify body is NOT sent to API
+- [ ] Test with multi-face photos (group photos)
+- [ ] Verify no desexualization occurs with Protect enabled
+
+## Large Monitor Layout Fix - Current Session
+- [x] Change main result image max-height from 70vh to 80vh
+- [ ] Test on large monitors to verify no overflow

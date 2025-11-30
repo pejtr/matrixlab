@@ -53,9 +53,9 @@ export function useFaceDetection() {
 
   /**
    * Detect faces in an image file
-   * Returns up to 2 faces with highest confidence
+   * Returns up to 5 faces with highest confidence
    */
-  const detectFaces = async (imageFile: File): Promise<DetectedFace[]> => {
+  const detectFaces = async (imageFile: File, maxFaces: number = 5): Promise<DetectedFace[]> => {
     if (!faceDetectorRef.current) {
       console.warn("[FaceDetection] Detector not ready");
       return [];
@@ -103,8 +103,8 @@ export function useFaceDetection() {
         .filter((face): face is DetectedFace => face !== null)
         .sort((a, b) => b.confidence - a.confidence);
 
-      // Return up to 2 faces with highest confidence
-      const topFaces = faces.slice(0, 2);
+      // Return up to maxFaces (default 5) with highest confidence
+      const topFaces = faces.slice(0, maxFaces);
       
       console.log("[FaceDetection] Returning top", topFaces.length, "faces:", topFaces);
       

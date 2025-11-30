@@ -323,7 +323,7 @@ export default function FaceSwap() {
           } else if (faces.length === 1) {
             toast.success('1 face detected');
           } else {
-            toast.success(`${faces.length} faces detected (max 2 will be processed)`);
+            toast.success(`${faces.length} faces detected (max 5 will be processed)`);
           }
         } catch (error) {
           console.error('Face detection failed:', error);
@@ -484,7 +484,7 @@ export default function FaceSwap() {
           } else if (faces.length === 1) {
             toast.success('1 face detected');
           } else {
-            toast.success(`${faces.length} faces detected (max 2 will be processed)`);
+            toast.success(`${faces.length} faces detected (max 5 will be processed)`);
           }
         } catch (error) {
           console.error('Face detection failed:', error);
@@ -1536,7 +1536,7 @@ export default function FaceSwap() {
                     )}
 
                     {/* Result Display */}
-                    <div className="relative h-[60vh] md:h-[70vh]">
+                    <div className="relative h-[60vh] md:h-[80vh]">
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
@@ -1544,7 +1544,7 @@ export default function FaceSwap() {
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-[60vh] md:h-[70vh]">
+                        <div className="relative w-full h-[60vh] md:h-[80vh]">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img

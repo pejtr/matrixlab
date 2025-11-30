@@ -206,57 +206,34 @@ async function processJob(jobId: number) {
       throw new Error('No output URL or base64 data');
     }
 
-    // Step 6.5: Apply multi-face processing (if faceBoxes provided and Protect mode)
+    // Step 6.5: Apply multi-face processing (if faceBoxes provided - Protect mode with face detection)
     if (job.faceBoxes && job.targetMediaType === "image") {
       console.log(`[Worker] [Job #${jobId}] [Step 6.5/7] Applying multi-face processing (Protect mode)...`);
       await updateFaceSwapJobStatus(jobId, "processing", { progress: 85 });
       
       try {
-        const { processMultipleFaces } = await import("./multiFaceSwapService.js");
+        const { processMultiFaceSwap } = await import("./multiFaceService.js");
         const faceBoxes = JSON.parse(job.faceBoxes);
         
-        console.log(`[Worker] [Job #${jobId}] Processing ${faceBoxes.length} detected faces`);
+        console.log(`[Worker] [Job #${jobId}] Processing ${faceBoxes.length} detected face(s)`);
         
-        // First upload the face-swapped result temporarily to get a URL
-        const tempKey = `temp/job-${jobId}-swapped-${Date.now()}.jpg`;
-        const { url: tempSwappedUrl } = await storagePut(tempKey, resultBuffer, "image/jpeg");
+        // Process all faces: crop → swap → composite back
+        const multiFaceResult = await processMultiFaceSwap({
+          sourceImageUrl: job.sourceImageUrl,
+          targetImageUrl: job.targetMediaUrl,
+          faceBoxes: faceBoxes,
+          modelPreference: job.modelPreference || "high_quality",
+        });
         
-        // Process multiple faces - crop, swap each face, composite back
-        const multiFaceResult = await processMultipleFaces(
-          job.targetMediaUrl, // original image
-          faceBoxes,
-          async (croppedFaceBuffer: Buffer) => {
-            // Upload cropped face temporarily
-            const cropKey = `temp/job-${jobId}-crop-${Date.now()}.jpg`;
-            const { url: cropUrl } = await storagePut(cropKey, croppedFaceBuffer, "image/jpeg");
-            
-            // Swap this cropped face
-            const swapResult = await performFaceSwap({
-              sourceImageUrl: job.sourceImageUrl,
-              targetMediaUrl: cropUrl,
-              targetMediaType: "image",
-              modelPreference: job.modelPreference || "high_quality",
-            });
-            
-            if (!swapResult.success || (!swapResult.outputUrl && !swapResult.outputBase64)) {
-              throw new Error(swapResult.error || "Face swap failed for cropped face");
-            }
-            
-            // Download swapped face
-            if (swapResult.outputUrl) {
-              return await downloadFile(swapResult.outputUrl);
-            } else if (swapResult.outputBase64) {
-              return Buffer.from(swapResult.outputBase64, 'base64');
-            } else {
-              throw new Error('No output from face swap');
-            }
-          }
-        );
-        
-        console.log(`[Worker] [Job #${jobId}] ✓ Multi-face processing complete, result size: ${multiFaceResult.length} bytes`);
-        resultBuffer = multiFaceResult;
+        if (multiFaceResult.success && multiFaceResult.outputBuffer) {
+          console.log(`[Worker] [Job #${jobId}] ✓ Multi-face processing complete: ${multiFaceResult.processedFaces}/${faceBoxes.length} faces swapped`);
+          resultBuffer = multiFaceResult.outputBuffer;
+        } else {
+          console.log(`[Worker] [Job #${jobId}] ⚠ Multi-face processing failed: ${multiFaceResult.error}`);
+          // Continue with original face-swapped result
+        }
       } catch (error: any) {
-        console.log(`[Worker] [Job #${jobId}] ⚠ Multi-face processing failed: ${error.message}, using original face-swapped result`);
+        console.log(`[Worker] [Job #${jobId}] ⚠ Multi-face processing error: ${error.message}`);
         // Continue with original face-swapped result
       }
     }
