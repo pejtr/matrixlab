@@ -68,7 +68,7 @@ export function useFaceDetection() {
       
       await new Promise((resolve, reject) => {
         img.onload = resolve;
-        img.onerror = reject;
+        img.onerror = (e) => reject(new Error('Failed to load image'));
         img.src = imageUrl;
       });
 
@@ -110,7 +110,7 @@ export function useFaceDetection() {
       
       return topFaces;
     } catch (error) {
-      console.error("[FaceDetection] Error detecting faces:", error);
+      console.error("[FaceDetection] Error detecting faces:", error instanceof Error ? error.message : String(error));
       return [];
     }
   };

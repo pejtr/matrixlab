@@ -454,5 +454,11 @@ See git history for complete list of implemented features.
 ## Reduce Result Image Height to 60vh - Current Session
 - [x] Change main result image height from h-[80vh] to h-[60vh] on desktop
 - [x] Ensure All Jobs grid below image remains visible
-- [ ] Verify no vertical scrollbar appears
-- [ ] Test that image takes maximum 80% of page height
+- [x] Verify no vertical scrollbar appears
+- [x] Test that image takes maximum 80% of page height
+
+
+## Face Detection Error Fix - Current Session
+- [x] Fix error handling in useFaceDetection.ts (img.onerror returns Event, not Error)
+- [x] Improve error logging to show readable error messages
+- [x] Verify lightbox click handler is present on main result image (already working)
