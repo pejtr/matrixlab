@@ -1575,7 +1575,7 @@ export default function FaceSwap() {
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                           controls
                         />
                       ) : (
@@ -1585,7 +1585,7 @@ export default function FaceSwap() {
                             <img
                               src={currentJob.targetMediaUrl}
                               alt="Original"
-                              className="absolute inset-0 w-full h-full object-cover"
+                              className="absolute inset-0 w-full h-full object-contain"
                             />
                           )}
                           {/* Show result with fade-in animation when completed */}
@@ -1594,7 +1594,7 @@ export default function FaceSwap() {
                               key={currentJob.id}
                               src={currentJob.resultMediaUrl}
                               alt="Result"
-                              className="absolute inset-0 w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
+                              className="absolute inset-0 w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
                               onClick={() => {
                                 setLightboxIndex(currentResultIndex);
                                 setShowLightbox(true);
@@ -2597,7 +2597,7 @@ export default function FaceSwap() {
                       {currentJob.targetMediaType === 'video' ? (
                         <video
                           src={currentJob.resultMediaUrl!}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                           controls
                         />
                       ) : (

@@ -511,6 +511,6 @@ See git history for complete list of implemented features.
 ## Layout Adjustment - Reduce Image Height to 80vh Max
 - [x] Change main result image height from 60vh to max 50vh
 - [x] Apply max-h-[50vh] constraint to result image container
-- [ ] Test with portrait and landscape images
-- [ ] Verify no vertical overflow on desktop
-- [ ] Ensure All Jobs grid remains visible below image
+- [x] Test with portrait and landscape images
+- [x] Verify no vertical overflow on desktop
+- [x] Ensure All Jobs grid remains visible below image
