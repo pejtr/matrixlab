@@ -506,3 +506,11 @@ See git history for complete list of implemented features.
   - [ ] Verify all faces are detected and displayed
   - [ ] Verify clicking switches selected face
   - [ ] Verify generation uses manually selected face
+
+
+## Layout Adjustment - Reduce Image Height to 80vh Max
+- [x] Change main result image height from 60vh to max 50vh
+- [x] Apply max-h-[50vh] constraint to result image container
+- [ ] Test with portrait and landscape images
+- [ ] Verify no vertical overflow on desktop
+- [ ] Ensure All Jobs grid remains visible below image
