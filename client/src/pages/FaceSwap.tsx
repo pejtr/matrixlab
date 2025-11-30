@@ -151,7 +151,7 @@ export default function FaceSwap() {
     enabled: isAuthenticated,
     staleTime: 5000, // Cache for 5 seconds - reduces unnecessary refetches
     refetchInterval: 10000, // Poll every 10s instead of 5s
-    refetchOnMount: false, // Don't refetch on mount if data is fresh
+    refetchOnMount: true, // Always refetch on mount to ensure fresh data after page refresh
     refetchOnWindowFocus: false, // Don't refetch when window regains focus
   });
 
@@ -239,13 +239,13 @@ export default function FaceSwap() {
 
   // Reset to clean state on page load
   useEffect(() => {
-    // Clear all input states
+    // Clear input states on mount (but preserve currentResultIndex to show existing results)
     setSourceFile(null);
     setTargetFiles([]);
     setSourcePreview(null);
     setTargetPreviews([]);
     setSelectedTemplates([]);
-    setCurrentResultIndex(0);
+    // Don't reset currentResultIndex - let it show the last viewed result after refresh
     
     // Clear file inputs
     if (sourceInputRef.current) sourceInputRef.current.value = '';
