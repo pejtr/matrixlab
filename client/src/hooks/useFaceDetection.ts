@@ -79,11 +79,12 @@ export function useFaceDetection() {
       const img = new Image();
       img.crossOrigin = 'anonymous'; // Enable CORS for remote images
       
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
         img.onerror = (e) => {
-          console.error('[FaceDetection] Image load error:', e);
-          reject(new Error('Failed to load image'));
+          const errorMsg = e instanceof ErrorEvent ? e.message : 'Unknown error';
+          console.error('[FaceDetection] Image load error:', errorMsg, 'URL:', imageUrl);
+          reject(new Error(`Failed to load image: ${errorMsg}`));
         };
         img.src = imageUrl;
       });

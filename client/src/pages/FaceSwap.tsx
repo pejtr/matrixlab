@@ -318,7 +318,16 @@ export default function FaceSwap() {
           return;
         }
 
+        // Validate targetPreviews exists and has valid URL
+        if (!targetPreviews || targetPreviews.length === 0 || !targetPreviews[0]) {
+          console.warn('[FaceDetection] No target preview available');
+          setDetectedFaces([]);
+          setShowFacePreview(false);
+          return;
+        }
+
         try {
+          console.log('[FaceDetection] Starting detection for:', targetPreviews[0]);
           // Detect up to 5 faces to show in preview
           // Use targetPreviews URL instead of File to handle both real files and proxy objects
           const faces = await detectFaces(targetPreviews[0], 5);
