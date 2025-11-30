@@ -20,6 +20,7 @@ import CropDialog from "@/components/CropDialog";
 import AnimateDialog from "@/components/AnimateDialog";
 import EnhanceButton from "@/components/EnhanceButton";
 import { useFaceDetection, DetectedFace } from "@/hooks/useFaceDetection";
+import { FaceDetectionOverlay } from "@/components/FaceDetectionOverlay";
 
 /**
  * Get video duration in seconds
@@ -132,6 +133,9 @@ export default function FaceSwap() {
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
   const [preserveBody, setPreserveBody] = useState(false); // Body preservation toggle
   const [detectedFaces, setDetectedFaces] = useState<DetectedFace[]>([]); // Detected faces for Protect mode
+  const [selectedFaceIndex, setSelectedFaceIndex] = useState(0); // Index of manually selected face
+  const [showFacePreview, setShowFacePreview] = useState(false); // Show face detection overlay
+  const [targetImageDimensions, setTargetImageDimensions] = useState<{width: number, height: number}>({width: 0, height: 0}); // Target image dimensions for canvas
   const [selectedJobs, setSelectedJobs] = useState<Set<number>>(new Set());
   const [isDownloadingZip, setIsDownloadingZip] = useState(false);
   const [isExportMode, setIsExportMode] = useState(false);
@@ -305,7 +309,7 @@ export default function FaceSwap() {
     }
   }, [currentResultIndex, currentJob, targetFiles.length]);
 
-  // Re-detect faces when Protect toggle changes
+  // Re-detect faces when Protect toggle changes or new target is uploaded
   useEffect(() => {
     const detectFacesOnToggle = async () => {
       if (preserveBody && targetFiles.length === 1 && targetFiles[0].type.startsWith('image/')) {
@@ -315,27 +319,41 @@ export default function FaceSwap() {
         }
 
         try {
-          // Only detect the main face (largest) when Protect is enabled
-          const faces = await detectFaces(targetFiles[0], 1);
+          // Detect up to 5 faces to show in preview
+          const faces = await detectFaces(targetFiles[0], 5);
           setDetectedFaces(faces);
+          setSelectedFaceIndex(0); // Auto-select first (largest) face
+          setShowFacePreview(true); // Show preview overlay
+          
+          // Get image dimensions for canvas
+          const img = new Image();
+          img.onload = () => {
+            setTargetImageDimensions({ width: img.width, height: img.height });
+          };
+          img.src = targetPreviews[0];
           
           if (faces.length === 0) {
             toast.warning('No faces detected. Protect mode will use full image.');
+            setShowFacePreview(false);
+          } else if (faces.length === 1) {
+            toast.success('1 face detected - click to confirm or upload different image');
           } else {
-            toast.success('Main face detected and will be protected');
+            toast.success(`${faces.length} faces detected - click to select which face to protect`);
           }
         } catch (error) {
           console.error('Face detection failed:', error);
           toast.error('Face detection failed');
           setDetectedFaces([]);
+          setShowFacePreview(false);
         }
       } else {
         setDetectedFaces([]); // Clear faces if Protect is off
+        setShowFacePreview(false);
       }
     };
 
     detectFacesOnToggle();
-  }, [preserveBody, isFaceDetectionReady]); // Re-run when Protect toggle or detection ready changes
+  }, [preserveBody, targetFiles, targetPreviews, isFaceDetectionReady]); // Re-run when Protect toggle, target changes, or detection ready
 
   const handleSourceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -815,6 +833,9 @@ export default function FaceSwap() {
 
         const targetMediaType = targetFile.type.startsWith("video/") ? "video" : "image";
 
+        // Use only the manually selected face (or first face if not manually selected)
+        const selectedFace = detectedFaces.length > 0 ? detectedFaces[selectedFaceIndex] : undefined;
+        
         await createJobMutation.mutateAsync({
           sourceImageKey: sourceUploadData.key || `uploaded-${Date.now()}`,
           sourceImageUrl: sourceUploadData.url,
@@ -823,7 +844,7 @@ export default function FaceSwap() {
           targetMediaType,
           modelPreference,
           preserveBody: preserveBody ? 1 : 0, // Convert boolean to 0/1 for database
-          faceBoxes: detectedFaces.length > 0 ? JSON.stringify(detectedFaces) : undefined,
+          faceBoxes: selectedFace ? JSON.stringify([selectedFace]) : undefined, // Send only selected face
         });
 
       }
@@ -1098,6 +1119,23 @@ export default function FaceSwap() {
                                 }}
                                 className={targetPreviews.length === 1 ? "w-full max-h-[12vh] md:max-h-[27vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-8 md:h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
+                              
+                              {/* Face Detection Preview Overlay */}
+                              {targetPreviews.length === 1 && showFacePreview && detectedFaces.length > 0 && (
+                                <div className="absolute inset-0">
+                                  <FaceDetectionOverlay
+                                    imageUrl={preview}
+                                    faces={detectedFaces}
+                                    selectedFaceIndex={selectedFaceIndex}
+                                    onFaceSelect={(index) => {
+                                      setSelectedFaceIndex(index);
+                                      toast.success(`Face ${index + 1} selected`);
+                                    }}
+                                    imageWidth={targetImageDimensions.width}
+                                    imageHeight={targetImageDimensions.height}
+                                  />
+                                </div>
+                              )}
                               
                               {/* TARGETS label - click to open lightbox with all targets */}
                               {targetPreviews.length === 1 && (

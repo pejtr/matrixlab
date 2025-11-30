@@ -481,3 +481,28 @@ See git history for complete list of implemented features.
 - [x] Change detectFaces call to maxFaces=1 to only detect main face
 - [ ] Test with multi-face images (person + background person on bed)
 - [ ] Verify secondary faces are ignored and not swapped
+
+
+## Face Detection Preview & Manual Selection - Current Session
+- [x] Design face detection preview overlay component
+  - [x] Canvas overlay showing green bounding boxes around detected faces
+  - [x] Display on target image when Protect mode is enabled
+  - [x] Show face confidence scores and size indicators
+- [x] Implement automatic face detection preview
+  - [x] Trigger detection when Protect checkbox is toggled
+  - [x] Trigger detection when new target image is uploaded
+  - [x] Draw green boxes around all detected faces
+  - [x] Highlight selected face (thicker border or different color)
+- [x] Implement manual face selection
+  - [x] Make canvas clickable to select different faces
+  - [x] Update selected face when user clicks on a different face box
+  - [x] Store selected face index in state
+  - [x] Pass selected face to generation API
+- [x] Update handleSubmit to use manually selected face
+  - [x] Check if user manually selected a face
+  - [x] Override automatic detection with manual selection
+  - [x] Send correct face bounding box to API
+- [ ] Test with multi-face images
+  - [ ] Verify all faces are detected and displayed
+  - [ ] Verify clicking switches selected face
+  - [ ] Verify generation uses manually selected face
