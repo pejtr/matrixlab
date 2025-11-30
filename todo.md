@@ -469,3 +469,15 @@ See git history for complete list of implemented features.
 - [x] Check CORS configuration for S3 URLs
 - [x] Fix fetch error with proper error handling
 - [x] Test download functionality with completed jobs
+
+
+## Protect Mode - Main Face Only Filter - Current Session
+- [x] Analyze current face detection in useFaceDetection.ts (detects up to 2 faces)
+- [x] Implement face filtering logic to select only the main face:
+  - [x] Option 1: Largest face (by bounding box area) - IMPLEMENTED
+  - [ ] Option 2: Face closest to image center
+  - [ ] Option 3: Face with highest confidence score
+- [x] Update detectFaces to sort by face area (size) first, then confidence
+- [x] Change detectFaces call to maxFaces=1 to only detect main face
+- [ ] Test with multi-face images (person + background person on bed)
+- [ ] Verify secondary faces are ignored and not swapped

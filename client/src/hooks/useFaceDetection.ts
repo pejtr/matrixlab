@@ -53,7 +53,8 @@ export function useFaceDetection() {
 
   /**
    * Detect faces in an image file
-   * Returns up to 5 faces with highest confidence
+   * Returns up to maxFaces faces, prioritized by size (area) then confidence
+   * When maxFaces=1, returns only the largest face (main subject)
    */
   const detectFaces = async (imageFile: File, maxFaces: number = 5): Promise<DetectedFace[]> => {
     if (!faceDetectorRef.current) {
@@ -86,7 +87,7 @@ export function useFaceDetection() {
 
       console.log("[FaceDetection] Found", detections.detections.length, "faces");
 
-      // Convert to our format and sort by confidence
+      // Convert to our format
       const faces: DetectedFace[] = detections.detections
         .map((detection) => {
           const box = detection.boundingBox;
@@ -100,10 +101,20 @@ export function useFaceDetection() {
             confidence: detection.categories?.[0]?.score || 0,
           };
         })
-        .filter((face): face is DetectedFace => face !== null)
-        .sort((a, b) => b.confidence - a.confidence);
+        .filter((face): face is DetectedFace => face !== null);
 
-      // Return up to maxFaces (default 5) with highest confidence
+      // Sort by face area (size) first, then by confidence
+      // This ensures we select the main/largest face, not just highest confidence
+      faces.sort((a, b) => {
+        const areaA = a.width * a.height;
+        const areaB = b.width * b.height;
+        if (Math.abs(areaA - areaB) > 100) { // Significant size difference
+          return areaB - areaA; // Larger face first
+        }
+        return b.confidence - a.confidence; // Similar size, use confidence
+      });
+
+      // Return up to maxFaces (default 5) with largest faces first
       const topFaces = faces.slice(0, maxFaces);
       
       console.log("[FaceDetection] Returning top", topFaces.length, "faces:", topFaces);

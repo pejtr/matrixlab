@@ -315,15 +315,14 @@ export default function FaceSwap() {
         }
 
         try {
-          const faces = await detectFaces(targetFiles[0]);
+          // Only detect the main face (largest) when Protect is enabled
+          const faces = await detectFaces(targetFiles[0], 1);
           setDetectedFaces(faces);
           
           if (faces.length === 0) {
             toast.warning('No faces detected. Protect mode will use full image.');
-          } else if (faces.length === 1) {
-            toast.success('1 face detected');
           } else {
-            toast.success(`${faces.length} faces detected (max 5 will be processed)`);
+            toast.success('Main face detected and will be protected');
           }
         } catch (error) {
           console.error('Face detection failed:', error);
@@ -476,15 +475,14 @@ export default function FaceSwap() {
         }
 
         try {
-          const faces = await detectFaces(files[0]);
+          // Only detect the main face (largest) when Protect is enabled
+          const faces = await detectFaces(files[0], 1);
           setDetectedFaces(faces);
           
           if (faces.length === 0) {
             toast.warning('No faces detected. Protect mode will use full image.');
-          } else if (faces.length === 1) {
-            toast.success('1 face detected');
           } else {
-            toast.success(`${faces.length} faces detected (max 5 will be processed)`);
+            toast.success('Main face detected and will be protected');
           }
         } catch (error) {
           console.error('Face detection failed:', error);
