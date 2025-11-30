@@ -1536,7 +1536,7 @@ export default function FaceSwap() {
                     )}
 
                     {/* Result Display */}
-                    <div className="relative h-[60vh] md:h-[80vh] max-h-screen">
+                    <div className="relative h-[60vh] max-h-screen">
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
@@ -1544,7 +1544,7 @@ export default function FaceSwap() {
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-[60vh] md:h-[80vh] max-h-screen">
+                        <div className="relative w-full h-[60vh] max-h-screen">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img

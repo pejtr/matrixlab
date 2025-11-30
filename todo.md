@@ -449,3 +449,10 @@ See git history for complete list of implemented features.
 - [x] Change object-contain to object-cover for result images
 - [x] Ensure image fills entire container without gaps
 - [ ] Test on different aspect ratios
+
+
+## Reduce Result Image Height to 60vh - Current Session
+- [x] Change main result image height from h-[80vh] to h-[60vh] on desktop
+- [x] Ensure All Jobs grid below image remains visible
+- [ ] Verify no vertical scrollbar appears
+- [ ] Test that image takes maximum 80% of page height
