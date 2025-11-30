@@ -444,3 +444,8 @@ See git history for complete list of implemented features.
 - [x] Change object-cover to object-contain for proper aspect ratio (already using object-contain)
 - [x] Add max-height constraint (max-h-screen) to prevent portrait images from overflowing
 - [ ] Test on 4K monitor to verify entire image fits in viewport
+
+## Remove Empty Space Around Result Image - Current Session
+- [x] Change object-contain to object-cover for result images
+- [x] Ensure image fills entire container without gaps
+- [ ] Test on different aspect ratios
