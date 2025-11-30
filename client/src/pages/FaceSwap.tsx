@@ -320,7 +320,8 @@ export default function FaceSwap() {
 
         try {
           // Detect up to 5 faces to show in preview
-          const faces = await detectFaces(targetFiles[0], 5);
+          // Use targetPreviews URL instead of File to handle both real files and proxy objects
+          const faces = await detectFaces(targetPreviews[0], 5);
           setDetectedFaces(faces);
           setSelectedFaceIndex(0); // Auto-select first (largest) face
           setShowFacePreview(true); // Show preview overlay

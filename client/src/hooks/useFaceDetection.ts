@@ -52,24 +52,39 @@ export function useFaceDetection() {
   }, []);
 
   /**
-   * Detect faces in an image file
+   * Detect faces in an image file or URL
    * Returns up to maxFaces faces, prioritized by size (area) then confidence
    * When maxFaces=1, returns only the largest face (main subject)
    */
-  const detectFaces = async (imageFile: File, maxFaces: number = 5): Promise<DetectedFace[]> => {
+  const detectFaces = async (imageSource: File | string, maxFaces: number = 5): Promise<DetectedFace[]> => {
     if (!faceDetectorRef.current) {
       console.warn("[FaceDetection] Detector not ready");
       return [];
     }
 
     try {
-      // Create image element from file
-      const imageUrl = URL.createObjectURL(imageFile);
+      // Create image element from file or URL
+      let imageUrl: string;
+      let shouldRevoke = false;
+      
+      if (typeof imageSource === 'string') {
+        // Already a URL (e.g., from targetPreviews)
+        imageUrl = imageSource;
+      } else {
+        // File object - create object URL
+        imageUrl = URL.createObjectURL(imageSource);
+        shouldRevoke = true;
+      }
+      
       const img = new Image();
+      img.crossOrigin = 'anonymous'; // Enable CORS for remote images
       
       await new Promise((resolve, reject) => {
         img.onload = resolve;
-        img.onerror = (e) => reject(new Error('Failed to load image'));
+        img.onerror = (e) => {
+          console.error('[FaceDetection] Image load error:', e);
+          reject(new Error('Failed to load image'));
+        };
         img.src = imageUrl;
       });
 
@@ -78,7 +93,9 @@ export function useFaceDetection() {
       // Detect faces
       const detections = faceDetectorRef.current.detect(img);
       
-      URL.revokeObjectURL(imageUrl);
+      if (shouldRevoke) {
+        URL.revokeObjectURL(imageUrl);
+      }
 
       if (!detections || !detections.detections || detections.detections.length === 0) {
         console.log("[FaceDetection] No faces detected");
