@@ -439,3 +439,8 @@ See git history for complete list of implemented features.
 ## Large Monitor Layout Fix - Current Session
 - [x] Change main result image max-height from 70vh to 80vh
 - [ ] Test on large monitors to verify no overflow
+
+## 4K Monitor Portrait Image Fix - Current Session
+- [x] Change object-cover to object-contain for proper aspect ratio (already using object-contain)
+- [x] Add max-height constraint (max-h-screen) to prevent portrait images from overflowing
+- [ ] Test on 4K monitor to verify entire image fits in viewport
