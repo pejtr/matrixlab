@@ -52,7 +52,7 @@ async function downloadImage(url: string): Promise<Buffer> {
 async function cropFaceWithMargin(
   imageBuffer: Buffer,
   bbox: FaceBoundingBox,
-  marginPercent: number = 60  // 60% margin for better face detection context
+  marginPercent: number = 80  // 80% margin for better face detection context
 ): Promise<{ buffer: Buffer; cropX: number; cropY: number; cropWidth: number; cropHeight: number }> {
   const image = sharp(imageBuffer);
   const metadata = await image.metadata();
@@ -61,7 +61,7 @@ async function cropFaceWithMargin(
     throw new Error("Failed to get image dimensions");
   }
 
-  // Calculate margin (60% = enough context for face detection + oval mask)
+  // Calculate margin (80% = enough context for face detection + oval mask)
   const marginX = Math.floor((bbox.width * marginPercent) / 100);
   const marginY = Math.floor((bbox.height * marginPercent) / 100);
 
@@ -93,14 +93,14 @@ async function cropFaceWithMargin(
   // Oval is taller than wide (1:1.3 ratio) to follow face shape
   const centerX = cropWidth / 2;
   const centerY = cropHeight / 2;
-  const radiusX = (cropWidth / 2) * 0.27;  // 27% of crop width (reduced from 45%)
-  const radiusY = (cropHeight / 2) * 0.27 * 1.3; // 27% * 1.3 = taller oval
+  const radiusX = (cropWidth / 2) * 0.55;  // 55% of crop width - enough for face detection
+  const radiusY = (cropHeight / 2) * 0.55 * 1.3; // 55% * 1.3 = taller oval
   
   console.log(`[MultiFace] 🔍 OVAL MASK DEBUG:`);
   console.log(`[MultiFace]   - Crop dimensions: ${cropWidth}x${cropHeight}px`);
   console.log(`[MultiFace]   - Oval center: (${centerX}, ${centerY})`);
-  console.log(`[MultiFace]   - Oval radius: ${radiusX}x${radiusY}px (27% of crop)`);
-  console.log(`[MultiFace]   - Oval will show only ${(0.27 * 100).toFixed(0)}% of crop area`)
+  console.log(`[MultiFace]   - Oval radius: ${radiusX}x${radiusY}px (55% of crop)`);
+  console.log(`[MultiFace]   - Oval will show only ${(0.55 * 100).toFixed(0)}% of crop area`)
 
   // Create black background with oval cutout (no transparency - API can't see through black)
   const ovalMask = Buffer.from(
@@ -151,8 +151,8 @@ async function cropFaceWithMargin(
   console.log(`[MultiFace] ✓ Removed black background - sending only face cutout`);
   
   // DEBUG: Save final cropped image to disk for inspection
-  const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.jpg`;
-  await sharp(finalCrop).toFile(debugPath);
+  const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.png`;
+  await sharp(finalCrop).png().toFile(debugPath);
   console.log(`[MultiFace] 🖼️  DEBUG: Saved final face cutout to ${debugPath}`);
 
   // Return final crop (tight cutout around oval) instead of full masked buffer
@@ -264,9 +264,9 @@ export async function processMultiFaceSwap(
 
       try {
         // Step 1: Crop face region from CURRENT image (with previous faces already swapped)
-        // Using 60% margin with oval mask - enough context for face detection
+        // Using 80% margin with oval mask - enough context for face detection
         const { buffer: faceCropBuffer, cropX, cropY, cropWidth, cropHeight } = 
-          await cropFaceWithMargin(currentBuffer, bbox, 60);
+          await cropFaceWithMargin(currentBuffer, bbox, 80);
 
         // Step 2: Upload face crop to get URL
         const faceCropUrl = await uploadBufferToReplicate(faceCropBuffer);

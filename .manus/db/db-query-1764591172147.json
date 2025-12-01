@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, status, errorMessage, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 3",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, status, errorMessage, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 3",
+  "rows": [
+    {
+      "id": "390078",
+      "status": "failed",
+      "errorMessage": "Prediction failed: No output images were generated",
+      "createdAt": "2025-12-01 12:09:01"
+    },
+    {
+      "id": "390016",
+      "status": "failed",
+      "errorMessage": "Prediction failed: No output images were generated",
+      "createdAt": "2025-12-01 08:49:48"
+    },
+    {
+      "id": "360031",
+      "status": "failed",
+      "errorMessage": "Prediction failed: No output images were generated",
+      "createdAt": "2025-11-30 16:46:12"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\terrorMessage\tcreatedAt\n390078\tfailed\tPrediction failed: No output images were generated\t2025-12-01 12:09:01\n390016\tfailed\tPrediction failed: No output images were generated\t2025-12-01 08:49:48\n360031\tfailed\tPrediction failed: No output images were generated\t2025-11-30 16:46:12\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

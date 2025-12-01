@@ -195,13 +195,16 @@
 - [ ] Ensure result shows only oval cutout, not full original image
 - [ ] Test with nude image to verify oval face cutout without black background
 
-## Protect Mode - Transparent Background & Taller Oval - COMPLETED
+## Protect Mode - Transparent Background & Taller Oval - IN PROGRESS
 - [x] Change oval aspect ratio to 1:1.3 (height 30% taller than width)
 - [x] Replace black background with transparency (alpha channel)
 - [x] Output PNG instead of JPEG to support transparency
 - [x] Skip compositing back to full image when Protect mode enabled
 - [x] Return only oval face cutout as final result
-- [ ] Test with nude image to verify oval face with transparent background
+- [x] Increased oval size from 27% to 55% of crop area for better face detection
+- [x] Increased crop margin from 60% to 80% for more context
+- [x] Fixed debug image saving to use PNG instead of JPG
+- [ ] Test with nude image to verify oval face with transparent background and successful face swap
 
 ## Add Alternative Face Swap Models (No NSFW Filter) - IN PROGRESS
 - [ ] Research Replicate models without NSFW filters (lucataco/faceswap, yan-ops/face_swap, etc.)
@@ -221,4 +224,5 @@
 - [x] Removed visibleJobsCount and show all loaded jobs
 - [x] Removed "Load More" buttons, replaced with loading indicator
 - [x] Scroll listener already attached to grid container
+- [x] Changed max-h-[60vh] to max-h-[70vh] and added min-h-[40vh] for better scrolling
 - [ ] Test with 30+ jobs to verify infinite scroll works

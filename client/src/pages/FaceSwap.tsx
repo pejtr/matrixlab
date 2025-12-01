@@ -2285,7 +2285,7 @@ export default function FaceSwap() {
                 </div>
               </div>
               <div 
-                className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-12 gap-2 max-w-[1400px] mx-auto overflow-y-auto max-h-[60vh]"
+                className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 2xl:grid-cols-12 gap-2 max-w-[1400px] mx-auto overflow-y-auto min-h-[40vh] max-h-[70vh]"
                 onScroll={handleScroll}
               >
                 {visibleJobs.map((job, idx) => (

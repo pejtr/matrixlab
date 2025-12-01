@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, status, errorMessage, protectMode, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 3",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, status, errorMessage, protectMode, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY createdAt DESC LIMIT 3",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'protectmode' in 'field list'"
+  ]
+}
