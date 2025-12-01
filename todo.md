@@ -253,3 +253,9 @@
 - [x] Root cause: Simulated progress loop sends update AFTER API completes but BEFORE clearInterval
 - [x] Fix: Added stopProgress flag to prevent loop from sending updates after API completes
 - [ ] Test with new job to verify progress never jumps backwards
+
+## Face Selection in Protect Mode - COMPLETED
+- [x] Fix face selection - canvas may need z-index to be clickable
+- [x] Root cause: Canvas was under image, clicks went to image upload handler
+- [x] Added z-10 to canvas className to make it clickable above image
+- [ ] Test if clicking green box switches selected face

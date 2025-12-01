@@ -143,7 +143,7 @@ export function FaceDetectionOverlay({
       onClick={handleCanvasClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="absolute inset-0 cursor-pointer"
+      className="absolute inset-0 cursor-pointer z-10"
       style={{
         width: "100%",
         height: "100%",
