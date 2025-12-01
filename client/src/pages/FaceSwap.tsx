@@ -1981,9 +1981,33 @@ export default function FaceSwap() {
                                     }
                                   }
                                 }}
-                                className="bg-red-500/80 hover:bg-red-600 text-white rounded-full p-0.5 pointer-events-auto"
+                                className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full pointer-events-auto"
                               >
-                                <X className="h-3 w-3" />
+                                <X className="h-2.5 w-2.5" />
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Delete Button for Pending Jobs (top-right) */}
+                          {!isExportMode && job.status === "pending" && (
+                            <div className="absolute top-0.5 right-0.5 z-20">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (confirm('Delete this pending job?')) {
+                                    try {
+                                      await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                      toast.success('Pending job deleted');
+                                    } catch (error) {
+                                      toast.error('Failed to delete job');
+                                    }
+                                  }
+                                }}
+                                className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full pointer-events-auto"
+                              >
+                                <X className="h-2.5 w-2.5" />
                               </Button>
                             </div>
                           )}
@@ -2414,9 +2438,34 @@ export default function FaceSwap() {
                                   }
                                 }
                               }}
-                              className="h-5 w-5 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                              className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-2.5 w-2.5" />
+                            </Button>
+                          </div>
+                        )}
+
+                        {/* Delete Button for Pending Jobs (top-right) */}
+                        {!isExportMode && job.status === "pending" && (
+                          <div className="absolute top-1 right-1 z-20">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (confirm('Delete this pending job?')) {
+                                  try {
+                                    await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                    toast.success('Pending job deleted');
+                                    await utils.faceSwap.getMyJobs.invalidate();
+                                  } catch (error) {
+                                    toast.error('Failed to delete job');
+                                  }
+                                }
+                              }}
+                              className="h-4 w-4 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
+                            >
+                              <X className="h-2.5 w-2.5" />
                             </Button>
                           </div>
                         )}

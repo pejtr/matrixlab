@@ -552,3 +552,8 @@ See git history for complete list of implemented features.
 - [x] Lower confidence threshold from 0.5 to 0.3 for better edge case detection
 - [x] Update console logs to reflect new model configuration
 - [ ] Test with real nude images to verify detection works
+
+## All Jobs Thumbnail Fixes - Current Session
+- [x] Add delete X button to Pending job thumbnails
+- [x] Reduce size of delete X button on Failed job thumbnails (currently too large)
+- [x] Ensure consistent button sizing across all job statuses
