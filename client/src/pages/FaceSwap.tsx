@@ -126,6 +126,8 @@ export default function FaceSwap() {
   const [isRegenerateMode, setIsRegenerateMode] = useState(false);
   const [regenerateSourceJobId, setRegenerateSourceJobId] = useState<number | null>(null);
   const [showCropDialog, setShowCropDialog] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState<string>('');
+  const [cropType, setCropType] = useState<'source' | 'target' | 'result'>('result');
   const [showAnimateDialog, setShowAnimateDialog] = useState(false);
   const loadMoreRef = useRef<HTMLButtonElement>(null);
   const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
@@ -1606,6 +1608,7 @@ export default function FaceSwap() {
                               alt="Result"
                               className="absolute inset-0 w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
                               onClick={() => {
+                                setLightboxType('result');
                                 setLightboxIndex(currentResultIndex);
                                 setShowLightbox(true);
                               }}
@@ -2566,6 +2569,7 @@ export default function FaceSwap() {
                             onClick={(e) => {
                               e.stopPropagation();
                               setCurrentResultIndex(idx);
+                              setLightboxType('result');
                               setLightboxIndex(idx);
                               setShowLightbox(true);
                             }}
@@ -2616,6 +2620,7 @@ export default function FaceSwap() {
                           alt="Preview"
                           className="w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity"
                           onClick={() => {
+                            setLightboxType('result');
                             setLightboxIndex(currentResultIndex);
                             setShowLightbox(true);
                           }}
@@ -2766,6 +2771,13 @@ export default function FaceSwap() {
           showSave={lightboxType === 'source'}
           onUpload={lightboxType === 'target' ? () => targetInputRef.current?.click() : undefined}
           showUpload={lightboxType === 'target'}
+          onCrop={(imageUrl) => {
+            setCropImageUrl(imageUrl);
+            setCropType(lightboxType);
+            setShowCropDialog(true);
+            setShowLightbox(false);
+          }}
+          showCrop={lightboxType === 'source' || lightboxType === 'target'}
         />
       )}
 
@@ -2805,24 +2817,38 @@ export default function FaceSwap() {
       <CropDialog
         open={showCropDialog}
         onOpenChange={setShowCropDialog}
-        imageUrl={currentJob?.resultMediaUrl || ''}
+        imageUrl={cropImageUrl || currentJob?.resultMediaUrl || ''}
         onSave={async (croppedImageUrl) => {
-          if (!currentJob) return;
           try {
             // Extract key from URL for storage
             const urlObj = new URL(croppedImageUrl);
             const croppedKey = urlObj.pathname.substring(1); // Remove leading '/'
             
-            // Update job with cropped image URL
-            await updateJobResultMutation.mutateAsync({
-              jobId: currentJob.id,
-              resultMediaUrl: croppedImageUrl,
-              resultMediaKey: croppedKey,
-            });
-            
-            // Refresh jobs to show updated image
-            await utils.faceSwap.getMyJobs.invalidate();
-            toast.success('Image cropped successfully!');
+            if (cropType === 'source') {
+              // Update source file for next generation
+              const response = await fetch(croppedImageUrl);
+              const blob = await response.blob();
+              const file = new File([blob], 'cropped-source.jpg', { type: 'image/jpeg' });
+              await processSourceFile(file);
+              toast.success('Source image cropped! Use it for next generation.');
+            } else if (cropType === 'target') {
+              // Update target file for next generation
+              const response = await fetch(croppedImageUrl);
+              const blob = await response.blob();
+              const file = new File([blob], 'cropped-target.jpg', { type: 'image/jpeg' });
+              setTargetFiles([file]);
+              setTargetPreviews([croppedImageUrl]);
+              toast.success('Target image cropped! Use it for next generation.');
+            } else if (currentJob) {
+              // Update result in database (existing behavior)
+              await updateJobResultMutation.mutateAsync({
+                jobId: currentJob.id,
+                resultMediaUrl: croppedImageUrl,
+                resultMediaKey: croppedKey,
+              });
+              await utils.faceSwap.getMyJobs.invalidate();
+              toast.success('Result cropped successfully!');
+            }
           } catch (error) {
             toast.error('Failed to save cropped image');
             throw error;

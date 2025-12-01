@@ -514,3 +514,15 @@ See git history for complete list of implemented features.
 - [x] Test with portrait and landscape images
 - [x] Verify no vertical overflow on desktop
 - [x] Ensure All Jobs grid remains visible below image
+
+## Lightbox Image Index Bug - Current Session
+- [x] Fix lightbox showing wrong image when clicking on gallery thumbnails
+- [x] Investigate index mismatch between grid thumbnails and lightbox display
+- [x] Ensure clicked thumbnail matches displayed image in lightbox
+
+## Crop in Lightbox Feature - Current Session
+- [x] Add Crop button to FullscreenLightbox component
+- [x] Integrate CropDialog with lightbox
+- [x] Save cropped image as new default for source/target
+- [x] Update file state after crop to use cropped version for next generation
+- [x] Test crop workflow from lightbox

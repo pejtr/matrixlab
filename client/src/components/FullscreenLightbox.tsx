@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Download, Trash2, Bookmark, Upload } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Download, Trash2, Bookmark, Upload, Crop } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FullscreenLightboxProps {
@@ -15,6 +15,8 @@ interface FullscreenLightboxProps {
   showSave?: boolean;
   onUpload?: () => void;
   showUpload?: boolean;
+  onCrop?: (imageUrl: string) => void;
+  showCrop?: boolean;
 }
 
 export default function FullscreenLightbox({
@@ -27,6 +29,8 @@ export default function FullscreenLightbox({
   showSave = false,
   onUpload,
   showUpload = false,
+  onCrop,
+  showCrop = false,
 }: FullscreenLightboxProps) {
   const currentImage = images[currentIndex];
 
@@ -202,10 +206,26 @@ export default function FullscreenLightbox({
             onUpload();
             onClose();
           }}
-          className="absolute top-4 right-40 z-10 text-blue-400 hover:bg-blue-500/20 h-10 w-10 p-0"
+          className="absolute top-4 right-52 z-10 text-blue-400 hover:bg-blue-500/20 h-10 w-10 p-0"
           title="Upload new media"
         >
           <Upload className="h-5 w-5" />
+        </Button>
+      )}
+
+      {/* Crop Button */}
+      {showCrop && onCrop && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onCrop(currentImage.url);
+          }}
+          className="absolute top-4 right-40 z-10 text-yellow-400 hover:bg-yellow-500/20 h-10 w-10 p-0"
+          title="Crop image"
+        >
+          <Crop className="h-5 w-5" />
         </Button>
       )}
 
