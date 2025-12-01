@@ -526,3 +526,10 @@ See git history for complete list of implemented features.
 - [x] Save cropped image as new default for source/target
 - [x] Update file state after crop to use cropped version for next generation
 - [x] Test crop workflow from lightbox
+
+## Scrollbar Flickering Fix - Current Session
+- [x] Remove scrollbar from left column that appears on hover
+- [x] Prevent layout shift when hovering over horizontal images
+- [x] Apply overflow-hidden or scrollbar-gutter to left column container
+
+## Update Scrollbar Fix Status

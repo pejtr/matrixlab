@@ -975,7 +975,7 @@ export default function FaceSwap() {
           <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-3">
             
             {/* Left Column: Inputs (Desktop: stacked, Mobile: hidden) */}
-            <div className="hidden md:block space-y-1.5 max-h-[70vh] overflow-y-auto">
+            <div className="hidden md:block space-y-1.5 max-h-[70vh] overflow-y-hidden">
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20 [&>*]:p-0">
