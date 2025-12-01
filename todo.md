@@ -246,3 +246,10 @@
 - [x] Keep only buttons and badges visible on hover
 - [x] Add pointer-events-auto to interactive elements
 - [ ] Test hover behavior on job thumbnails
+
+## Progress Jumping Backwards Bug - FIXED
+- [x] Debug: Progress jumps from 60% back to 30% during processing
+- [x] Check if monotonic progress validation is working in db.ts (working correctly)
+- [x] Root cause: Simulated progress loop sends update AFTER API completes but BEFORE clearInterval
+- [x] Fix: Added stopProgress flag to prevent loop from sending updates after API completes
+- [ ] Test with new job to verify progress never jumps backwards

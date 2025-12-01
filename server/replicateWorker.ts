@@ -165,7 +165,9 @@ async function processJob(jobId: number) {
     
     // Progress update helper for long API calls - smooth increments every 3 seconds
     let currentProgress = 25;
+    let stopProgress = false; // Flag to stop progress loop cleanly
     const progressInterval = setInterval(async () => {
+      if (stopProgress) return; // Stop sending updates if flag is set
       const elapsed = Date.now() - apiStartTime;
       // Gradually increase progress from 25% to 65% over time
       // Each 3 seconds add 3-5% to show activity
@@ -209,6 +211,7 @@ async function processJob(jobId: number) {
         );
       }
     } finally {
+      stopProgress = true; // Stop progress loop before clearing interval
       clearInterval(progressInterval);
     }
 

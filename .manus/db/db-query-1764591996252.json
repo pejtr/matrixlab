@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, status, progress, preserveBody, faceBoxes, createdAt FROM faceSwapJobs WHERE status = 'processing' ORDER BY id DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, status, progress, preserveBody, faceBoxes, createdAt FROM faceSwapJobs WHERE status = 'processing' ORDER BY id DESC LIMIT 5",
+  "rows": [
+    {
+      "id": "390084",
+      "status": "processing",
+      "progress": "34",
+      "preserveBody": "1",
+      "faceBoxes": "[{\"x\":1024,\"y\":251,\"width\":454,\"height\":454,\"confidence\":0.8960696458816528}]",
+      "createdAt": "2025-12-01 12:25:57"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tprogress\tpreserveBody\tfaceBoxes\tcreatedAt\n390084\tprocessing\t34\t1\t[{\"x\":1024,\"y\":251,\"width\":454,\"height\":454,\"confidence\":0.8960696458816528}]\t2025-12-01 12:25:57\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}
