@@ -72,3 +72,18 @@
 - [x] Fix face reverting to original when clicking job then selecting new face
 - [x] Prevent useEffect from overriding user-selected source face
 - [x] Add condition to skip sync when user manually selects face (only sync if !sourceFile && !sourcePreview)
+
+## Auto-Cleanup Feature
+- [x] Create cleanup function in db.ts to delete pending/processing jobs older than 1 hour
+- [x] Add scheduled cleanup job (every 15 minutes)
+- [x] Add cleanup on server startup
+- [ ] Test cleanup functionality
+
+## Protect Mode HQ Model Bug - TODO
+- [ ] Fix Protect mode not working with HQ (Fast) model
+- [ ] Ensure face crop is applied before sending to HQ model
+- [ ] Test with nude content to verify it works
+
+## 4K Monitor Thumbnail Grid Fix - COMPLETED
+- [x] Increase padding-top in thumbnail grid container to prevent first row cutoff on 4K displays
+- [x] Increase max-height from 40vh to 45vh for better visibility

@@ -2569,7 +2569,7 @@ export default function FaceSwap() {
               {/* Left Panel - 310px wide */}
               <div className="w-[310px] flex-shrink-0 space-y-3">
                 {/* Thumbnails Grid - 4:3 portrait with scrolling */}
-                <div className="max-h-[40vh] overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
+                <div className="max-h-[45vh] overflow-y-auto pr-1 pt-3" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
                   <div className="grid grid-cols-2 gap-2">
                   {completedJobs.map((job, idx) => (
                     <div

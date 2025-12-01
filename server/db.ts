@@ -1,4 +1,4 @@
-import { eq, desc, and, inArray, sql, isNull } from "drizzle-orm";
+import { eq, desc, and, or, lt, inArray, sql, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob, wanAnimateJobs, InsertWanAnimateJob, WanAnimateJob, favorites } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -728,4 +728,54 @@ export async function deleteWanAnimateJob(jobId: number): Promise<void> {
   }
 
   await db.delete(wanAnimateJobs).where(eq(wanAnimateJobs.id, jobId));
+}
+
+// Cleanup old pending/processing jobs (older than 1 hour)
+export async function cleanupOldJobs(): Promise<{ deletedCount: number }> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Cleanup] Database not available");
+    return { deletedCount: 0 };
+  }
+
+  try {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    
+    // Delete old pending/processing face swap jobs
+    const faceSwapResult = await db
+      .delete(faceSwapJobs)
+      .where(
+        and(
+          or(
+            eq(faceSwapJobs.status, 'pending'),
+            eq(faceSwapJobs.status, 'processing')
+          ),
+          lt(faceSwapJobs.createdAt, oneHourAgo)
+        )
+      );
+    
+    // Delete old pending/processing Wan Animate jobs
+    const wanAnimateResult = await db
+      .delete(wanAnimateJobs)
+      .where(
+        and(
+          or(
+            eq(wanAnimateJobs.status, 'pending'),
+            eq(wanAnimateJobs.status, 'processing')
+          ),
+          lt(wanAnimateJobs.createdAt, oneHourAgo)
+        )
+      );
+    
+    const totalDeleted = (faceSwapResult[0]?.affectedRows || 0) + (wanAnimateResult[0]?.affectedRows || 0);
+    
+    if (totalDeleted > 0) {
+      console.log(`[Cleanup] Deleted ${totalDeleted} old pending/processing jobs`);
+    }
+    
+    return { deletedCount: totalDeleted };
+  } catch (error) {
+    console.error("[Cleanup] Error cleaning up old jobs:", error);
+    return { deletedCount: 0 };
+  }
 }

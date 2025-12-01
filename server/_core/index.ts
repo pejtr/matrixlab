@@ -101,6 +101,24 @@ async function startServer() {
   } else {
     console.warn('[Server] REPLICATE_API_TOKEN not configured - face swap generation will not work');
   }
+  
+  // Run cleanup on server startup
+  console.log('[Server] Running initial cleanup of old jobs...');
+  import('../db.js').then(({ cleanupOldJobs }) => {
+    cleanupOldJobs().catch((error) => {
+      console.error('[Server] Initial cleanup failed:', error);
+    });
+  });
+  
+  // Schedule cleanup every 15 minutes
+  console.log('[Server] Scheduling cleanup job (every 15 minutes)...');
+  setInterval(() => {
+    import('../db.js').then(({ cleanupOldJobs }) => {
+      cleanupOldJobs().catch((error) => {
+        console.error('[Server] Scheduled cleanup failed:', error);
+      });
+    });
+  }, 15 * 60 * 1000); // 15 minutes in milliseconds
 }
 
 startServer().catch(console.error);
