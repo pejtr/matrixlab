@@ -228,3 +228,39 @@ export const wanAnimateJobs = mysqlTable("wanAnimateJobs", {
 
 export type WanAnimateJob = typeof wanAnimateJobs.$inferSelect;
 export type InsertWanAnimateJob = typeof wanAnimateJobs.$inferInsert;
+
+/**
+ * Image-to-Video Animation Jobs table
+ * Tracks image-to-video animation operations using Stable Video Diffusion
+ */
+export const imageToVideoJobs = mysqlTable("imageToVideoJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  
+  // Input file references (S3 keys and URLs)
+  sourceImageKey: varchar("sourceImageKey", { length: 512 }).notNull(),
+  sourceImageUrl: text("sourceImageUrl").notNull(),
+  
+  // Output file references
+  resultVideoKey: varchar("resultVideoKey", { length: 512 }),
+  resultVideoUrl: text("resultVideoUrl"),
+  
+  // Animation parameters
+  motionBucketId: int("motionBucketId").default(127).notNull(), // 1-255, controls motion amount (higher = more motion)
+  fps: int("fps").default(6).notNull(), // Frames per second (6-30)
+  numFrames: int("numFrames").default(14).notNull(), // Number of frames to generate (14-25)
+  
+  // Status tracking
+  status: mysqlEnum("status", ["pending", "processing", "completed", "failed", "cancelled"]).default("pending").notNull(),
+  errorMessage: text("errorMessage"),
+  progress: int("progress").default(0).notNull(), // 0-100
+  retryCount: int("retryCount").default(0).notNull(),
+  predictionId: varchar("predictionId", { length: 128 }), // Replicate prediction ID for webhook tracking
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type ImageToVideoJob = typeof imageToVideoJobs.$inferSelect;
+export type InsertImageToVideoJob = typeof imageToVideoJobs.$inferInsert;

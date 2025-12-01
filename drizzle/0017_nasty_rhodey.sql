@@ -1,0 +1,20 @@
+CREATE TABLE `imageToVideoJobs` (
+	`id` int AUTO_INCREMENT NOT NULL,
+	`userId` int NOT NULL,
+	`sourceImageKey` varchar(512) NOT NULL,
+	`sourceImageUrl` text NOT NULL,
+	`resultVideoKey` varchar(512),
+	`resultVideoUrl` text,
+	`motionBucketId` int NOT NULL DEFAULT 127,
+	`fps` int NOT NULL DEFAULT 6,
+	`numFrames` int NOT NULL DEFAULT 14,
+	`status` enum('pending','processing','completed','failed','cancelled') NOT NULL DEFAULT 'pending',
+	`errorMessage` text,
+	`progress` int NOT NULL DEFAULT 0,
+	`retryCount` int NOT NULL DEFAULT 0,
+	`predictionId` varchar(128),
+	`createdAt` timestamp NOT NULL DEFAULT (now()),
+	`updatedAt` timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP,
+	`completedAt` timestamp,
+	CONSTRAINT `imageToVideoJobs_id` PRIMARY KEY(`id`)
+);

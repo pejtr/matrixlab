@@ -757,17 +757,25 @@ export async function cleanupOldJobs(): Promise<{ deletedCount: number }> {
   }
 
   try {
-    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutes
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000); // 1 hour
     
-    // Delete old pending/processing face swap jobs
-    const faceSwapResult = await db
+    // Delete old PENDING face swap jobs (10 minutes)
+    const pendingResult = await db
       .delete(faceSwapJobs)
       .where(
         and(
-          or(
-            eq(faceSwapJobs.status, 'pending'),
-            eq(faceSwapJobs.status, 'processing')
-          ),
+          eq(faceSwapJobs.status, 'pending'),
+          lt(faceSwapJobs.createdAt, tenMinutesAgo)
+        )
+      );
+    
+    // Delete old PROCESSING face swap jobs (1 hour - longer timeout for API calls)
+    const processingResult = await db
+      .delete(faceSwapJobs)
+      .where(
+        and(
+          eq(faceSwapJobs.status, 'processing'),
           lt(faceSwapJobs.createdAt, oneHourAgo)
         )
       );
@@ -785,7 +793,7 @@ export async function cleanupOldJobs(): Promise<{ deletedCount: number }> {
         )
       );
     
-    const totalDeleted = (faceSwapResult[0]?.affectedRows || 0) + (wanAnimateResult[0]?.affectedRows || 0);
+    const totalDeleted = (pendingResult[0]?.affectedRows || 0) + (processingResult[0]?.affectedRows || 0) + (wanAnimateResult[0]?.affectedRows || 0);
     
     if (totalDeleted > 0) {
       console.log(`[Cleanup] Deleted ${totalDeleted} old pending/processing jobs`);

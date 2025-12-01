@@ -120,6 +120,13 @@
       "when": 1764584661456,
       "tag": "0016_unique_jack_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1764588899777,
+      "tag": "0017_nasty_rhodey",
+      "breakpoints": true
     }
   ]
 }

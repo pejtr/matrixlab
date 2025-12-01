@@ -154,3 +154,26 @@
 - [x] Use useInfiniteQuery for automatic pagination
 - [ ] Test with large job history (100+ jobs)
 - [ ] Fix TypeScript errors (43 remaining - using @ts-nocheck temporarily)
+
+## Auto-Delete Pending Jobs - COMPLETED
+- [x] Add cleanup function to delete pending jobs older than 10 minutes
+- [x] Processing jobs deleted after 1 hour (longer timeout for API calls)
+- [x] Run cleanup on server startup (already implemented)
+- [x] Run cleanup periodically every 15 minutes (already implemented)
+
+## Large Photo Display Fix - COMPLETED
+- [x] Change object-cover to object-contain for large result photo
+- [x] Ensure full image is visible without cropping top/bottom
+- [x] Applied to both processing (target) and completed (result) images
+
+## Image-to-Video Animation Feature - IN PROGRESS
+- [x] Add database schema for video animation jobs (table: imageToVideoJobs)
+- [ ] Create Replicate service for Stable Video Diffusion API
+- [ ] Add backend tRPC procedures (upload, create job, get jobs, delete)
+- [ ] Create worker to process video animation jobs
+- [ ] Add "Animate" navigation tab in UI
+- [ ] Create ImageToVideo page component with upload
+- [ ] Add parameters: motion strength, FPS, duration
+- [ ] Implement job queue and progress tracking
+- [ ] Add video player for results
+- [ ] Test with nude images to verify no NSFW blocking
