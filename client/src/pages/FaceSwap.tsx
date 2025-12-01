@@ -1964,6 +1964,30 @@ export default function FaceSwap() {
                             </div>
                           )}
 
+                          {/* Delete Button for Failed Jobs (top-right) */}
+                          {!isExportMode && job.status === "failed" && (
+                            <div className="absolute top-0.5 right-0.5 z-20">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (confirm('Delete this failed job?')) {
+                                    try {
+                                      await deleteJobMutation.mutateAsync({ jobId: job.id });
+                                      toast.success('Failed job deleted');
+                                    } catch (error) {
+                                      toast.error('Failed to delete job');
+                                    }
+                                  }
+                                }}
+                                className="bg-red-500/80 hover:bg-red-600 text-white rounded-full p-0.5 pointer-events-auto"
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+
                           {/* Retry Button for Failed Jobs */}
                           {!isExportMode && job.status === "failed" && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center gap-1 pointer-events-none">
@@ -2349,7 +2373,7 @@ export default function FaceSwap() {
                           </div>
                         )}
                         
-                        {/* Delete Icon (top-right) - 40% smaller */}
+                        {/* Delete Icon (top-right) - X icon */}
                         {!isExportMode && (job.status === "completed" || job.status === "pending" || job.status === "processing") && (
                           <div className="absolute top-1 right-1 z-10">
                             <Button
@@ -2369,21 +2393,21 @@ export default function FaceSwap() {
                               }}
                               className="h-5 w-5 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
                             >
-                              <Trash2 className="h-2.5 w-2.5" />
+                              <X className="h-3 w-3" />
                             </Button>
                           </div>
                         )}
                         {!isExportMode && job.status === "failed" && (
-                          <div className="absolute top-1 right-1 z-10">
+                          <div className="absolute top-1 right-1 z-20">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={async (e) => {
                                 e.stopPropagation();
-                                if (confirm('Delete this job?')) {
+                                if (confirm('Delete this failed job?')) {
                                   try {
                                     await deleteJobMutation.mutateAsync({ jobId: job.id });
-                                    toast.success('Job deleted successfully');
+                                    toast.success('Failed job deleted');
                                     await utils.faceSwap.getMyJobs.invalidate();
                                   } catch (error) {
                                     toast.error('Failed to delete job');
@@ -2392,7 +2416,7 @@ export default function FaceSwap() {
                               }}
                               className="h-5 w-5 p-0 bg-red-500/80 hover:bg-red-600 text-white rounded-full"
                             >
-                              <Trash2 className="h-2.5 w-2.5" />
+                              <X className="h-3 w-3" />
                             </Button>
                           </div>
                         )}

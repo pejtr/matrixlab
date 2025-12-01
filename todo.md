@@ -533,3 +533,15 @@ See git history for complete list of implemented features.
 - [x] Apply overflow-hidden or scrollbar-gutter to left column container
 
 ## Update Scrollbar Fix Status
+
+## Failed Jobs Delete Button - Current Session
+- [x] Add delete button (X icon) for Failed jobs in All Jobs grid
+- [x] Ensure Failed jobs can be deleted with one click
+- [x] Test delete functionality on Failed jobs
+
+## Protect Mode Investigation - User Reported
+- [ ] Investigate why Protect mode doesn't work for nude images
+- [ ] Check face detection on nude images
+- [ ] Verify face bounding box calculation
+- [ ] Test with different nude image types
+- [x] Add delete button (X icon) for Pending jobs in All Jobs grid
