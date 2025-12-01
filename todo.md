@@ -545,3 +545,10 @@ See git history for complete list of implemented features.
 - [ ] Verify face bounding box calculation
 - [ ] Test with different nude image types
 - [x] Add delete button (X icon) for Pending jobs in All Jobs grid
+
+## Protect Mode Face Detection Fix - Current Session
+- [x] Investigate why Protect mode doesn't work for nude images
+- [x] Switch from short_range to full_range BlazeFace model
+- [x] Lower confidence threshold from 0.5 to 0.3 for better edge case detection
+- [x] Update console logs to reflect new model configuration
+- [ ] Test with real nude images to verify detection works

@@ -18,7 +18,7 @@ export function useFaceDetection() {
 
     async function initializeFaceDetector() {
       try {
-        console.log("[FaceDetection] Initializing MediaPipe Face Detector...");
+        console.log("[FaceDetection] Initializing MediaPipe Face Detector (Full Range, threshold: 0.3)...");
 
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
@@ -27,17 +27,17 @@ export function useFaceDetection() {
         const detector = await FaceDetector.createFromOptions(vision, {
           baseOptions: {
             modelAssetPath:
-              "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+              "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite",
             delegate: "GPU",
           },
           runningMode: "IMAGE",
-          minDetectionConfidence: 0.5,
+          minDetectionConfidence: 0.3,
         });
 
         if (isMounted) {
           faceDetectorRef.current = detector;
           setIsReady(true);
-          console.log("[FaceDetection] MediaPipe Face Detector ready");
+          console.log("[FaceDetection] MediaPipe Face Detector ready (Full Range model)");
         }
       } catch (error) {
         console.error("[FaceDetection] Failed to initialize:", error);

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Detection Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .panel {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    h1, h2 {
+      color: #fff;
+    }
+    input[type="file"] {
+      margin: 10px 0;
+      padding: 10px;
+      background: #3a3a3a;
+      border: 1px solid #555;
+      border-radius: 4px;
+      color: #fff;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    #canvas {
+      max-width: 100%;
+      border: 2px solid #555;
+      margin-top: 10px;
+    }
+    .results {
+      margin-top: 20px;
+      padding: 10px;
+      background: #3a3a3a;
+      border-radius: 4px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .face-box {
+      margin: 10px 0;
+      padding: 10px;
+      background: #4a4a4a;
+      border-left: 3px solid #4CAF50;
+    }
+    .confidence-high { border-left-color: #4CAF50; }
+    .confidence-medium { border-left-color: #FFC107; }
+    .confidence-low { border-left-color: #F44336; }
+    .controls {
+      margin: 20px 0;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px 0;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    .threshold-value {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Face Detection Test Tool</h1>
+  <p>Test MediaPipe BlazeFace detection with different confidence thresholds</p>
+  
+  <div class="container">
+    <div class="panel">
+      <h2>Upload & Configure</h2>
+      <input type="file" id="imageInput" accept="image/*">
+      
+      <div class="controls">
+        <label>
+          Confidence Threshold: <span class="threshold-value" id="thresholdValue">0.5</span>
+        </label>
+        <input type="range" id="thresholdSlider" min="0.1" max="0.9" step="0.05" value="0.5">
+        
+        <label>
+          <input type="checkbox" id="useFullRange" checked>
+          Use Full Range Model (better for varied poses)
+        </label>
+      </div>
+      
+      <button id="detectBtn">Detect Faces</button>
+      <button id="clearBtn">Clear</button>
+      
+      <div class="results" id="results">
+        <p>No detection results yet. Upload an image and click "Detect Faces".</p>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <h2>Preview</h2>
+      <canvas id="canvas"></canvas>
+    </div>
+  </div>
+
+  <script type="module">
+    import { FaceDetector, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/tasks-vision.js';
+
+    let faceDetector = null;
+    let currentImage = null;
+    let currentThreshold = 0.5;
+    let useFullRange = true;
+
+    const imageInput = document.getElementById('imageInput');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const detectBtn = document.getElementById('detectBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const results = document.getElementById('results');
+    const thresholdSlider = document.getElementById('thresholdSlider');
+    const thresholdValue = document.getElementById('thresholdValue');
+    const useFullRangeCheckbox = document.getElementById('useFullRange');
+
+    // Initialize face detector
+    async function initDetector(threshold = 0.5, fullRange = true) {
+      try {
+        results.innerHTML = '<p>⏳ Initializing face detector...</p>';
+        
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+        );
+
+        const modelPath = fullRange
+          ? "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_full_range/float16/1/blaze_face_full_range.tflite"
+          : "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
+
+        faceDetector = await FaceDetector.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: modelPath,
+            delegate: "GPU",
+          },
+          runningMode: "IMAGE",
+          minDetectionConfidence: threshold,
+        });
+
+        results.innerHTML = `<p>✅ Face detector ready (${fullRange ? 'Full Range' : 'Short Range'}, threshold: ${threshold})</p>`;
+        console.log('[FaceDetection] Initialized with threshold:', threshold, 'model:', fullRange ? 'full-range' : 'short-range');
+      } catch (error) {
+        results.innerHTML = `<p>❌ Failed to initialize: ${error.message}</p>`;
+        console.error('[FaceDetection] Init error:', error);
+      }
+    }
+
+    // Load image
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          currentImage = img;
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          results.innerHTML = '<p>✅ Image loaded. Click "Detect Faces" to analyze.</p>';
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Threshold slider
+    thresholdSlider.addEventListener('input', (e) => {
+      currentThreshold = parseFloat(e.target.value);
+      thresholdValue.textContent = currentThreshold.toFixed(2);
+    });
+
+    // Model toggle
+    useFullRangeCheckbox.addEventListener('change', (e) => {
+      useFullRange = e.target.checked;
+    });
+
+    // Detect faces
+    detectBtn.addEventListener('click', async () => {
+      if (!currentImage) {
+        results.innerHTML = '<p>⚠️ Please upload an image first.</p>';
+        return;
+      }
+
+      // Reinitialize detector with new settings
+      await initDetector(currentThreshold, useFullRange);
+
+      if (!faceDetector) {
+        results.innerHTML = '<p>❌ Detector not ready.</p>';
+        return;
+      }
+
+      try {
+        results.innerHTML = '<p>🔍 Detecting faces...</p>';
+        
+        const detections = faceDetector.detect(currentImage);
+        
+        // Redraw image
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(currentImage, 0, 0);
+
+        if (!detections || !detections.detections || detections.detections.length === 0) {
+          results.innerHTML = `
+            <div class="face-box confidence-low">
+              <strong>❌ No faces detected</strong><br>
+              Threshold: ${currentThreshold.toFixed(2)}<br>
+              Model: ${useFullRange ? 'Full Range' : 'Short Range'}<br>
+              <em>Try lowering the threshold or switching models.</em>
+            </div>
+          `;
+          return;
+        }
+
+        // Draw bounding boxes
+        ctx.strokeStyle = '#4CAF50';
+        ctx.lineWidth = 3;
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#4CAF50';
+
+        let resultsHTML = `<p><strong>✅ Found ${detections.detections.length} face(s):</strong></p>`;
+
+        detections.detections.forEach((detection, i) => {
+          const box = detection.boundingBox;
+          const confidence = detection.categories?.[0]?.score || 0;
+          
+          // Draw box
+          ctx.strokeRect(box.originX, box.originY, box.width, box.height);
+          ctx.fillText(
+            `Face ${i + 1} (${(confidence * 100).toFixed(1)}%)`,
+            box.originX,
+            box.originY - 5
+          );
+
+          // Calculate area
+          const area = box.width * box.height;
+          const confidenceClass = confidence >= 0.7 ? 'confidence-high' : 
+                                  confidence >= 0.4 ? 'confidence-medium' : 
+                                  'confidence-low';
+
+          resultsHTML += `
+            <div class="face-box ${confidenceClass}">
+              <strong>Face ${i + 1}</strong><br>
+              Confidence: ${(confidence * 100).toFixed(2)}%<br>
+              Position: (${box.originX.toFixed(0)}, ${box.originY.toFixed(0)})<br>
+              Size: ${box.width.toFixed(0)} × ${box.height.toFixed(0)} px<br>
+              Area: ${area.toFixed(0)} px²
+            </div>
+          `;
+        });
+
+        results.innerHTML = resultsHTML;
+        
+      } catch (error) {
+        results.innerHTML = `<p>❌ Detection error: ${error.message}</p>`;
+        console.error('[FaceDetection] Error:', error);
+      }
+    });
+
+    // Clear
+    clearBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      currentImage = null;
+      imageInput.value = '';
+      results.innerHTML = '<p>Cleared. Upload a new image to test.</p>';
+    });
+
+    // Initialize on load
+    initDetector(currentThreshold, useFullRange);
+  </script>
+</body>
+</html>
