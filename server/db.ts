@@ -155,7 +155,10 @@ export async function getFaceSwapJobById(jobId: number): Promise<FaceSwapJob | u
   return result[0];
 }
 
-export async function getUserFaceSwapJobs(userId: number): Promise<Array<FaceSwapJob & { favoriteCategory: number | null }>> {
+export async function getUserFaceSwapJobs(
+  userId: number,
+  options?: { limit?: number; offset?: number }
+): Promise<Array<FaceSwapJob & { favoriteCategory: number | null }>> {
   const db = await getDb();
   if (!db) {
     throw new Error("Database not available");
@@ -193,7 +196,9 @@ export async function getUserFaceSwapJobs(userId: number): Promise<Array<FaceSwa
       eq(favorites.userId, userId)
     ))
     .where(eq(faceSwapJobs.userId, userId))
-    .orderBy(desc(faceSwapJobs.createdAt));
+    .orderBy(desc(faceSwapJobs.createdAt))
+    .limit(options?.limit || 50)
+    .offset(options?.offset || 0);
 
   return results as Array<FaceSwapJob & { favoriteCategory: number | null }>;
 }

@@ -166,8 +166,12 @@ export const appRouter = router({
 
     // Get user's job history
     getMyJobs: protectedProcedure
-      .query(async ({ ctx }) => {
-        return getUserFaceSwapJobs(ctx.user.id);
+      .input(z.object({
+        limit: z.number().optional(),
+        offset: z.number().optional(),
+      }).optional())
+      .query(async ({ ctx, input }) => {
+        return getUserFaceSwapJobs(ctx.user.id, input);
       }),
 
     // Update job status (for worker process)

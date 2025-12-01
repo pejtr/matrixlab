@@ -89,11 +89,17 @@ async function cropFaceWithMargin(
     .toBuffer();
 
   // Create oval mask (ellipse) to hide body
-  // Reduce oval size to 65% to hide more body while keeping face visible
+  // Reduce oval size to 45% to show only face (hide all body including breasts)
   const centerX = cropWidth / 2;
   const centerY = cropHeight / 2;
-  const radiusX = (cropWidth / 2) * 0.65;  // 65% of crop width
-  const radiusY = (cropHeight / 2) * 0.65; // 65% of crop height
+  const radiusX = (cropWidth / 2) * 0.45;  // 45% of crop width
+  const radiusY = (cropHeight / 2) * 0.45; // 45% of crop height
+  
+  console.log(`[MultiFace] 🔍 OVAL MASK DEBUG:`);
+  console.log(`[MultiFace]   - Crop dimensions: ${cropWidth}x${cropHeight}px`);
+  console.log(`[MultiFace]   - Oval center: (${centerX}, ${centerY})`);
+  console.log(`[MultiFace]   - Oval radius: ${radiusX}x${radiusY}px (45% of crop)`);
+  console.log(`[MultiFace]   - Oval will show only ${(0.45 * 100).toFixed(0)}% of crop area`)
 
   // Create black background with oval cutout (no transparency - API can't see through black)
   const ovalMask = Buffer.from(
@@ -121,6 +127,11 @@ async function cropFaceWithMargin(
     .toBuffer();
 
   console.log(`[MultiFace] ✓ Applied oval mask - only face visible, body hidden`);
+  
+  // DEBUG: Save masked image to disk for inspection
+  const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.jpg`;
+  await sharp(maskedBuffer).toFile(debugPath);
+  console.log(`[MultiFace] 🖼️  DEBUG: Saved masked image to ${debugPath}`);
 
   return { buffer: maskedBuffer, cropX, cropY, cropWidth, cropHeight };
 }
@@ -188,14 +199,39 @@ export async function processMultiFaceSwap(
     let currentBuffer = targetBuffer;
 
     let processedFaces = 0;
+    
+    // FALLBACK: If no faces detected, use center of image as "face"
+    let facesToProcess = input.faceBoxes;
+    if (facesToProcess.length === 0) {
+      console.log(`[MultiFace] ⚠️  No faces detected - using center of image as fallback`);
+      const metadata = await sharp(targetBuffer).metadata();
+      const imageWidth = metadata.width!;
+      const imageHeight = metadata.height!;
+      
+      // Create a "face box" covering center 40% of image
+      const faceWidth = Math.floor(imageWidth * 0.4);
+      const faceHeight = Math.floor(imageHeight * 0.4);
+      const faceX = Math.floor((imageWidth - faceWidth) / 2);
+      const faceY = Math.floor((imageHeight - faceHeight) / 2);
+      
+      facesToProcess = [{
+        x: faceX,
+        y: faceY,
+        width: faceWidth,
+        height: faceHeight,
+        confidence: 0.5 // Low confidence to indicate fallback
+      }];
+      
+      console.log(`[MultiFace] Created fallback face box: x=${faceX}, y=${faceY}, w=${faceWidth}, h=${faceHeight}`);
+    }
 
     // Process each face sequentially
-    for (let i = 0; i < input.faceBoxes.length; i++) {
-      const bbox = input.faceBoxes[i];
-      console.log(`[MultiFace] Processing face ${i + 1}/${input.faceBoxes.length} (confidence: ${bbox.confidence.toFixed(2)})`);
+    for (let i = 0; i < facesToProcess.length; i++) {
+      const bbox = facesToProcess[i];
+      console.log(`[MultiFace] Processing face ${i + 1}/${facesToProcess.length} (confidence: ${bbox.confidence.toFixed(2)})`);
 
       // Report progress for this face (divide 100% by number of faces)
-      const faceProgress = Math.floor((i / input.faceBoxes.length) * 100);
+      const faceProgress = Math.floor((i / facesToProcess.length) * 100);
       if (input.onProgress) {
         await input.onProgress(faceProgress);
       }
@@ -241,7 +277,7 @@ export async function processMultiFaceSwap(
         console.log(`[MultiFace] ✓ Face ${i + 1} swapped successfully`);
         
         // Report progress after completing this face
-        const completedProgress = Math.floor(((i + 1) / input.faceBoxes.length) * 100);
+        const completedProgress = Math.floor(((i + 1) / facesToProcess.length) * 100);
         if (input.onProgress) {
           await input.onProgress(completedProgress);
         }

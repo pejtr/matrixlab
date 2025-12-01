@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, status, preserveBody, LENGTH(faceBoxes) as faceBoxesLen, createdAt FROM faceSwapJobs ORDER BY createdAt DESC LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, status, preserveBody, LENGTH(faceBoxes) as faceBoxesLen, createdAt FROM faceSwapJobs ORDER BY createdAt DESC LIMIT 5",
+  "rows": [
+    {
+      "id": "390065",
+      "status": "processing",
+      "preserveBody": "1",
+      "faceBoxesLen": "77",
+      "createdAt": "2025-12-01 11:23:55"
+    },
+    {
+      "id": "390062",
+      "status": "completed",
+      "preserveBody": "1",
+      "faceBoxesLen": "77",
+      "createdAt": "2025-12-01 11:15:56"
+    },
+    {
+      "id": "390060",
+      "status": "completed",
+      "preserveBody": "1",
+      "faceBoxesLen": "77",
+      "createdAt": "2025-12-01 11:06:30"
+    },
+    {
+      "id": "390046",
+      "status": "completed",
+      "preserveBody": "1",
+      "faceBoxesLen": "77",
+      "createdAt": "2025-12-01 10:31:21"
+    },
+    {
+      "id": "390044",
+      "status": "cancelled",
+      "preserveBody": "1",
+      "faceBoxesLen": "77",
+      "createdAt": "2025-12-01 10:30:17"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tpreserveBody\tfaceBoxesLen\tcreatedAt\n390065\tprocessing\t1\t77\t2025-12-01 11:23:55\n390062\tcompleted\t1\t77\t2025-12-01 11:15:56\n390060\tcompleted\t1\t77\t2025-12-01 11:06:30\n390046\tcompleted\t1\t77\t2025-12-01 10:31:21\n390044\tcancelled\t1\t77\t2025-12-01 10:30:17\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}
