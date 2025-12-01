@@ -22,6 +22,7 @@ export interface MultiFaceSwapInput {
   modelPreference?: "high_quality" | "permissive";
   webhookUrl?: string;
   onProgress?: (progress: number) => Promise<void>; // Progress callback (0-100)
+  preserveBody?: boolean; // If true, return only face cutout (Protect mode)
 }
 
 export interface MultiFaceSwapResult {
@@ -89,17 +90,17 @@ async function cropFaceWithMargin(
     .toBuffer();
 
   // Create oval mask (ellipse) to hide body
-  // Reduce oval size to 45% to show only face (hide all body including breasts)
+  // Oval is taller than wide (1:1.3 ratio) to follow face shape
   const centerX = cropWidth / 2;
   const centerY = cropHeight / 2;
-  const radiusX = (cropWidth / 2) * 0.45;  // 45% of crop width
-  const radiusY = (cropHeight / 2) * 0.45; // 45% of crop height
+  const radiusX = (cropWidth / 2) * 0.27;  // 27% of crop width (reduced from 45%)
+  const radiusY = (cropHeight / 2) * 0.27 * 1.3; // 27% * 1.3 = taller oval
   
   console.log(`[MultiFace] 🔍 OVAL MASK DEBUG:`);
   console.log(`[MultiFace]   - Crop dimensions: ${cropWidth}x${cropHeight}px`);
   console.log(`[MultiFace]   - Oval center: (${centerX}, ${centerY})`);
-  console.log(`[MultiFace]   - Oval radius: ${radiusX}x${radiusY}px (45% of crop)`);
-  console.log(`[MultiFace]   - Oval will show only ${(0.45 * 100).toFixed(0)}% of crop area`)
+  console.log(`[MultiFace]   - Oval radius: ${radiusX}x${radiusY}px (27% of crop)`);
+  console.log(`[MultiFace]   - Oval will show only ${(0.27 * 100).toFixed(0)}% of crop area`)
 
   // Create black background with oval cutout (no transparency - API can't see through black)
   const ovalMask = Buffer.from(
@@ -114,26 +115,51 @@ async function cropFaceWithMargin(
     </svg>`
   );
 
-  // Apply oval mask with black background (body completely hidden, not transparent)
+  // Apply oval mask with TRANSPARENT background (not black)
   const maskedBuffer = await sharp(rectCrop)
-    .flatten({ background: { r: 0, g: 0, b: 0 } }) // Black background instead of transparency
+    .ensureAlpha() // Add alpha channel for transparency
     .composite([
       {
         input: ovalMask,
-        blend: "dest-in",
+        blend: "dest-in", // Keep only pixels inside oval, rest becomes transparent
       },
     ])
-    .jpeg({ quality: 95 })
+    .png() // Use PNG to preserve transparency
     .toBuffer();
 
   console.log(`[MultiFace] ✓ Applied oval mask - only face visible, body hidden`);
   
-  // DEBUG: Save masked image to disk for inspection
+  // Crop tightly around oval to remove black background
+  // Calculate bounding box of oval (smallest rectangle containing the ellipse)
+  const ovalLeft = Math.floor(centerX - radiusX);
+  const ovalTop = Math.floor(centerY - radiusY);
+  const ovalWidth = Math.ceil(radiusX * 2);
+  const ovalHeight = Math.ceil(radiusY * 2);
+  
+  console.log(`[MultiFace] 🔍 Cropping to oval bounding box: x=${ovalLeft}, y=${ovalTop}, w=${ovalWidth}, h=${ovalHeight}`);
+  
+  // Extract only the oval region (remove black background)
+  const finalCrop = await sharp(maskedBuffer)
+    .extract({
+      left: Math.max(0, ovalLeft),
+      top: Math.max(0, ovalTop),
+      width: Math.min(ovalWidth, cropWidth - ovalLeft),
+      height: Math.min(ovalHeight, cropHeight - ovalTop),
+    })
+    .toBuffer();
+  
+  console.log(`[MultiFace] ✓ Removed black background - sending only face cutout`);
+  
+  // DEBUG: Save final cropped image to disk for inspection
   const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.jpg`;
-  await sharp(maskedBuffer).toFile(debugPath);
-  console.log(`[MultiFace] 🖼️  DEBUG: Saved masked image to ${debugPath}`);
+  await sharp(finalCrop).toFile(debugPath);
+  console.log(`[MultiFace] 🖼️  DEBUG: Saved final face cutout to ${debugPath}`);
 
-  return { buffer: maskedBuffer, cropX, cropY, cropWidth, cropHeight };
+  // Return final crop (tight cutout around oval) instead of full masked buffer
+  // Update crop coordinates to reflect the tight crop
+  const finalCropX = cropX + ovalLeft;
+  const finalCropY = cropY + ovalTop;
+  return { buffer: finalCrop, cropX: finalCropX, cropY: finalCropY, cropWidth: ovalWidth, cropHeight: ovalHeight };
 }
 
 /**
@@ -264,14 +290,20 @@ export async function processMultiFaceSwap(
         const swappedFaceBuffer = await downloadImage(swapResult.outputUrl);
 
         // Step 5: Composite swapped face back to current image
-        currentBuffer = await compositeFaceBack(
-          currentBuffer,
-          swappedFaceBuffer,
-          cropX,
-          cropY,
-          cropWidth,
-          cropHeight
-        );
+        // UNLESS preserveBody is true (Protect mode) - then return only face cutout
+        if (input.preserveBody) {
+          console.log(`[MultiFace] 🔒 Protect mode: Returning only face cutout, not compositing back`);
+          currentBuffer = swappedFaceBuffer; // Return only the oval face cutout
+        } else {
+          currentBuffer = await compositeFaceBack(
+            currentBuffer,
+            swappedFaceBuffer,
+            cropX,
+            cropY,
+            cropWidth,
+            cropHeight
+          );
+        }
 
         processedFaces++;
         console.log(`[MultiFace] ✓ Face ${i + 1} swapped successfully`);

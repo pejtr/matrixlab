@@ -182,3 +182,43 @@
 - [x] Reduce main result display height from 75vh to 60vh for desktop
 - [x] Ensure job grid is visible without zooming out on 4K monitors
 - [ ] Test on 4K resolution (3840x2160) - waiting for user confirmation
+
+## Protect Mode - Remove Black Background - COMPLETED
+- [x] Change cropFaceWithOval to crop tightly around oval (bounding box of oval)
+- [x] Remove black background - send only face cutout
+- [x] Calculate tight bounding box around 45% oval
+- [ ] Test with nude image to verify only face is visible without black background
+
+## Protect Mode - Oval Shape & Background Fix - IN PROGRESS
+- [ ] Change oval aspect ratio from 1:1 to 1:1.3 (taller, follows face shape)
+- [ ] Replace black background with blur or white/transparent
+- [ ] Ensure result shows only oval cutout, not full original image
+- [ ] Test with nude image to verify oval face cutout without black background
+
+## Protect Mode - Transparent Background & Taller Oval - COMPLETED
+- [x] Change oval aspect ratio to 1:1.3 (height 30% taller than width)
+- [x] Replace black background with transparency (alpha channel)
+- [x] Output PNG instead of JPEG to support transparency
+- [x] Skip compositing back to full image when Protect mode enabled
+- [x] Return only oval face cutout as final result
+- [ ] Test with nude image to verify oval face with transparent background
+
+## Add Alternative Face Swap Models (No NSFW Filter) - IN PROGRESS
+- [ ] Research Replicate models without NSFW filters (lucataco/faceswap, yan-ops/face_swap, etc.)
+- [ ] Update backend replicateService to support multiple model options
+- [ ] Add model selector dropdown to UI (HQ Fast, Permissive, Lucataco, Yan-ops, etc.)
+- [ ] Test each model with nude content to verify no NSFW blocking
+- [ ] Update Protect mode to work with new models
+
+## Reduce Oval Size to 25-30% - COMPLETED
+- [x] Change oval radius from 45% to 27% (show only face, no neck/shoulders)
+- [x] Oval is taller (1:1.3 ratio) to follow face shape
+- [ ] Test with nude image to verify NSFW filter bypass
+
+## Fix Infinite Scroll - COMPLETED
+- [x] Debug why previous jobs are not loading when scrolling down
+- [x] Root cause: visibleJobsCount limited display to first X jobs
+- [x] Removed visibleJobsCount and show all loaded jobs
+- [x] Removed "Load More" buttons, replaced with loading indicator
+- [x] Scroll listener already attached to grid container
+- [ ] Test with 30+ jobs to verify infinite scroll works

@@ -116,10 +116,6 @@ export default function FaceSwap() {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [lightboxType, setLightboxType] = useState<'result' | 'source' | 'target'>('result');
   const [showSavedFaces, setShowSavedFaces] = useState(false);
-  // Desktop: Show all jobs initially (horizontal scroll), Mobile: 12 thumbnails
-  const [visibleJobsCount, setVisibleJobsCount] = useState(
-    typeof window !== 'undefined' && window.innerWidth >= 768 ? 999 : 12
-  );
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [regenerateJob, setRegenerateJob] = useState<(Omit<typeof completedJobs[0], 'favoriteCategory'> & { favoriteCategory?: number | null }) | null>(null);
   const [isDraggingSource, setIsDraggingSource] = useState(false);
@@ -130,7 +126,7 @@ export default function FaceSwap() {
   const [cropImageUrl, setCropImageUrl] = useState<string>('');
   const [cropType, setCropType] = useState<'source' | 'target' | 'result'>('result');
   const [showAnimateDialog, setShowAnimateDialog] = useState(false);
-  const loadMoreRef = useRef<HTMLButtonElement>(null);
+  // loadMoreRef removed - using infinite scroll instead
   const [activeTab, setActiveTab] = useState<'all' | 'favorites'>('all');
   const [favoriteCategory, setFavoriteCategory] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
@@ -230,8 +226,8 @@ export default function FaceSwap() {
   // Get current job from displayJobs (consistent with thumbnail clicks)
   const currentJob = displayJobs[currentResultIndex];
   
-  const visibleJobs = displayJobs.slice(0, visibleJobsCount);
-  const hasMoreJobs = displayJobs.length > visibleJobsCount;
+  // Show all loaded jobs (infinite scroll will load more)
+  const visibleJobs = displayJobs;
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
   
   // Detect if there are any pending/processing jobs
@@ -245,29 +241,7 @@ export default function FaceSwap() {
     : 0;
 
   // Infinite scroll for desktop
-  useEffect(() => {
-    if (!isDesktop || !hasMoreJobs) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setVisibleJobsCount(prev => prev + 12); // Load 12 more (4 rows of 3)
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentRef = loadMoreRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [isDesktop, hasMoreJobs]);
+  // Infinite scroll is now handled by handleScroll callback on grid container
 
   // Reset to clean state on page load
   useEffect(() => {
@@ -2617,17 +2591,10 @@ export default function FaceSwap() {
                 ))}
               </div>
               
-              {/* Load More Button */}
-              {hasMoreJobs && (
+              {/* Infinite scroll loading indicator */}
+              {isFetchingNextPage && (
                 <div className="flex justify-center mt-4">
-                  <button
-                    ref={loadMoreRef}
-                    onClick={() => setVisibleJobsCount(prev => prev + 12)}
-                    className="group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
-                    title={`Načíst další (${displayJobs.length - visibleJobsCount})`}
-                  >
-                    <ChevronDown className="h-5 w-5 text-white group-hover:animate-bounce" />
-                  </button>
+                  <Loader2 className="h-6 w-6 animate-spin text-purple-500" />
                 </div>
               )}
             </div>
@@ -2822,16 +2789,10 @@ export default function FaceSwap() {
                     </div>
                   ))}
 
-                  {/* Load More Button */}
-                  {hasMoreJobs && (
+                  {/* Infinite scroll loading indicator */}
+                  {isFetchingNextPage && (
                     <div className="col-span-full flex items-center justify-center py-8">
-                      <button
-                        onClick={() => setVisibleJobsCount(prev => prev + 12)}
-                        className="group flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all hover:scale-110 shadow-lg"
-                        title={`Načíst další (${displayJobs.length - visibleJobsCount})`}
-                      >
-                        <ChevronDown className="h-5 w-5 text-white group-hover:animate-bounce" />
-                      </button>
+                      <Loader2 className="h-6 w-6 animate-spin text-purple-500" />
                     </div>
                   )}
                 </div>

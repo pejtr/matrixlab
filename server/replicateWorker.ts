@@ -108,13 +108,14 @@ async function processJob(jobId: number) {
         // Progress updates during Protect mode processing
         await updateFaceSwapJobStatus(jobId, "processing", { progress: 30 });
         
-        // Process all faces: crop → swap → composite back
+        // Process all faces: crop → swap → return only face cutout (Protect mode)
         // This sends ONLY the face crop to API, bypassing NSFW filter
         const multiFaceResult = await processMultiFaceSwap({
           sourceImageUrl: job.sourceImageUrl,
           targetImageUrl: job.targetMediaUrl,
           faceBoxes: faceBoxes,
           modelPreference: job.modelPreference || "high_quality",
+          preserveBody: true, // Protect mode: return only face cutout, not full image
           onProgress: async (progress: number) => {
             // Update progress during face processing (30-80%)
             const scaledProgress = 30 + Math.floor(progress * 0.5); // Scale 0-100 to 30-80
