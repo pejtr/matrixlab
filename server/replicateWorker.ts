@@ -93,6 +93,59 @@ async function processJob(jobId: number) {
     console.log(`[Worker] [Job #${jobId}] Target: ${job.targetMediaUrl}`);
     console.log(`[Worker] [Job #${jobId}] Type: ${job.targetMediaType}`);
 
+    // Step 3.5: Apply Protect mode BEFORE API call (if faceBoxes provided)
+    // This prevents NSFW content filter from blocking the job
+    if (job.faceBoxes && job.targetMediaType === "image") {
+      console.log(`[Worker] [Job #${jobId}] [Step 3.5/7] Protect mode enabled - processing face crop BEFORE API call...`);
+      await updateFaceSwapJobStatus(jobId, "processing", { progress: 25 });
+      
+      try {
+        const { processMultiFaceSwap } = await import("./multiFaceService.js");
+        const faceBoxes = JSON.parse(job.faceBoxes);
+        
+        console.log(`[Worker] [Job #${jobId}] Protect mode: ${faceBoxes.length} face(s) detected`);
+        
+        // Process all faces: crop → swap → composite back
+        // This sends ONLY the face crop to API, bypassing NSFW filter
+        const multiFaceResult = await processMultiFaceSwap({
+          sourceImageUrl: job.sourceImageUrl,
+          targetImageUrl: job.targetMediaUrl,
+          faceBoxes: faceBoxes,
+          modelPreference: job.modelPreference || "high_quality",
+        });
+        
+        if (multiFaceResult.success && multiFaceResult.outputBuffer) {
+          console.log(`[Worker] [Job #${jobId}] ✓ Protect mode complete: ${multiFaceResult.processedFaces}/${faceBoxes.length} faces swapped`);
+          
+          // Upload the final result to S3
+          const fileExtension = "jpg"; // Always image in Protect mode
+          const resultKey = `results/job-${jobId}-${Date.now()}.${fileExtension}`;
+          const contentType = "image/jpeg";
+          
+          const { url: resultUrl } = await storagePut(resultKey, multiFaceResult.outputBuffer, contentType);
+          
+          // Mark job as completed with the result
+          await updateFaceSwapJobStatus(jobId, "completed", {
+            resultMediaUrl: resultUrl,
+            resultMediaKey: resultKey,
+            progress: 100,
+          });
+          
+          console.log(`[Worker] [Job #${jobId}] ✓ Job completed with Protect mode`);
+          console.log(`[Worker] [Job #${jobId}] Total time: ${Date.now() - jobStartTime}ms`);
+          return; // Skip normal API call - we're done!
+        } else {
+          console.log(`[Worker] [Job #${jobId}] ⚠ Protect mode failed: ${multiFaceResult.error}`);
+          console.log(`[Worker] [Job #${jobId}] Falling back to normal API call (may fail on NSFW)`);
+          // Continue with normal flow
+        }
+      } catch (error: any) {
+        console.log(`[Worker] [Job #${jobId}] ⚠ Protect mode error: ${error.message}`);
+        console.log(`[Worker] [Job #${jobId}] Falling back to normal API call (may fail on NSFW)`);
+        // Continue with normal flow
+      }
+    }
+
     // Step 4: Choose service and perform face swap
     const apiStartTime = Date.now();
     console.log(`[Worker] [Job #${jobId}] [Step 4/7] Calling face swap API...`);
@@ -206,39 +259,11 @@ async function processJob(jobId: number) {
       throw new Error('No output URL or base64 data');
     }
 
-    // Step 6.5: Apply multi-face processing (if faceBoxes provided - Protect mode with face detection)
-    if (job.faceBoxes && job.targetMediaType === "image") {
-      console.log(`[Worker] [Job #${jobId}] [Step 6.5/7] Applying multi-face processing (Protect mode)...`);
-      await updateFaceSwapJobStatus(jobId, "processing", { progress: 85 });
-      
-      try {
-        const { processMultiFaceSwap } = await import("./multiFaceService.js");
-        const faceBoxes = JSON.parse(job.faceBoxes);
-        
-        console.log(`[Worker] [Job #${jobId}] Processing ${faceBoxes.length} detected face(s)`);
-        
-        // Process all faces: crop → swap → composite back
-        const multiFaceResult = await processMultiFaceSwap({
-          sourceImageUrl: job.sourceImageUrl,
-          targetImageUrl: job.targetMediaUrl,
-          faceBoxes: faceBoxes,
-          modelPreference: job.modelPreference || "high_quality",
-        });
-        
-        if (multiFaceResult.success && multiFaceResult.outputBuffer) {
-          console.log(`[Worker] [Job #${jobId}] ✓ Multi-face processing complete: ${multiFaceResult.processedFaces}/${faceBoxes.length} faces swapped`);
-          resultBuffer = multiFaceResult.outputBuffer;
-        } else {
-          console.log(`[Worker] [Job #${jobId}] ⚠ Multi-face processing failed: ${multiFaceResult.error}`);
-          // Continue with original face-swapped result
-        }
-      } catch (error: any) {
-        console.log(`[Worker] [Job #${jobId}] ⚠ Multi-face processing error: ${error.message}`);
-        // Continue with original face-swapped result
-      }
-    }
-    // Step 6.6: Apply body preservation blending (if enabled and image and NOT multi-face)
-    else if (job.preserveBody === 1 && job.targetMediaType === "image") {
+    // NOTE: Multi-face processing (Protect mode) is now handled BEFORE API call (Step 3.5)
+    // This prevents NSFW filter from blocking the job
+    
+    // Step 6.5: Apply body preservation blending (if enabled and image and NOT Protect mode)
+    if (job.preserveBody === 1 && job.targetMediaType === "image") {
       console.log(`[Worker] [Job #${jobId}] [Step 6.6/7] Applying body preservation blending...`);
       await updateFaceSwapJobStatus(jobId, "processing", { progress: 85 });
       

@@ -79,10 +79,15 @@
 - [x] Add cleanup on server startup
 - [ ] Test cleanup functionality
 
-## Protect Mode HQ Model Bug - TODO
-- [ ] Fix Protect mode not working with HQ (Fast) model
-- [ ] Ensure face crop is applied before sending to HQ model
-- [ ] Test with nude content to verify it works
+## Protect Mode HQ Model Bug - COMPLETED
+- [x] Investigate why Protect mode fails with HQ (Fast) model
+- [x] Root cause: Multi-face processing was called AFTER API call, so nude content hit NSFW filter first
+- [x] Move multi-face processing BEFORE API call (Step 3.5 instead of Step 6.5)
+- [x] When Protect enabled: crop face → swap → composite → upload → complete (skip normal API call)
+- [x] Remove old multi-face processing code after API call
+- [x] Write test to verify Protect mode bypasses NSFW filter (replicateWorker.protect.test.ts)
+- [x] All 3 tests passed: Protect mode enabled, fallback on failure, skip when disabled
+- [ ] Test with real nude content to confirm fix works (requires user testing)
 
 ## 4K Monitor Thumbnail Grid Fix - COMPLETED
 - [x] Increase padding-top in thumbnail grid container to prevent first row cutoff on 4K displays
