@@ -1573,7 +1573,7 @@ export default function FaceSwap() {
                     </Button>
                   </div>
                   
-                  <div className="relative h-[50vh] md:h-[75vh] overflow-hidden">
+                  <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
                     {/* Navigation Arrows */}
                     {completedJobs.length > 1 && (
                       <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-3">
@@ -1620,8 +1620,8 @@ export default function FaceSwap() {
                       </div>
                     )}
 
-                    {/* Result Display - 80vh on desktop */}
-                    <div className="relative h-[50vh] md:h-[75vh] max-h-screen mx-auto max-w-full lg:max-w-none">
+                    {/* Result Display - 60vh on desktop for 4K compatibility */}
+                    <div className="relative h-[50vh] md:h-[60vh] max-h-screen mx-auto max-w-full lg:max-w-none">
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
@@ -1629,7 +1629,7 @@ export default function FaceSwap() {
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-[50vh] md:h-[75vh] max-h-screen">
+                        <div className="relative w-full h-[50vh] md:h-[60vh] max-h-screen">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img

@@ -177,3 +177,8 @@
 - [ ] Implement job queue and progress tracking
 - [ ] Add video player for results
 - [ ] Test with nude images to verify no NSFW blocking
+
+## 4K Monitor Layout Fix - COMPLETED
+- [x] Reduce main result display height from 75vh to 60vh for desktop
+- [x] Ensure job grid is visible without zooming out on 4K monitors
+- [ ] Test on 4K resolution (3840x2160) - waiting for user confirmation
