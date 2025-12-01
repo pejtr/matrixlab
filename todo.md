@@ -557,3 +557,8 @@ See git history for complete list of implemented features.
 - [x] Add delete X button to Pending job thumbnails
 - [x] Reduce size of delete X button on Failed job thumbnails (currently too large)
 - [x] Ensure consistent button sizing across all job statuses
+
+## MediaPipe Face Detection Fix - Current Session
+- [x] Fix MediaPipe model URL (404 error on blaze_face_full_range)
+- [x] Test face detection initialization
+- [x] Verify Protect mode works with nude images
