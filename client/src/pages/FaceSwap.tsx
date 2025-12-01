@@ -1867,6 +1867,15 @@ export default function FaceSwap() {
                       ))}
                     </div>
                   </div>
+                  {/* Batch Progress Counter */}
+                  {visibleJobs.filter(j => j.status === "processing").length > 0 && (
+                    <div className="mb-2 flex items-center justify-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                      <Loader2 className={`h-3.5 w-3.5 animate-spin text-${themeConfig.accent}`} />
+                      <span className="text-white/90 text-xs font-medium">
+                        Processing {visibleJobs.filter(j => j.status === "processing").length} / {visibleJobs.filter(j => j.status === "processing" || j.status === "pending").length} images
+                      </span>
+                    </div>
+                  )}
                   {/* Scrollable Grid Container - 3 Rows with Scrollbar (newest left-to-right) */}
                   <div className="overflow-x-auto overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent', height: '20vh', maxHeight: '20vh' }}>
                     <div className="grid grid-cols-[repeat(auto-fill,6rem)] grid-rows-3 gap-1.5 auto-cols-[6rem]">
@@ -1897,6 +1906,27 @@ export default function FaceSwap() {
                             alt={`Job ${job.id}`}
                             className="w-full h-full object-cover"
                           />
+                          
+                          {/* Mini Progress Bar Overlay (processing only) */}
+                          {job.status === "processing" && (
+                            <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex flex-col items-center justify-center">
+                              <Loader2 className={`h-6 w-6 text-${themeConfig.accent} animate-spin mb-2`} />
+                              <div className="w-[80%] bg-white/20 rounded-full h-1.5 overflow-hidden">
+                                <div 
+                                  className={`h-full bg-gradient-to-r from-${themeConfig.accent} to-${themeConfig.secondary} transition-all duration-500`}
+                                  style={{ width: `${job.progress || 0}%` }}
+                                />
+                              </div>
+                              <span className="text-white text-[10px] font-semibold mt-1">{job.progress || 0}%</span>
+                            </div>
+                          )}
+                          
+                          {/* Pending Overlay (no progress bar) */}
+                          {job.status === "pending" && (
+                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center">
+                              <span className="text-white/80 text-[9px] font-semibold">Pending...</span>
+                            </div>
+                          )}
                           
                           {/* Status Badge (only for non-completed) */}
                           {job.status !== "completed" && (

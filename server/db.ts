@@ -252,6 +252,19 @@ export async function updateFaceSwapJobStatus(
     throw new Error("Database not available");
   }
 
+  // Monotonic progress validation: only update if new progress > current progress
+  if (updates?.progress !== undefined && status === "processing") {
+    const currentJob = await db.select().from(faceSwapJobs).where(eq(faceSwapJobs.id, jobId)).limit(1);
+    if (currentJob.length > 0) {
+      const currentProgress = currentJob[0].progress || 0;
+      if (updates.progress < currentProgress) {
+        console.log(`[DB] Skipping progress update: ${updates.progress}% < ${currentProgress}% (job #${jobId})`);
+        // Skip progress update but allow other fields to update
+        delete updates.progress;
+      }
+    }
+  }
+
   const updateData: Record<string, unknown> = { status };
   
   if (updates?.resultMediaKey) updateData.resultMediaKey = updates.resultMediaKey;

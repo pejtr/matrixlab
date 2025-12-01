@@ -107,3 +107,23 @@
 - [x] Changed interval from 10s to 3s for more frequent updates
 - [x] Added progress callbacks to Protect mode face processing
 - [ ] Test with real job to verify smooth visual feedback (waiting for user test)
+
+## Progress Preview Enhancements - TODO
+- [x] Add mini progress bar to All Jobs thumbnails (show percentage during processing)
+- [x] Implement batch progress counter above grid (e.g., "Processing 3/10 images")
+- [x] Show progress percentage on thumbnail overlay
+- [x] Add visual distinction between pending (no progress) and processing (with progress)
+- [ ] Test with single and batch uploads
+
+## Progress Race Condition Bug - COMPLETED
+- [x] Fix progress jumping backwards (60% → 30%) due to race condition
+- [x] Ensure progress updates are monotonic (only increase, never decrease)
+- [x] Add progress validation in db.ts (skip update if new value < current value)
+- [x] Simulated progress loop already stops when API completes (clearInterval in finally block)
+- [ ] Test with multiple concurrent jobs (waiting for user test)
+
+## Protect Mode Face Swap Failure - COMPLETED
+- [x] Face swap not working in Protect mode - shows original face instead of swapped
+- [x] Issue: Cropped face region too small for API to detect/swap properly (15% margin)
+- [x] Solution: Increased crop margin from 15% to 60% for better face detection context
+- [ ] Test with real nude content to verify fix works (waiting for user test)

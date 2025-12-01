@@ -51,7 +51,7 @@ async function downloadImage(url: string): Promise<Buffer> {
 async function cropFaceWithMargin(
   imageBuffer: Buffer,
   bbox: FaceBoundingBox,
-  marginPercent: number = 15  // Reduced from 50% to 15% - just face + ears + hair
+  marginPercent: number = 60  // 60% margin for better face detection context
 ): Promise<{ buffer: Buffer; cropX: number; cropY: number; cropWidth: number; cropHeight: number }> {
   const image = sharp(imageBuffer);
   const metadata = await image.metadata();
@@ -60,7 +60,7 @@ async function cropFaceWithMargin(
     throw new Error("Failed to get image dimensions");
   }
 
-  // Calculate margin (15% = just enough for ears and hair)
+  // Calculate margin (60% = enough context for face detection + oval mask)
   const marginX = Math.floor((bbox.width * marginPercent) / 100);
   const marginY = Math.floor((bbox.height * marginPercent) / 100);
 
@@ -76,7 +76,7 @@ async function cropFaceWithMargin(
     Math.floor(bbox.height + marginY * 2)
   );
 
-  console.log(`[MultiFace] Cropping face with 15% margin: x=${cropX}, y=${cropY}, w=${cropWidth}, h=${cropHeight}`);
+  console.log(`[MultiFace] Cropping face with ${marginPercent}% margin: x=${cropX}, y=${cropY}, w=${cropWidth}, h=${cropHeight}`);
 
   // Extract rectangular crop first
   const rectCrop = await image
@@ -201,9 +201,9 @@ export async function processMultiFaceSwap(
 
       try {
         // Step 1: Crop face region from CURRENT image (with previous faces already swapped)
-        // Using 15% margin with oval mask - only face visible, body completely hidden
+        // Using 60% margin with oval mask - enough context for face detection
         const { buffer: faceCropBuffer, cropX, cropY, cropWidth, cropHeight } = 
-          await cropFaceWithMargin(currentBuffer, bbox, 15);
+          await cropFaceWithMargin(currentBuffer, bbox, 60);
 
         // Step 2: Upload face crop to get URL
         const faceCropUrl = await uploadBufferToReplicate(faceCropBuffer);
