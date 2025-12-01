@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT \n  modelPreference,\n  COUNT(*) as total_jobs,\n  AVG(TIMESTAMPDIFF(SECOND, createdAt, updatedAt)) as avg_seconds,\n  MIN(TIMESTAMPDIFF(SECOND, createdAt, updatedAt)) as min_seconds,\n  MAX(TIMESTAMPDIFF(SECOND, createdAt, updatedAt)) as max_seconds\nFROM faceSwapJobs\nWHERE status = 'completed' \n  AND preserveBody = 1\n  AND createdAt >= DATE_SUB(NOW(), INTERVAL 24 HOUR)\nGROUP BY modelPreference\nORDER BY modelPreference;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute \nSELECT \n  modelPreference,\n  COUNT(*) as total_jobs,\n  AVG(TIMESTAMPDIFF(SECOND, createdAt, updatedAt)) as avg_seconds,\n  MIN(TIMESTAMPDIFF(SECOND, createdAt, updatedAt)) as min_seconds,\n  MAX(TIMESTAMPDIFF(SECOND, createdAt, updatedAt)) as max_seconds\nFROM faceSwapJobs\nWHERE status = 'completed' \n  AND preserveBody = 1\n  AND createdAt >= DATE_SUB(NOW(), INTERVAL 24 HOUR)\nGROUP BY modelPreference\nORDER BY modelPreference;\n",
+  "rows": [
+    {
+      "modelPreference": "high_quality",
+      "total_jobs": "29",
+      "avg_seconds": "281.7241",
+      "min_seconds": "5",
+      "max_seconds": "2800"
+    }
+  ],
+  "messages": [],
+  "stdout": "modelPreference\ttotal_jobs\tavg_seconds\tmin_seconds\tmax_seconds\nhigh_quality\t29\t281.7241\t5\t2800\n",
+  "stderr": "",
+  "execution_time_ms": 66
+}

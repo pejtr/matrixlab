@@ -85,6 +85,7 @@ export function FaceDetectionOverlay({
 
   // Handle canvas click to select face
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    event.stopPropagation(); // Prevent triggering parent click handlers (file upload)
     const canvas = canvasRef.current;
     if (!canvas) return;
 

@@ -1,0 +1,35 @@
+{
+  "query": "\nSELECT \n  status,\n  modelPreference,\n  COUNT(*) as count\nFROM faceSwapJobs\nWHERE preserveBody = 1\nGROUP BY status, modelPreference\nORDER BY status, modelPreference;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute \nSELECT \n  status,\n  modelPreference,\n  COUNT(*) as count\nFROM faceSwapJobs\nWHERE preserveBody = 1\nGROUP BY status, modelPreference\nORDER BY status, modelPreference;\n",
+  "rows": [
+    {
+      "status": "processing",
+      "modelPreference": "high_quality",
+      "count": "1"
+    },
+    {
+      "status": "processing",
+      "modelPreference": "permissive",
+      "count": "1"
+    },
+    {
+      "status": "completed",
+      "modelPreference": "high_quality",
+      "count": "54"
+    },
+    {
+      "status": "failed",
+      "modelPreference": "high_quality",
+      "count": "9"
+    },
+    {
+      "status": "cancelled",
+      "modelPreference": "high_quality",
+      "count": "10"
+    }
+  ],
+  "messages": [],
+  "stdout": "status\tmodelPreference\tcount\nprocessing\thigh_quality\t1\nprocessing\tpermissive\t1\ncompleted\thigh_quality\t54\nfailed\thigh_quality\t9\ncancelled\thigh_quality\t10\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

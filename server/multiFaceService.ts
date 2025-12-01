@@ -163,14 +163,23 @@ async function cropFaceWithMargin(
 }
 
 /**
- * Upload buffer to temporary storage and get URL
- * Uses Replicate's file upload endpoint
+ * Upload buffer to S3 and get public URL
+ * This ensures Replicate API can download the actual cropped face image
  */
-async function uploadBufferToReplicate(buffer: Buffer): Promise<string> {
-  // Convert buffer to base64 data URL
-  const base64 = buffer.toString("base64");
-  const dataUrl = `data:image/jpeg;base64,${base64}`;
-  return dataUrl;
+async function uploadBufferToS3(buffer: Buffer): Promise<string> {
+  const { storagePut } = await import("./storage.js");
+  
+  // Generate unique key for temporary face crop
+  const tempKey = `temp/face-crop-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+  
+  console.log(`[MultiFace] Uploading cropped face to S3: ${tempKey}`);
+  
+  // Upload to S3 and get public URL
+  const { url } = await storagePut(tempKey, buffer, "image/png");
+  
+  console.log(`[MultiFace] ✓ Face crop uploaded to S3: ${url}`);
+  
+  return url;
 }
 
 /**
@@ -268,8 +277,8 @@ export async function processMultiFaceSwap(
         const { buffer: faceCropBuffer, cropX, cropY, cropWidth, cropHeight } = 
           await cropFaceWithMargin(currentBuffer, bbox, 80);
 
-        // Step 2: Upload face crop to get URL
-        const faceCropUrl = await uploadBufferToReplicate(faceCropBuffer);
+        // Step 2: Upload face crop to S3 to get public URL
+        const faceCropUrl = await uploadBufferToS3(faceCropBuffer);
 
         // Step 3: Perform face swap on cropped face
         console.log(`[MultiFace] Swapping face ${i + 1}...`);
@@ -290,11 +299,14 @@ export async function processMultiFaceSwap(
         const swappedFaceBuffer = await downloadImage(swapResult.outputUrl);
 
         // Step 5: Composite swapped face back to current image
-        // UNLESS preserveBody is true (Protect mode) - then return only face cutout
+        // UNLESS preserveBody is true (Protect mode) - then return API result directly
         if (input.preserveBody) {
-          console.log(`[MultiFace] 🔒 Protect mode: Returning only face cutout, not compositing back`);
-          currentBuffer = swappedFaceBuffer; // Return only the oval face cutout
+          console.log(`[MultiFace] 🔒 Protect mode: Using API result directly (already face-only)`);
+          // API received face-only crop, so result is already face-only
+          // No need to re-crop - just use the swapped face buffer as-is
+          currentBuffer = swappedFaceBuffer;
         } else {
+          // Normal mode: composite swapped face back onto full body
           currentBuffer = await compositeFaceBack(
             currentBuffer,
             swappedFaceBuffer,

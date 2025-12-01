@@ -1,0 +1,34 @@
+{
+  "query": "\nSELECT id, status, modelPreference, preserveBody, errorMessage, progress\nFROM faceSwapJobs\nWHERE status = 'failed'\nORDER BY updatedAt DESC\nLIMIT 3;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute \nSELECT id, status, modelPreference, preserveBody, errorMessage, progress\nFROM faceSwapJobs\nWHERE status = 'failed'\nORDER BY updatedAt DESC\nLIMIT 3;\n",
+  "rows": [
+    {
+      "id": "390094",
+      "status": "failed",
+      "modelPreference": "permissive",
+      "preserveBody": "1",
+      "errorMessage": "Replicate API call timed out after 180000ms",
+      "progress": "0"
+    },
+    {
+      "id": "390093",
+      "status": "failed",
+      "modelPreference": "high_quality",
+      "preserveBody": "1",
+      "errorMessage": "Replicate API call timed out after 180000ms",
+      "progress": "0"
+    },
+    {
+      "id": "390016",
+      "status": "failed",
+      "modelPreference": "high_quality",
+      "preserveBody": "1",
+      "errorMessage": "Prediction failed: No output images were generated",
+      "progress": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tmodelPreference\tpreserveBody\terrorMessage\tprogress\n390094\tfailed\tpermissive\t1\tReplicate API call timed out after 180000ms\t0\n390093\tfailed\thigh_quality\t1\tReplicate API call timed out after 180000ms\t0\n390016\tfailed\thigh_quality\t1\tPrediction failed: No output images were generated\t0\n",
+  "stderr": "",
+  "execution_time_ms": 51
+}

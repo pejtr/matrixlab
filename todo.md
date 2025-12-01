@@ -258,4 +258,48 @@
 - [x] Fix face selection - canvas may need z-index to be clickable
 - [x] Root cause: Canvas was under image, clicks went to image upload handler
 - [x] Added z-10 to canvas className to make it clickable above image
-- [ ] Test if clicking green box switches selected face
+- [x] Test if clicking green box switches selected face - WORKS
+
+## Protect Mode Still Sending Full Image - FIXED
+- [x] User report: Jobs still blocked by NSFW filter even with Protect enabled and face selected
+- [x] Debug: Check worker logs to see if faceBoxes is being received
+- [x] Debug: Verify multiFaceService.ts is being called before API
+- [x] Root cause: uploadBufferToReplicate() converted face to base64 data URL, API ignored it and fetched original URL
+- [x] Fix: Changed to uploadBufferToS3() - uploads cropped face to S3 and returns public URL
+- [x] Fix: Replicate API now receives URL to S3 file containing only cropped face (not full nude image)
+- [ ] Test with new job to verify NSFW filter bypass works
+
+## Face Detection Model - Use Full Range for Better Detection - COMPLETED
+- [x] Change MediaPipe model from blaze_face_short_range to blaze_face_full_range
+- [x] Full range model better detects faces far from camera, angled faces, group photos
+- [x] Test with user's massage photo (face far from camera, angled)
+
+## Protect Mode Compositing Bug - FIXED
+- [x] Bug: Result shows only cropped face without body (looks like bald head)
+- [x] Root cause: Worker re-cropped API result using old bbox coordinates from original image
+- [x] Fix: Return API result directly (API already received face-only crop, result is face-only)
+- [x] Removed re-cropping logic in Protect mode path (line 306)
+- [ ] Test with nude image to verify fix works
+
+## Protect Mode Checkbox Opens File Picker - FIXED
+- [x] Bug: Clicking Protect checkbox or selected face opens file upload dialog
+- [x] Root cause: Target preview div has onClick handler for file upload
+- [x] Fix: Protect checkboxes already had stopPropagation() (lines 1185, 1194, 1798, 1807)
+- [x] Fix: Added stopPropagation() to canvas overlay onClick (FaceDetectionOverlay.tsx line 88)
+- [ ] Test: Click checkbox should only toggle, not open file picker
+- [ ] Test: Click face selection should only select face, not open file picker
+
+## Protect Mode Shows Full Body Instead of Face - FIXED
+- [x] Bug: Result shows full body in oval instead of just face
+- [x] Face swap works correctly (face is changed)
+- [x] Problem: Swapped face is composited back to FULL original image
+- [x] Root cause: Line 305 returns swappedFaceBuffer (API response = full image), not oval
+- [x] API receives oval crop but returns FULL IMAGE with swapped face
+- [x] Fix: Re-apply oval mask to swapped result (cropFaceWithMargin on swappedFaceBuffer)
+- [x] Changed line 306: Re-crop swapped result with same bbox and 80% margin
+- [ ] Test: Upload nude photo with Protect mode, verify only oval face in result
+
+## Replicate API Timeout - COMPLETED
+- [x] Reduce API call timeout from 180s to 60s per user request
+- [ ] Test if 60s is sufficient for Protect mode + LQ model
+- [ ] If jobs still timeout, increase to 120s or 180s

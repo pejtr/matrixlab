@@ -1,0 +1,28 @@
+{
+  "query": "\nSELECT id, status, progress, modelPreference, preserveBody, errorMessage, \n       TIMESTAMPDIFF(SECOND, updatedAt, NOW()) as seconds_stuck\nFROM faceSwapJobs\nWHERE status = 'processing'\nORDER BY updatedAt DESC\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute \nSELECT id, status, progress, modelPreference, preserveBody, errorMessage, \n       TIMESTAMPDIFF(SECOND, updatedAt, NOW()) as seconds_stuck\nFROM faceSwapJobs\nWHERE status = 'processing'\nORDER BY updatedAt DESC\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "390096",
+      "status": "processing",
+      "progress": "37",
+      "modelPreference": "high_quality",
+      "preserveBody": "1",
+      "errorMessage": "NULL",
+      "seconds_stuck": "1"
+    },
+    {
+      "id": "390095",
+      "status": "processing",
+      "progress": "40",
+      "modelPreference": "permissive",
+      "preserveBody": "1",
+      "errorMessage": "NULL",
+      "seconds_stuck": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tprogress\tmodelPreference\tpreserveBody\terrorMessage\tseconds_stuck\n390096\tprocessing\t37\thigh_quality\t1\tNULL\t1\n390095\tprocessing\t40\tpermissive\t1\tNULL\t1\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}
