@@ -115,16 +115,18 @@ async function cropFaceWithMargin(
     </svg>`
   );
 
-  // Apply oval mask with TRANSPARENT background (not black)
+  // Apply oval mask with BLACK background (not transparent)
+  // Black pixels = API can't see body (hidden in black)
+  // Transparent pixels = API sees "nothing" = may cause "No output images" error
   const maskedBuffer = await sharp(rectCrop)
-    .ensureAlpha() // Add alpha channel for transparency
     .composite([
       {
         input: ovalMask,
-        blend: "dest-in", // Keep only pixels inside oval, rest becomes transparent
+        blend: "dest-in", // Keep only pixels inside oval
       },
     ])
-    .png() // Use PNG to preserve transparency
+    .flatten({ background: { r: 0, g: 0, b: 0 } }) // Fill transparent areas with BLACK
+    .jpeg() // Use JPEG (no transparency support)
     .toBuffer();
 
   console.log(`[MultiFace] ✓ Applied oval mask - only face visible, body hidden`);
@@ -151,8 +153,8 @@ async function cropFaceWithMargin(
   console.log(`[MultiFace] ✓ Removed black background - sending only face cutout`);
   
   // DEBUG: Save final cropped image to disk for inspection
-  const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.png`;
-  await sharp(finalCrop).png().toFile(debugPath);
+  const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.jpg`;
+  await sharp(finalCrop).jpeg().toFile(debugPath);
   console.log(`[MultiFace] 🖼️  DEBUG: Saved final face cutout to ${debugPath}`);
 
   // Return final crop (tight cutout around oval) instead of full masked buffer
@@ -170,12 +172,12 @@ async function uploadBufferToS3(buffer: Buffer): Promise<string> {
   const { storagePut } = await import("./storage.js");
   
   // Generate unique key for temporary face crop
-  const tempKey = `temp/face-crop-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
+  const tempKey = `temp/face-crop-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
   
   console.log(`[MultiFace] Uploading cropped face to S3: ${tempKey}`);
   
   // Upload to S3 and get public URL
-  const { url } = await storagePut(tempKey, buffer, "image/png");
+  const { url } = await storagePut(tempKey, buffer, "image/jpeg");
   
   console.log(`[MultiFace] ✓ Face crop uploaded to S3: ${url}`);
   

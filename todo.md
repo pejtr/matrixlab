@@ -309,3 +309,12 @@
 - [x] Root cause: Full-range model not yet released ("Coming soon" in docs)
 - [x] Reverted to blaze_face_short_range/float16/1 (available and working)
 - [ ] Test face detection works after fix
+
+## Protect Mode Transparency Bug - FIXED
+- [x] Problem: Oval mask uses transparent background (PNG with alpha channel)
+- [x] Replicate API doesn't support transparent images → "No output images" error
+- [x] Solution: Change from transparent to BLACK background
+- [x] Black background = API can't see body (black pixels)
+- [x] Transparent background = API sees "nothing" = error
+- [x] Fix: Removed ensureAlpha(), added flatten({ background: black }), changed PNG to JPEG
+- [ ] Test with nude image to verify fix works

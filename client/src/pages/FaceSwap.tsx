@@ -1181,11 +1181,7 @@ export default function FaceSwap() {
                               {/* Keep Body Proportions Badge - only on single preview */}
                               {targetPreviews.length === 1 && (
                                 <div 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPreserveBody(!preserveBody);
-                                  }}
-                                  className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1 cursor-pointer hover:bg-black/80 transition-colors flex items-center gap-1.5"
+                                  className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm rounded px-2 py-1 hover:bg-black/80 transition-colors flex items-center gap-1.5"
                                 >
                                   <input
                                     type="checkbox"
@@ -1196,7 +1192,12 @@ export default function FaceSwap() {
                                     }}
                                     className="w-3 h-3 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
                                   />
-                                  <span className="text-white/90 text-[9px]">Protect</span>
+                                  <label 
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="text-white/90 text-[9px] cursor-pointer"
+                                  >
+                                    Protect
+                                  </label>
                                 </div>
                               )}
 
