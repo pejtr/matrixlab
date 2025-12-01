@@ -233,3 +233,16 @@
 - [x] Keep processing job timeout at 1 hour
 - [x] Cleanup runs on server startup and every 15 minutes
 - [ ] Test cleanup with pending jobs older than 10 minutes
+
+## Protect Mode Still Failing - FIXED
+- [x] Debug: Check worker logs to see if Protect mode is triggered
+- [x] Debug: Verify faceBoxes is being sent from frontend
+- [x] Root cause: Retry button didn't preserve Protect mode settings (faceBoxes + preserveBody)
+- [x] Fix: Updated Retry button to send faceBoxes and preserveBody from original job
+- [ ] Test with nude image to verify fix works
+
+## Hover Overlay Transparency Bug - COMPLETED
+- [x] Remove semi-transparent background (bg-black/60) from hover overlay
+- [x] Keep only buttons and badges visible on hover
+- [x] Add pointer-events-auto to interactive elements
+- [ ] Test hover behavior on job thumbnails

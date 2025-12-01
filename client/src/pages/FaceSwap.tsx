@@ -2065,14 +2065,16 @@ export default function FaceSwap() {
                                 onClick={async (e) => {
                                   e.stopPropagation();
                                   try {
-                                    const newJob = await createJobMutation.mutateAsync({
-                                      sourceImageKey: job.sourceImageKey,
-                                      sourceImageUrl: job.sourceImageUrl,
-                                      targetMediaKey: job.targetMediaKey,
-                                      targetMediaUrl: job.targetMediaUrl,
-                                      targetMediaType: job.targetMediaType,
-                                      modelPreference: job.modelPreference || "high_quality",
-                                    });
+                                   const newJob = await createJobMutation.mutateAsync({
+                                       sourceImageKey: job.sourceImageKey,
+                                       sourceImageUrl: job.sourceImageUrl,
+                                       targetMediaKey: job.targetMediaKey,
+                                       targetMediaUrl: job.targetMediaUrl,
+                                       targetMediaType: job.targetMediaType,
+                                       modelPreference: job.modelPreference || "high_quality",
+                                       preserveBody: job.preserveBody || 0,
+                                       faceBoxes: job.faceBoxes || undefined,
+                                     });
                                     await deleteJobMutation.mutateAsync({ jobId: job.id });
                                     await utils.faceSwap.getMyJobs.invalidate();
                                     toast.success('Job retried');
@@ -2536,6 +2538,8 @@ export default function FaceSwap() {
                     targetMediaUrl: job.targetMediaUrl,
                     targetMediaType: job.targetMediaType,
                     modelPreference: job.modelPreference || "high_quality",
+                    preserveBody: job.preserveBody || 0,
+                    faceBoxes: job.faceBoxes || undefined,
                   });
                                   console.log('[Retry] New job created:', newJob);
                                   
@@ -2643,9 +2647,9 @@ export default function FaceSwap() {
                       )}
 
                       {/* Hover Overlay with Actions */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1">
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1 p-1 pointer-events-none">
                         {/* Quick Actions */}
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 pointer-events-auto">
                           <Button
                             size="sm"
                             onClick={async (e) => {
@@ -2694,7 +2698,7 @@ export default function FaceSwap() {
                         </div>
 
                         {/* Model Badge */}
-                        <div className="px-1.5 py-0.5 rounded-md bg-black/80 border border-white/30">
+                        <div className="px-1.5 py-0.5 rounded-md bg-black/80 border border-white/30 pointer-events-auto">
                           <span className="text-white text-[8px] font-semibold">
                             {job.modelPreference === 'high_quality' ? '⚡ HQ' : '🎨 LQ'}
                           </span>

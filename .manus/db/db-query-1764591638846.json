@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, preserveBody, faceBoxes, errorMessage, modelPreference, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY id DESC LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user dtffFtxzpGHwBQ5.daba0de67eed --database Up5RWiGVfNMp6M7A4q94aj --execute SELECT id, preserveBody, faceBoxes, errorMessage, modelPreference, createdAt FROM faceSwapJobs WHERE status = 'failed' ORDER BY id DESC LIMIT 1",
+  "rows": [
+    {
+      "id": "390081",
+      "preserveBody": "1",
+      "faceBoxes": "[{\"x\":1024,\"y\":251,\"width\":454,\"height\":454,\"confidence\":0.8960696458816528}]",
+      "errorMessage": "Prediction failed: No output images were generated",
+      "modelPreference": "high_quality",
+      "createdAt": "2025-12-01 12:15:50"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpreserveBody\tfaceBoxes\terrorMessage\tmodelPreference\tcreatedAt\n390081\t1\t[{\"x\":1024,\"y\":251,\"width\":454,\"height\":454,\"confidence\":0.8960696458816528}]\tPrediction failed: No output images were generated\thigh_quality\t2025-12-01 12:15:50\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}
