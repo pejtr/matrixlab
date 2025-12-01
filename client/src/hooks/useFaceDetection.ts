@@ -71,28 +71,35 @@ export function useFaceDetection() {
         // CloudFront URLs need proxy to avoid CORS errors
         if (imageSource.includes('cloudfront.net')) {
           console.log('[FaceDetection] Using proxy for CloudFront URL:', imageSource);
-          // Fetch through proxy to get base64 data
-          const response = await fetch('/api/download-proxy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageUrl: imageSource }),
-          });
+          // Fetch through proxy and convert to base64 data URL
+          const response = await fetch(`/api/download-proxy?url=${encodeURIComponent(imageSource)}`);
           
           if (!response.ok) {
             throw new Error(`Proxy fetch failed: ${response.status}`);
           }
           
           const blob = await response.blob();
-          imageUrl = URL.createObjectURL(blob);
-          shouldRevoke = true;
+          // Convert blob to base64 data URL (more reliable than blob URL)
+          const reader = new FileReader();
+          imageUrl = await new Promise<string>((resolve, reject) => {
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error('Failed to read blob'));
+            reader.readAsDataURL(blob);
+          });
+          shouldRevoke = false; // Data URLs don't need revoking
         } else {
           // Already a URL (e.g., from targetPreviews)
           imageUrl = imageSource;
         }
       } else {
-        // File object - create object URL
-        imageUrl = URL.createObjectURL(imageSource);
-        shouldRevoke = true;
+        // File object - convert to data URL for reliability
+        const reader = new FileReader();
+        imageUrl = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsDataURL(imageSource);
+        });
+        shouldRevoke = false; // Data URLs don't need revoking
       }
       
       const img = new Image();
@@ -113,6 +120,7 @@ export function useFaceDetection() {
       // Detect faces
       const detections = faceDetectorRef.current.detect(img);
       
+      // Revoke blob URL after detection completes
       if (shouldRevoke) {
         URL.revokeObjectURL(imageUrl);
       }

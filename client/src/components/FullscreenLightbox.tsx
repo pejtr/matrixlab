@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Download, Trash2, Bookmark, Upload, Crop } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Download, Trash2, Bookmark, Upload, Crop, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface FullscreenLightboxProps {
   images: Array<{
     url: string;
     id: number;
+    isFavorite?: boolean;
   }>;
   currentIndex: number;
   onClose: () => void;
@@ -17,6 +18,8 @@ interface FullscreenLightboxProps {
   showUpload?: boolean;
   onCrop?: (imageUrl: string) => void;
   showCrop?: boolean;
+  onFavoriteToggle?: (id: number, isFavorite: boolean) => void;
+  showFavorite?: boolean;
 }
 
 export default function FullscreenLightbox({
@@ -31,6 +34,8 @@ export default function FullscreenLightbox({
   showUpload = false,
   onCrop,
   showCrop = false,
+  onFavoriteToggle,
+  showFavorite = false,
 }: FullscreenLightboxProps) {
   const currentImage = images[currentIndex];
 
@@ -226,6 +231,22 @@ export default function FullscreenLightbox({
           title="Crop image"
         >
           <Crop className="h-5 w-5" />
+        </Button>
+      )}
+
+      {/* Favorite Button */}
+      {showFavorite && onFavoriteToggle && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFavoriteToggle(currentImage.id, !currentImage.isFavorite);
+          }}
+          className="absolute top-4 right-52 z-10 text-yellow-400 hover:bg-yellow-500/20 h-10 w-10 p-0"
+          title={currentImage.isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Star className="h-5 w-5" fill={currentImage.isFavorite ? "currentColor" : "none"} />
         </Button>
       )}
 

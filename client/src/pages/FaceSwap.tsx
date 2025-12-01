@@ -120,7 +120,7 @@ export default function FaceSwap() {
     typeof window !== 'undefined' && window.innerWidth >= 768 ? 999 : 12
   );
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
-  const [regenerateJob, setRegenerateJob] = useState<typeof completedJobs[0] | null>(null);
+  const [regenerateJob, setRegenerateJob] = useState<(Omit<typeof completedJobs[0], 'favoriteCategory'> & { favoriteCategory?: number | null }) | null>(null);
   const [isDraggingSource, setIsDraggingSource] = useState(false);
   const [isDraggingTarget, setIsDraggingTarget] = useState(false);
   const [isRegenerateMode, setIsRegenerateMode] = useState(false);
@@ -688,7 +688,7 @@ export default function FaceSwap() {
   };
 
   // Load target media from existing job (for regenerate mode)
-  const loadTargetFromJob = async (job: typeof completedJobs[0]) => {
+  const loadTargetFromJob = async (job: Omit<typeof completedJobs[0], 'favoriteCategory'> & { favoriteCategory?: number | null }) => {
     try {
       // Fetch the original target media from the job
       const response = await fetch(job.targetMediaUrl, { mode: 'no-cors' });
@@ -972,10 +972,10 @@ export default function FaceSwap() {
             // DETAIL VIEW (existing layout)
             <>
           {/* Horizontal T Layout: Mobile = Inverted T (inputs side-by-side, results below), Tablet/Desktop = Horizontal T (inputs stacked left, results right) */}
-          <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-3">
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-3">
             
-            {/* Left Column: Inputs (Desktop: stacked, Mobile: hidden) */}
-            <div className="hidden md:block space-y-1.5 max-h-[70vh] overflow-y-hidden">
+            {/* Left Column: Inputs (Desktop: stacked, Mobile/Tablet: hidden) */}
+            <div className="hidden lg:block space-y-1.5 max-h-[70vh] overflow-y-hidden">
               <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
                 {/* Source Face */}
                 <Card className="bg-white/10 backdrop-blur-lg border-white/20 [&>*]:p-0">
@@ -1583,7 +1583,7 @@ export default function FaceSwap() {
                     )}
 
                     {/* Result Display */}
-                    <div className="relative h-[50vh] max-h-screen">
+                    <div className="relative h-[50vh] max-h-screen mx-auto max-w-full lg:max-w-none">
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
@@ -1609,7 +1609,9 @@ export default function FaceSwap() {
                               className="absolute inset-0 w-full h-full object-contain cursor-pointer hover:opacity-90 transition-opacity animate-in fade-in slide-in-from-right-4 duration-700"
                               onClick={() => {
                                 setLightboxType('result');
-                                setLightboxIndex(currentResultIndex);
+                                // Find correct index in completedJobs (not displayJobs)
+                                const lightboxIdx = completedJobs.findIndex(j => j.id === currentJob.id);
+                                setLightboxIndex(lightboxIdx >= 0 ? lightboxIdx : 0);
                                 setShowLightbox(true);
                               }}
                             />
@@ -2803,7 +2805,8 @@ export default function FaceSwap() {
                 })()
               : completedJobs.map(job => ({
                   url: job.resultMediaUrl!,
-                  id: job.id
+                  id: job.id,
+                  isFavorite: job.favoriteCategory !== null
                 }))
           }
           currentIndex={lightboxIndex}
@@ -2851,6 +2854,33 @@ export default function FaceSwap() {
             setShowLightbox(false);
           }}
           showCrop={lightboxType === 'source' || lightboxType === 'target'}
+          onFavoriteToggle={async (jobId, shouldAdd) => {
+            try {
+              if (shouldAdd) {
+                // Add to current favorite category
+                await addFavoriteMutation.mutateAsync({ 
+                  jobId, 
+                  category: favoriteCategory 
+                });
+                toast.success(`Added to Favorites ${favoriteCategory}`);
+              } else {
+                // Remove from favorites - get current category from job
+                const job = completedJobs.find(j => j.id === jobId);
+                if (job?.favoriteCategory) {
+                  await removeFavoriteMutation.mutateAsync({ 
+                    jobId, 
+                    category: job.favoriteCategory 
+                  });
+                  toast.success('Removed from favorites');
+                }
+              }
+              await utils.faceSwap.getMyJobs.invalidate();
+              await utils.faceSwap.getFavoriteCounts.invalidate();
+            } catch (error) {
+              toast.error('Failed to update favorite');
+            }
+          }}
+          showFavorite={lightboxType === 'result'}
         />
       )}
 

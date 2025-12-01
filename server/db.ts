@@ -1,6 +1,6 @@
-import { eq, and, isNull, desc } from "drizzle-orm";
+import { eq, desc, and, inArray, sql, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob, wanAnimateJobs, InsertWanAnimateJob, WanAnimateJob } from "../drizzle/schema";
+import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob, wanAnimateJobs, InsertWanAnimateJob, WanAnimateJob, favorites } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -155,13 +155,47 @@ export async function getFaceSwapJobById(jobId: number): Promise<FaceSwapJob | u
   return result[0];
 }
 
-export async function getUserFaceSwapJobs(userId: number): Promise<FaceSwapJob[]> {
+export async function getUserFaceSwapJobs(userId: number): Promise<Array<FaceSwapJob & { favoriteCategory: number | null }>> {
   const db = await getDb();
   if (!db) {
     throw new Error("Database not available");
   }
 
-  return db.select().from(faceSwapJobs).where(eq(faceSwapJobs.userId, userId)).orderBy(desc(faceSwapJobs.createdAt));
+  // LEFT JOIN with favorites to include favoriteCategory
+  const results = await db
+    .select({
+      id: faceSwapJobs.id,
+      userId: faceSwapJobs.userId,
+      sourceImageKey: faceSwapJobs.sourceImageKey,
+      targetMediaKey: faceSwapJobs.targetMediaKey,
+      resultMediaKey: faceSwapJobs.resultMediaKey,
+      sourceImageUrl: faceSwapJobs.sourceImageUrl,
+      targetMediaUrl: faceSwapJobs.targetMediaUrl,
+      resultMediaUrl: faceSwapJobs.resultMediaUrl,
+      targetMediaType: faceSwapJobs.targetMediaType,
+      modelPreference: faceSwapJobs.modelPreference,
+      preserveBody: faceSwapJobs.preserveBody,
+      faceBoxes: faceSwapJobs.faceBoxes,
+      status: faceSwapJobs.status,
+      errorMessage: faceSwapJobs.errorMessage,
+      progress: faceSwapJobs.progress,
+      retryCount: faceSwapJobs.retryCount,
+      predictionId: faceSwapJobs.predictionId,
+      createdAt: faceSwapJobs.createdAt,
+      updatedAt: faceSwapJobs.updatedAt,
+      completedAt: faceSwapJobs.completedAt,
+      sourceDeletedAt: faceSwapJobs.sourceDeletedAt,
+      favoriteCategory: favorites.category,
+    })
+    .from(faceSwapJobs)
+    .leftJoin(favorites, and(
+      eq(favorites.jobId, faceSwapJobs.id),
+      eq(favorites.userId, userId)
+    ))
+    .where(eq(faceSwapJobs.userId, userId))
+    .orderBy(desc(faceSwapJobs.createdAt));
+
+  return results as Array<FaceSwapJob & { favoriteCategory: number | null }>;
 }
 
 export async function getUniqueSavedSourceFaces(userId: number): Promise<Array<{ sourceImageUrl: string; sourceImageKey: string }>> {
@@ -411,7 +445,7 @@ export async function retryAllFailedJobs(userId: number): Promise<number> {
 }
 
 // Favorites queries
-import { favorites, InsertFavorite, Favorite } from "../drizzle/schema";
+import { InsertFavorite, Favorite } from "../drizzle/schema";
 
 export async function addFavorite(userId: number, jobId: number, category: number): Promise<Favorite> {
   const db = await getDb();
