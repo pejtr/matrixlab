@@ -154,7 +154,7 @@ export default function FaceSwap() {
     isFetchingNextPage,
     refetch,
   } = trpc.faceSwap.getMyJobs.useInfiniteQuery(
-    { limit: 30 },
+    { limit: 60 },
     {
       enabled: isAuthenticated,
       getNextPageParam: (lastPage, allPages) => {

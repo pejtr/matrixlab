@@ -218,11 +218,18 @@
 - [x] Oval is taller (1:1.3 ratio) to follow face shape
 - [ ] Test with nude image to verify NSFW filter bypass
 
-## Fix Infinite Scroll - COMPLETED
+## Fix Infinite Scroll - IN PROGRESS
 - [x] Debug why previous jobs are not loading when scrolling down
 - [x] Root cause: visibleJobsCount limited display to first X jobs
 - [x] Removed visibleJobsCount and show all loaded jobs
 - [x] Removed "Load More" buttons, replaced with loading indicator
 - [x] Scroll listener already attached to grid container
 - [x] Changed max-h-[60vh] to max-h-[70vh] and added min-h-[40vh] for better scrolling
+- [x] Fix: Only 1 row loads on scroll, need to load more jobs (increase limit from 30 to 60)
 - [ ] Test with 30+ jobs to verify infinite scroll works
+
+## Auto-Cleanup Pending Jobs - COMPLETED
+- [x] Change pending job timeout from 1 hour to 10 minutes
+- [x] Keep processing job timeout at 1 hour
+- [x] Cleanup runs on server startup and every 15 minutes
+- [ ] Test cleanup with pending jobs older than 10 minutes
