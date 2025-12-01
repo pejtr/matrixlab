@@ -1129,7 +1129,7 @@ export default function FaceSwap() {
                                     targetInputRef.current?.click();
                                   }
                                 }}
-                                className={targetPreviews.length === 1 ? "w-full max-h-[12vh] md:max-h-[27vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-8 md:h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
+                                className={targetPreviews.length === 1 ? "w-full max-h-[12vh] md:max-h-[22vh] object-contain rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity" : "w-full h-8 md:h-12 object-cover rounded border border-white/20 cursor-pointer hover:opacity-80 transition-opacity"}
                               />
                               
                               {/* Face Detection Preview Overlay */}
@@ -1859,9 +1859,9 @@ export default function FaceSwap() {
                       ))}
                     </div>
                   </div>
-                  {/* Scrollable Grid Container - Single Row Horizontal Scroll */}
-                  <div className="overflow-x-auto overflow-y-hidden pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent' }}>
-                    <div className="flex gap-1.5 max-w-[1200px]">
+                  {/* Scrollable Grid Container - 2 Rows Horizontal Scroll (newest left-to-right) */}
+                  <div className="overflow-x-auto overflow-y-hidden pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.3) transparent', maxHeight: '13rem' }}>
+                    <div className="grid grid-cols-[repeat(auto-fill,6rem)] grid-rows-2 gap-1.5 auto-cols-[6rem]">
                       {visibleJobs.map((job, idx) => (
                         <div
                           key={job.id}
@@ -2896,7 +2896,7 @@ export default function FaceSwap() {
         open={showRegenerateDialog}
         onOpenChange={setShowRegenerateDialog}
         job={regenerateJob}
-        onRegenerate={async (newSourceImageKey, newSourceImageUrl) => {
+        onRegenerate={async (newSourceImageKey: string, newSourceImageUrl: string, modelPreference: "high_quality" | "permissive", preserveBody: boolean) => {
           if (!regenerateJob) return;
           try {
             await createJobMutation.mutateAsync({
@@ -2905,7 +2905,8 @@ export default function FaceSwap() {
               targetMediaKey: regenerateJob.targetMediaKey,
               targetMediaUrl: regenerateJob.targetMediaUrl,
               targetMediaType: regenerateJob.targetMediaType,
-              modelPreference: regenerateJob.modelPreference || "high_quality",
+              modelPreference: modelPreference,
+              preserveBody: preserveBody ? 1 : 0,
             });
             toast.success('Regeneration started!');
             await utils.faceSwap.getMyJobs.invalidate();

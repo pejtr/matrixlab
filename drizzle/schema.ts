@@ -58,6 +58,7 @@ export const faceSwapJobs = mysqlTable("faceSwapJobs", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   completedAt: timestamp("completedAt"),
   sourceDeletedAt: timestamp("sourceDeletedAt"), // Soft delete for source image (hides from Before lightbox)
+  deletedAt: timestamp("deletedAt"), // Soft delete for entire job (allows undo within time window)
 });
 
 export type FaceSwapJob = typeof faceSwapJobs.$inferSelect;

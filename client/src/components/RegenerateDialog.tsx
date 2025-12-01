@@ -14,13 +14,15 @@ interface Job {
   targetMediaType: "image" | "video";
   resultMediaUrl: string | null;
   status: string;
+  modelPreference?: "high_quality" | "permissive";
+  preserveBody?: number;
 }
 
 interface RegenerateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   job: Job | null;
-  onRegenerate: (newSourceImageKey: string, newSourceImageUrl: string) => Promise<void>;
+  onRegenerate: (newSourceImageKey: string, newSourceImageUrl: string, modelPreference: "high_quality" | "permissive", preserveBody: boolean) => Promise<void>;
 }
 
 export default function RegenerateDialog({ open, onOpenChange, job, onRegenerate }: RegenerateDialogProps) {
@@ -28,6 +30,8 @@ export default function RegenerateDialog({ open, onOpenChange, job, onRegenerate
   const [newSourceFile, setNewSourceFile] = useState<File | null>(null);
   const [newSourcePreview, setNewSourcePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [modelPreference, setModelPreference] = useState<"high_quality" | "permissive">("high_quality");
+  const [preserveBody, setPreserveBody] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: savedFaces } = trpc.savedFaces.getMySavedFaces.useQuery(undefined, {
@@ -41,10 +45,15 @@ export default function RegenerateDialog({ open, onOpenChange, job, onRegenerate
       setSelectedSource({ key: job.sourceImageKey, url: job.sourceImageUrl });
       setNewSourceFile(null);
       setNewSourcePreview(null);
+      // Preserve current settings
+      setModelPreference(job.modelPreference || "high_quality");
+      setPreserveBody(job.preserveBody === 1);
     } else {
       setSelectedSource(null);
       setNewSourceFile(null);
       setNewSourcePreview(null);
+      setModelPreference("high_quality");
+      setPreserveBody(false);
     }
     onOpenChange(newOpen);
   };
@@ -97,7 +106,7 @@ export default function RegenerateDialog({ open, onOpenChange, job, onRegenerate
         return;
       }
 
-      await onRegenerate(sourceKey, sourceUrl);
+      await onRegenerate(sourceKey, sourceUrl, modelPreference, preserveBody);
       handleOpenChange(false);
     } catch (error) {
       console.error("Regenerate error:", error);
@@ -220,6 +229,42 @@ export default function RegenerateDialog({ open, onOpenChange, job, onRegenerate
               </div>
             </div>
           )}
+
+          {/* Settings */}
+          <div className="space-y-3 pt-4 border-t border-white/20">
+            <p className="text-sm font-semibold text-white">Generation Settings</p>
+            
+            {/* AI Model Selector */}
+            <div>
+              <label className="text-xs text-white/70 mb-1 block">AI Model</label>
+              <select
+                value={modelPreference}
+                onChange={(e) => setModelPreference(e.target.value as "high_quality" | "permissive")}
+                className="w-full h-9 text-sm bg-white/10 border border-white/20 rounded-lg px-3 text-white focus:ring-0 focus:outline-none hover:bg-white/15 transition-colors"
+              >
+                <option value="high_quality" className="bg-gray-900">⚡ HQ (Fast)</option>
+                <option value="permissive" className="bg-gray-900">🎨 LQ (Slower, Better Quality)</option>
+              </select>
+            </div>
+
+            {/* Protect Checkbox - Only for images */}
+            {job?.targetMediaType === "image" && (
+              <div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={preserveBody}
+                    onChange={(e) => setPreserveBody(e.target.checked)}
+                    className="w-4 h-4 rounded border-white/30 bg-white/10 text-pink-500 focus:ring-0 focus:outline-none cursor-pointer"
+                  />
+                  <span className="text-sm text-white">🛡️ Protect (Face Detection)</span>
+                </label>
+                <p className="text-xs text-white/50 mt-1 ml-6">
+                  Detect and swap only the face, preserving the body
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4">

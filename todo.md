@@ -41,3 +41,16 @@ See git history for complete feature list.
 - [x] Change from 2-column to single column layout on tablet
 - [x] Add max-width constraint to result preview image
 - [ ] Test on tablet breakpoint (768px-1024px)
+
+
+## Grid Layout Fix - URGENT
+- [ ] Change 2-row grid to fill by rows (left-to-right) instead of columns (top-to-bottom)
+- [ ] Newest jobs should appear in top-left, not bottom-left
+- [ ] Use grid-flow-row instead of grid-flow-col
+
+## Processing Timeout Investigation - URGENT
+- [ ] Check why jobs freeze at "Processing" even for non-nude images
+- [ ] Review Replicate API timeout settings
+- [ ] Check webhook delivery logs
+- [ ] Add timeout recovery mechanism
+- [ ] Investigate if Protect mode causes additional delays

@@ -514,6 +514,7 @@ export async function getUserFavorites(userId: number, category?: number): Promi
       updatedAt: faceSwapJobs.updatedAt,
       completedAt: faceSwapJobs.completedAt,
       sourceDeletedAt: faceSwapJobs.sourceDeletedAt,
+      deletedAt: faceSwapJobs.deletedAt,
     })
     .from(favorites)
     .innerJoin(faceSwapJobs, eq(favorites.jobId, faceSwapJobs.id))
@@ -543,6 +544,7 @@ export async function getUserFavorites(userId: number, category?: number): Promi
     updatedAt: faceSwapJobs.updatedAt,
     completedAt: faceSwapJobs.completedAt,
     sourceDeletedAt: faceSwapJobs.sourceDeletedAt,
+    deletedAt: faceSwapJobs.deletedAt,
   })
   .from(favorites)
   .innerJoin(faceSwapJobs, eq(favorites.jobId, faceSwapJobs.id))
