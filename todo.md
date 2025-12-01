@@ -303,3 +303,9 @@
 - [x] Reduce API call timeout from 180s to 60s per user request
 - [ ] Test if 60s is sufficient for Protect mode + LQ model
 - [ ] If jobs still timeout, increase to 120s or 180s
+
+## MediaPipe Model 404 Error - FIXED
+- [x] Error: blaze_face_full_range/float16/1 model not found (404)
+- [x] Root cause: Full-range model not yet released ("Coming soon" in docs)
+- [x] Reverted to blaze_face_short_range/float16/1 (available and working)
+- [ ] Test face detection works after fix
