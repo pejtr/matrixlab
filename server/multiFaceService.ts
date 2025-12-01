@@ -89,10 +89,11 @@ async function cropFaceWithMargin(
     .toBuffer();
 
   // Create oval mask (ellipse) to hide body
+  // Reduce oval size to 65% to hide more body while keeping face visible
   const centerX = cropWidth / 2;
   const centerY = cropHeight / 2;
-  const radiusX = cropWidth / 2;
-  const radiusY = cropHeight / 2;
+  const radiusX = (cropWidth / 2) * 0.65;  // 65% of crop width
+  const radiusY = (cropHeight / 2) * 0.65; // 65% of crop height
 
   // Create black background with oval cutout (no transparency - API can't see through black)
   const ovalMask = Buffer.from(

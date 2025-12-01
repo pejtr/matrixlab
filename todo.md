@@ -122,8 +122,13 @@
 - [x] Simulated progress loop already stops when API completes (clearInterval in finally block)
 - [ ] Test with multiple concurrent jobs (waiting for user test)
 
-## Protect Mode Face Swap Failure - COMPLETED
+## Protect Mode Face Swap Failure - IN PROGRESS
 - [x] Face swap not working in Protect mode - shows original face instead of swapped
 - [x] Issue: Cropped face region too small for API to detect/swap properly (15% margin)
 - [x] Solution: Increased crop margin from 15% to 60% for better face detection context
-- [ ] Test with real nude content to verify fix works (waiting for user test)
+- [x] ❌ USER TEST FAILED: 60% margin still shows too much body, job fails
+- [x] Root cause: Oval mask was same size as crop (100%), showing too much body
+- [x] Fix: Reduced oval radius to 65% of crop size (smaller oval = less body visible)
+- [x] Keep 60% crop margin for face detection context
+- [x] Keep black background around oval (this part works correctly)
+- [ ] Test with real nude image to verify fix works (waiting for user test)
