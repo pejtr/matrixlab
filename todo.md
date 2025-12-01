@@ -64,3 +64,11 @@
 - [x] Fix thumbnail grid height to be exactly 20vh (20% of viewport)
 - [x] Ensure proper spacing and no overflow
 - [x] Fix image to fill full height of container (changed object-contain to object-cover)
+
+## Layout Height Adjustment - COMPLETED
+- [x] Reduce large photo height from 80vh to 75vh to prevent thumbnail grid cutoff
+
+## Face Selection Bug Fix - COMPLETED
+- [x] Fix face reverting to original when clicking job then selecting new face
+- [x] Prevent useEffect from overriding user-selected source face
+- [x] Add condition to skip sync when user manually selects face (only sync if !sourceFile && !sourcePreview)

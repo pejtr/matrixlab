@@ -304,12 +304,13 @@ export default function FaceSwap() {
       if (currentJob.targetMediaUrl && targetFiles.length === 0) {
         setTargetPreviews([currentJob.targetMediaUrl]);
       }
-      // Update source preview to match the current job
-      if (currentJob.sourceImageUrl) {
+      // Only update source preview if user hasn't uploaded/selected new source
+      // (Don't override when user manually selects a saved face or uploads new face)
+      if (currentJob.sourceImageUrl && !sourceFile && !sourcePreview) {
         setSourcePreview(currentJob.sourceImageUrl);
       }
     }
-  }, [currentResultIndex, currentJob, targetFiles.length]);
+  }, [currentResultIndex, currentJob, targetFiles.length, sourceFile, sourcePreview]);
 
   // Re-detect faces when Protect toggle changes or new target is uploaded
   useEffect(() => {
@@ -1535,7 +1536,7 @@ export default function FaceSwap() {
                     </Button>
                   </div>
                   
-                  <div className="relative h-[50vh] md:h-[80vh] overflow-hidden">
+                  <div className="relative h-[50vh] md:h-[75vh] overflow-hidden">
                     {/* Navigation Arrows */}
                     {completedJobs.length > 1 && (
                       <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-3">
@@ -1583,7 +1584,7 @@ export default function FaceSwap() {
                     )}
 
                     {/* Result Display - 80vh on desktop */}
-                    <div className="relative h-[50vh] md:h-[80vh] max-h-screen mx-auto max-w-full lg:max-w-none">
+                    <div className="relative h-[50vh] md:h-[75vh] max-h-screen mx-auto max-w-full lg:max-w-none">
                       {currentJob?.targetMediaType === "video" ? (
                         <video
                           src={currentJob.resultMediaUrl!}
@@ -1591,7 +1592,7 @@ export default function FaceSwap() {
                           controls
                         />
                       ) : (
-                        <div className="relative w-full h-[50vh] md:h-[80vh] max-h-screen">
+                        <div className="relative w-full h-[50vh] md:h-[75vh] max-h-screen">
                           {/* Show original target image during processing */}
                           {currentJob?.status !== "completed" && currentJob?.targetMediaUrl && (
                             <img
