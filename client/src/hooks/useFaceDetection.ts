@@ -68,8 +68,27 @@ export function useFaceDetection() {
       let shouldRevoke = false;
       
       if (typeof imageSource === 'string') {
-        // Already a URL (e.g., from targetPreviews)
-        imageUrl = imageSource;
+        // CloudFront URLs need proxy to avoid CORS errors
+        if (imageSource.includes('cloudfront.net')) {
+          console.log('[FaceDetection] Using proxy for CloudFront URL:', imageSource);
+          // Fetch through proxy to get base64 data
+          const response = await fetch('/api/download-proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageUrl: imageSource }),
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Proxy fetch failed: ${response.status}`);
+          }
+          
+          const blob = await response.blob();
+          imageUrl = URL.createObjectURL(blob);
+          shouldRevoke = true;
+        } else {
+          // Already a URL (e.g., from targetPreviews)
+          imageUrl = imageSource;
+        }
       } else {
         // File object - create object URL
         imageUrl = URL.createObjectURL(imageSource);
@@ -77,7 +96,7 @@ export function useFaceDetection() {
       }
       
       const img = new Image();
-      img.crossOrigin = 'anonymous'; // Enable CORS for remote images
+      // No need for crossOrigin when using proxy or object URLs
       
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
