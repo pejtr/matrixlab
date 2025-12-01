@@ -2,11 +2,12 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, Image, Video, Music, Wand2 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 
 export default function AIDashboard() {
   const { user, loading, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
 
   if (loading) {
     return (
@@ -72,18 +73,20 @@ export default function AIDashboard() {
       {/* Header */}
       <header className="border-b border-white/10 bg-white/5 backdrop-blur-lg">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/">
-            <a className="text-2xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-8 h-8" />
-              AI Studio
-            </a>
-          </Link>
+          <button
+            onClick={() => setLocation("/")}
+            className="text-2xl font-bold text-white flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <Sparkles className="w-8 h-8" />
+            AI Studio
+          </button>
           <div className="flex items-center gap-4">
-            <Link href="/history">
-              <a className="text-white/80 hover:text-white transition-colors">
-                History
-              </a>
-            </Link>
+            <button
+              onClick={() => setLocation("/history")}
+              className="text-white/80 hover:text-white transition-colors cursor-pointer"
+            >
+              History
+            </button>
             <div className="text-white/80">{user?.name || user?.email}</div>
           </div>
         </div>
@@ -106,31 +109,33 @@ export default function AIDashboard() {
           {tools.map((tool) => {
             const Icon = tool.icon;
             return (
-              <Link key={tool.href} href={tool.href}>
-                <a className="block group">
-                  <Card className="bg-white/10 backdrop-blur-lg border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105 h-full">
-                    <CardHeader>
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-8 h-8 text-white" />
-                      </div>
-                      <CardTitle className="text-2xl text-white">
-                        {tool.title}
-                      </CardTitle>
-                      <CardDescription className="text-white/70 text-base">
-                        {tool.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        variant="outline"
-                        className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
-                      >
-                        Get Started →
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </a>
-              </Link>
+              <div
+                key={tool.href}
+                onClick={() => setLocation(tool.href)}
+                className="block group cursor-pointer"
+              >
+                <Card className="bg-white/10 backdrop-blur-lg border-white/20 hover:bg-white/15 transition-all duration-300 hover:scale-105 h-full">
+                  <CardHeader>
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                    <CardTitle className="text-2xl text-white">
+                      {tool.title}
+                    </CardTitle>
+                    <CardDescription className="text-white/70 text-base">
+                      {tool.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button
+                      variant="outline"
+                      className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    >
+                      Get Started →
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
             );
           })}
         </div>
