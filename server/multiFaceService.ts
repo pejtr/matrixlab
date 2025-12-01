@@ -44,12 +44,13 @@ async function downloadImage(url: string): Promise<Buffer> {
 }
 
 /**
- * Crop face region with margin
+ * Crop face region with margin and apply oval mask
+ * Only the face (oval shape) is visible, body is completely hidden
  */
 async function cropFaceWithMargin(
   imageBuffer: Buffer,
   bbox: FaceBoundingBox,
-  marginPercent: number = 50
+  marginPercent: number = 15  // Reduced from 50% to 15% - just face + ears + hair
 ): Promise<{ buffer: Buffer; cropX: number; cropY: number; cropWidth: number; cropHeight: number }> {
   const image = sharp(imageBuffer);
   const metadata = await image.metadata();
@@ -58,7 +59,7 @@ async function cropFaceWithMargin(
     throw new Error("Failed to get image dimensions");
   }
 
-  // Calculate margin
+  // Calculate margin (15% = just enough for ears and hair)
   const marginX = Math.floor((bbox.width * marginPercent) / 100);
   const marginY = Math.floor((bbox.height * marginPercent) / 100);
 
@@ -74,19 +75,52 @@ async function cropFaceWithMargin(
     Math.floor(bbox.height + marginY * 2)
   );
 
-  console.log(`[MultiFace] Cropping face: x=${cropX}, y=${cropY}, w=${cropWidth}, h=${cropHeight}`);
+  console.log(`[MultiFace] Cropping face with 15% margin: x=${cropX}, y=${cropY}, w=${cropWidth}, h=${cropHeight}`);
 
-  const croppedBuffer = await image
+  // Extract rectangular crop first
+  const rectCrop = await image
     .extract({
       left: cropX,
       top: cropY,
       width: cropWidth,
       height: cropHeight,
     })
+    .toBuffer();
+
+  // Create oval mask (ellipse) to hide body
+  const centerX = cropWidth / 2;
+  const centerY = cropHeight / 2;
+  const radiusX = cropWidth / 2;
+  const radiusY = cropHeight / 2;
+
+  // Create black background with oval cutout (no transparency - API can't see through black)
+  const ovalMask = Buffer.from(
+    `<svg width="${cropWidth}" height="${cropHeight}">
+      <defs>
+        <radialGradient id="fade" cx="50%" cy="50%" r="50%">
+          <stop offset="85%" stop-color="white" stop-opacity="1" />
+          <stop offset="100%" stop-color="white" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="${centerX}" cy="${centerY}" rx="${radiusX}" ry="${radiusY}" fill="url(#fade)" />
+    </svg>`
+  );
+
+  // Apply oval mask with black background (body completely hidden, not transparent)
+  const maskedBuffer = await sharp(rectCrop)
+    .flatten({ background: { r: 0, g: 0, b: 0 } }) // Black background instead of transparency
+    .composite([
+      {
+        input: ovalMask,
+        blend: "dest-in",
+      },
+    ])
     .jpeg({ quality: 95 })
     .toBuffer();
 
-  return { buffer: croppedBuffer, cropX, cropY, cropWidth, cropHeight };
+  console.log(`[MultiFace] ✓ Applied oval mask - only face visible, body hidden`);
+
+  return { buffer: maskedBuffer, cropX, cropY, cropWidth, cropHeight };
 }
 
 /**
@@ -160,8 +194,9 @@ export async function processMultiFaceSwap(
 
       try {
         // Step 1: Crop face region from CURRENT image (with previous faces already swapped)
+        // Using 15% margin with oval mask - only face visible, body completely hidden
         const { buffer: faceCropBuffer, cropX, cropY, cropWidth, cropHeight } = 
-          await cropFaceWithMargin(currentBuffer, bbox, 50);
+          await cropFaceWithMargin(currentBuffer, bbox, 15);
 
         // Step 2: Upload face crop to get URL
         const faceCropUrl = await uploadBufferToReplicate(faceCropBuffer);
