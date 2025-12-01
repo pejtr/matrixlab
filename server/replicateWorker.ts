@@ -83,27 +83,30 @@ async function processJob(jobId: number) {
 
     // Step 2: Update to processing
     console.log(`[Worker] [Job #${jobId}] [Step 2/7] Updating status to processing...`);
-    await updateFaceSwapJobStatus(jobId, "processing", { progress: 10 });
-    console.log(`[Worker] [Job #${jobId}] ✓ Status updated (10%)`);
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 5 });
+    console.log(`[Worker] [Job #${jobId}] ✓ Status updated (5%)`);
 
     // Step 3: Prepare for API call
     console.log(`[Worker] [Job #${jobId}] [Step 3/7] Preparing API call...`);
-    await updateFaceSwapJobStatus(jobId, "processing", { progress: 30 });
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 15 });
     console.log(`[Worker] [Job #${jobId}] Source: ${job.sourceImageUrl}`);
     console.log(`[Worker] [Job #${jobId}] Target: ${job.targetMediaUrl}`);
     console.log(`[Worker] [Job #${jobId}] Type: ${job.targetMediaType}`);
 
-    // Step 3.5: Apply Protect mode BEFORE API call (if faceBoxes provided)
+    // Step 3.5: Apply Protect mode BEFORE API call (if preserveBody enabled)
     // This prevents NSFW content filter from blocking the job
-    if (job.faceBoxes && job.targetMediaType === "image") {
+    if (job.preserveBody === 1 && job.faceBoxes && job.targetMediaType === "image") {
       console.log(`[Worker] [Job #${jobId}] [Step 3.5/7] Protect mode enabled - processing face crop BEFORE API call...`);
-      await updateFaceSwapJobStatus(jobId, "processing", { progress: 25 });
+      await updateFaceSwapJobStatus(jobId, "processing", { progress: 20 });
       
       try {
         const { processMultiFaceSwap } = await import("./multiFaceService.js");
         const faceBoxes = JSON.parse(job.faceBoxes);
         
         console.log(`[Worker] [Job #${jobId}] Protect mode: ${faceBoxes.length} face(s) detected`);
+        
+        // Progress updates during Protect mode processing
+        await updateFaceSwapJobStatus(jobId, "processing", { progress: 30 });
         
         // Process all faces: crop → swap → composite back
         // This sends ONLY the face crop to API, bypassing NSFW filter
@@ -112,12 +115,18 @@ async function processJob(jobId: number) {
           targetImageUrl: job.targetMediaUrl,
           faceBoxes: faceBoxes,
           modelPreference: job.modelPreference || "high_quality",
+          onProgress: async (progress: number) => {
+            // Update progress during face processing (30-80%)
+            const scaledProgress = 30 + Math.floor(progress * 0.5); // Scale 0-100 to 30-80
+            await updateFaceSwapJobStatus(jobId, "processing", { progress: scaledProgress });
+          },
         });
         
         if (multiFaceResult.success && multiFaceResult.outputBuffer) {
           console.log(`[Worker] [Job #${jobId}] ✓ Protect mode complete: ${multiFaceResult.processedFaces}/${faceBoxes.length} faces swapped`);
           
           // Upload the final result to S3
+          await updateFaceSwapJobStatus(jobId, "processing", { progress: 85 });
           const fileExtension = "jpg"; // Always image in Protect mode
           const resultKey = `results/job-${jobId}-${Date.now()}.${fileExtension}`;
           const contentType = "image/jpeg";
@@ -153,18 +162,17 @@ async function processJob(jobId: number) {
     let result;
     const useRunPod = isRunPodConfigured() && job.targetMediaType === "video";
     
-    // Progress update helper for long API calls
+    // Progress update helper for long API calls - smooth increments every 3 seconds
+    let currentProgress = 25;
     const progressInterval = setInterval(async () => {
       const elapsed = Date.now() - apiStartTime;
-      // Update progress every 10 seconds during API call (40%, 50%, 60%)
-      if (elapsed > 10000 && elapsed < 20000) {
-        await updateFaceSwapJobStatus(jobId, "processing", { progress: 40 });
-      } else if (elapsed > 20000 && elapsed < 30000) {
-        await updateFaceSwapJobStatus(jobId, "processing", { progress: 50 });
-      } else if (elapsed > 30000) {
-        await updateFaceSwapJobStatus(jobId, "processing", { progress: 60 });
+      // Gradually increase progress from 25% to 65% over time
+      // Each 3 seconds add 3-5% to show activity
+      if (currentProgress < 65) {
+        currentProgress += 3;
+        await updateFaceSwapJobStatus(jobId, "processing", { progress: Math.min(currentProgress, 65) });
       }
-    }, 10000);
+    }, 3000); // Update every 3 seconds instead of 10
     
     try {
       if (useRunPod) {
@@ -219,6 +227,7 @@ async function processJob(jobId: number) {
       // Step 5: Update progress after API call
       console.log(`[Worker] [Job #${jobId}] [Step 5/7] Updating progress (70%)...`);
       await updateFaceSwapJobStatus(jobId, "processing", { progress: 70 });
+      currentProgress = 70; // Sync progress tracker
     }
 
     if (!result.success || (!result.outputUrl && !result.outputBase64)) {
@@ -245,7 +254,7 @@ async function processJob(jobId: number) {
 
     // Step 6: Download result
     console.log(`[Worker] [Job #${jobId}] [Step 6/7] Downloading result...`);
-    await updateFaceSwapJobStatus(jobId, "processing", { progress: 80 });
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 75 });
 
     let resultBuffer: Buffer;
     if (result.outputUrl) {
@@ -263,9 +272,10 @@ async function processJob(jobId: number) {
     // This prevents NSFW filter from blocking the job
     
     // Step 6.5: Apply body preservation blending (if enabled and image and NOT Protect mode)
-    if (job.preserveBody === 1 && job.targetMediaType === "image") {
+    // Skip if Protect mode already handled this (faceBoxes exists)
+    if (job.preserveBody === 1 && job.targetMediaType === "image" && !job.faceBoxes) {
       console.log(`[Worker] [Job #${jobId}] [Step 6.6/7] Applying body preservation blending...`);
-      await updateFaceSwapJobStatus(jobId, "processing", { progress: 85 });
+      await updateFaceSwapJobStatus(jobId, "processing", { progress: 82 });
       
       const { processWithBodyPreservation } = await import("./imageBlendingService.js");
       
@@ -291,7 +301,7 @@ async function processJob(jobId: number) {
     
     // Step 7: Upload to S3
     console.log(`[Worker] [Job #${jobId}] [Step 7/7] Uploading to S3...`);
-    await updateFaceSwapJobStatus(jobId, "processing", { progress: 90 });
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 88 });
 
     const uploadStartTime = Date.now();
     const fileExtension = job.targetMediaType === "video" ? "mp4" : "jpg";

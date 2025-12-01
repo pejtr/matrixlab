@@ -88,7 +88,22 @@
 - [x] Write test to verify Protect mode bypasses NSFW filter (replicateWorker.protect.test.ts)
 - [x] All 3 tests passed: Protect mode enabled, fallback on failure, skip when disabled
 - [ ] Test with real nude content to confirm fix works (requires user testing)
+- [ ] ❌ USER TESTING FAILED: Nude photo + Protect + HQ → still got "Content Warning"
+- [ ] Debug: Check if faceBoxes is being saved to database when Protect is enabled
+- [ ] Debug: Check if worker detects faceBoxes and triggers multi-face processing path
+- [ ] Debug: Add detailed logging to trace execution flow in worker
+- [ ] Fix: Ensure frontend sends faceBoxes array when creating job with Protect enabled
 
 ## 4K Monitor Thumbnail Grid Fix - COMPLETED
 - [x] Increase padding-top in thumbnail grid container to prevent first row cutoff on 4K displays
 - [x] Increase max-height from 40vh to 45vh for better visibility
+
+## Progress Bar Improvement - COMPLETED
+- [x] Current issue: Progress freezes at 50% and 60%, looks stuck
+- [x] Analyze worker progress update points (currently: 10%, 30%, 40-60%, 70%, 80%, 85%, 90%, 100%)
+- [x] Implement smoother progress updates with smaller increments (every 5-10%)
+- [x] Add simulated progress during long API calls to show activity
+- [x] Ensure full 0-100% range is utilized (5% → 15% → 20% → 25-65% → 70% → 75% → 82% → 88% → 100%)
+- [x] Changed interval from 10s to 3s for more frequent updates
+- [x] Added progress callbacks to Protect mode face processing
+- [ ] Test with real job to verify smooth visual feedback (waiting for user test)

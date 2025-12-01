@@ -21,6 +21,7 @@ export interface MultiFaceSwapInput {
   faceBoxes: FaceBoundingBox[];
   modelPreference?: "high_quality" | "permissive";
   webhookUrl?: string;
+  onProgress?: (progress: number) => Promise<void>; // Progress callback (0-100)
 }
 
 export interface MultiFaceSwapResult {
@@ -192,6 +193,12 @@ export async function processMultiFaceSwap(
       const bbox = input.faceBoxes[i];
       console.log(`[MultiFace] Processing face ${i + 1}/${input.faceBoxes.length} (confidence: ${bbox.confidence.toFixed(2)})`);
 
+      // Report progress for this face (divide 100% by number of faces)
+      const faceProgress = Math.floor((i / input.faceBoxes.length) * 100);
+      if (input.onProgress) {
+        await input.onProgress(faceProgress);
+      }
+
       try {
         // Step 1: Crop face region from CURRENT image (with previous faces already swapped)
         // Using 15% margin with oval mask - only face visible, body completely hidden
@@ -231,6 +238,12 @@ export async function processMultiFaceSwap(
 
         processedFaces++;
         console.log(`[MultiFace] ✓ Face ${i + 1} swapped successfully`);
+        
+        // Report progress after completing this face
+        const completedProgress = Math.floor(((i + 1) / input.faceBoxes.length) * 100);
+        if (input.onProgress) {
+          await input.onProgress(completedProgress);
+        }
       } catch (error) {
         console.error(`[MultiFace] Error processing face ${i + 1}:`, error);
         // Continue with other faces

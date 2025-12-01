@@ -849,6 +849,13 @@ export default function FaceSwap() {
         // Use only the manually selected face (or first face if not manually selected)
         const selectedFace = detectedFaces.length > 0 ? detectedFaces[selectedFaceIndex] : undefined;
         
+        // When Protect mode is enabled, always send faceBoxes (even if empty)
+        // This tells the worker to use Protect mode processing
+        let faceBoxesJson: string | undefined = undefined;
+        if (preserveBody) {
+          faceBoxesJson = selectedFace ? JSON.stringify([selectedFace]) : JSON.stringify([]);
+        }
+        
         await createJobMutation.mutateAsync({
           sourceImageKey: sourceUploadData.key || `uploaded-${Date.now()}`,
           sourceImageUrl: sourceUploadData.url,
@@ -857,7 +864,7 @@ export default function FaceSwap() {
           targetMediaType,
           modelPreference,
           preserveBody: preserveBody ? 1 : 0, // Convert boolean to 0/1 for database
-          faceBoxes: selectedFace ? JSON.stringify([selectedFace]) : undefined, // Send only selected face
+          faceBoxes: faceBoxesJson, // Send faceBoxes when Protect enabled (even if empty)
         });
 
       }
