@@ -157,7 +157,7 @@ export async function getFaceSwapJobById(jobId: number): Promise<FaceSwapJob | u
 
 export async function getUserFaceSwapJobs(
   userId: number,
-  options?: { limit?: number; offset?: number }
+  options?: { limit?: number; cursor?: number }
 ): Promise<Array<FaceSwapJob & { favoriteCategory: number | null }>> {
   const db = await getDb();
   if (!db) {
@@ -195,10 +195,16 @@ export async function getUserFaceSwapJobs(
       eq(favorites.jobId, faceSwapJobs.id),
       eq(favorites.userId, userId)
     ))
-    .where(eq(faceSwapJobs.userId, userId))
-    .orderBy(desc(faceSwapJobs.createdAt))
-    .limit(options?.limit || 50)
-    .offset(options?.offset || 0);
+    .where(
+      options?.cursor
+        ? and(
+            eq(faceSwapJobs.userId, userId),
+            lt(faceSwapJobs.id, options.cursor) // Get jobs with ID less than cursor (older jobs)
+          )
+        : eq(faceSwapJobs.userId, userId)
+    )
+    .orderBy(desc(faceSwapJobs.id)) // Order by ID descending (newest first)
+    .limit(options?.limit || 60);
 
   return results as Array<FaceSwapJob & { favoriteCategory: number | null }>;
 }

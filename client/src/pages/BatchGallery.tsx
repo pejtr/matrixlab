@@ -20,19 +20,17 @@ export default function BatchGallery() {
   const [showThumbnails, setShowThumbnails] = useState(false);
 
   // Fetch all completed jobs for the user
-  const { data: jobs, isLoading } = trpc.faceSwap.getMyJobs.useQuery(
-    undefined,
+  const { data: jobsData, isLoading } = trpc.faceSwap.getMyJobs.useInfiniteQuery(
+    { limit: 100 },
     {
       enabled: isAuthenticated,
-      refetchInterval: (query: any) => {
-        // Keep polling if any job is not completed
-        const hasIncompleteJobs = query.state.data?.some(
-          (job: any) => job.status !== "completed" && job.status !== "failed"
-        );
-        return hasIncompleteJobs ? 3000 : false;
-      },
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      refetchInterval: 3000,
     }
   );
+  
+  // Flatten all pages
+  const jobs = jobsData?.pages.flatMap(page => page.items) || [];
 
   // Filter only completed jobs with results
   const completedJobs = jobs?.filter(

@@ -164,14 +164,33 @@ export const appRouter = router({
         return job;
       }),
 
-    // Get user's job history
+    // Get user's job history with cursor-based pagination
     getMyJobs: protectedProcedure
       .input(z.object({
-        limit: z.number().optional(),
-        offset: z.number().optional(),
-      }).optional())
+        limit: z.number().min(1).max(100).default(60),
+        cursor: z.number().optional(), // Last job ID from previous page
+      }))
       .query(async ({ ctx, input }) => {
-        return getUserFaceSwapJobs(ctx.user.id, input);
+        const limit = input.limit;
+        const cursor = input.cursor;
+        
+        // Fetch one extra item to determine if there's a next page
+        const jobs = await getUserFaceSwapJobs(ctx.user.id, {
+          limit: limit + 1,
+          cursor,
+        });
+        
+        let nextCursor: number | undefined = undefined;
+        if (jobs.length > limit) {
+          // Remove the extra item and use its ID as the next cursor
+          const nextItem = jobs.pop();
+          nextCursor = nextItem?.id;
+        }
+        
+        return {
+          items: jobs,
+          nextCursor,
+        };
       }),
 
     // Update job status (for worker process)

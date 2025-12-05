@@ -218,7 +218,14 @@
 - [x] Oval is taller (1:1.3 ratio) to follow face shape
 - [ ] Test with nude image to verify NSFW filter bypass
 
-## Fix Infinite Scroll - IN PROGRESS
+## React Key Prop Warning - FIXED
+- [x] Error: Each child in a list should have a unique "key" prop
+- [x] Root cause: FullscreenLightbox source images used job.id, causing duplicates for same source
+- [x] Fix: Changed source image IDs to `source-${url}` for uniqueness
+- [x] Updated FullscreenLightbox to accept string | number IDs
+- [x] Fixed onDelete and onFavoriteToggle handlers to handle both ID types
+
+## Fix Infinite Scroll - BUG REPORTED AGAIN
 - [x] Debug why previous jobs are not loading when scrolling down
 - [x] Root cause: visibleJobsCount limited display to first X jobs
 - [x] Removed visibleJobsCount and show all loaded jobs
@@ -226,6 +233,13 @@
 - [x] Scroll listener already attached to grid container
 - [x] Changed max-h-[60vh] to max-h-[70vh] and added min-h-[40vh] for better scrolling
 - [x] Fix: Only 1 row loads on scroll, need to load more jobs (increase limit from 30 to 60)
+- [ ] Test with 30+ jobs to verify infinite scroll works
+- [x] USER REPORT: Infinite scroll still not working - only first 2 rows load
+- [x] Root cause: Backend returned array, frontend expected {items, nextCursor}
+- [x] Fix: Changed backend to cursor-based pagination (lt(id, cursor))
+- [x] Fix: Updated frontend getNextPageParam to use lastPage.nextCursor
+- [x] Fix: Changed jobs flattening to flatMap(page => page.items)
+- [x] Fixed JobHistory.tsx and BatchGallery.tsx to use infinite query
 - [ ] Test with 30+ jobs to verify infinite scroll works
 
 ## Auto-Cleanup Pending Jobs - COMPLETED
@@ -394,12 +408,16 @@
 - [ ] Solution: Either add webhook URL or remove webhook_events_filter parameter
 - [ ] Test with nude image after fix
 
-## Protect Mode Transparency Bug - FIXED
-- [x] Bug: Entire result is transparent instead of just black borders
-- [x] Root cause: dest-in blend mode made entire image transparent
-- [x] Fix: Use skin-tone background instead of transparency
-- [x] Changed to JPEG format (no alpha channel)
-- [x] Face inside oval is opaque, background is skin tone color
+## Protect Mode Black Borders - IN PROGRESS
+- [x] Bug #1: Entire result was transparent (FIXED with skin-tone background)
+- [x] Bug #2: Black borders still visible around oval mask
+- [x] Bug #3: Tight cropping to oval bounding box brought back black borders
+- [x] Current approach: Skin-tone fill doesn't blend well with actual skin
+- [x] New solution: Use blurred version of original image as background
+- [x] Implementation: Blur original (50px) → composite oval face on top → send to API
+- [x] Removed skin-tone detection code, replaced with sharp blur
+- [x] Removed tight cropping - send full crop area with blurred background
+- [ ] Expected result: Sharp face inside oval, blurred background outside, no black borders
 - [ ] Test with nude image to verify face is visible and body is hidden
 
 ## Progress Indicators - Early Stages Missing

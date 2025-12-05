@@ -12,10 +12,17 @@ export default function JobHistory() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   
-  const { data: jobs, isLoading } = trpc.faceSwap.getMyJobs.useQuery(undefined, {
-    enabled: isAuthenticated,
-    refetchInterval: 5000, // Refresh every 5 seconds
-  });
+  const { data: jobsData, isLoading } = trpc.faceSwap.getMyJobs.useInfiniteQuery(
+    { limit: 100 },
+    {
+      enabled: isAuthenticated,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      refetchInterval: 5000, // Refresh every 5 seconds
+    }
+  );
+  
+  // Flatten all pages
+  const jobs = jobsData?.pages.flatMap(page => page.items) || [];
 
   const retryAllMutation = trpc.faceSwap.retryAllFailed.useMutation({
     onSuccess: (data) => {

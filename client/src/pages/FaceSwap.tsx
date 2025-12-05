@@ -157,12 +157,7 @@ export default function FaceSwap() {
     { limit: 60 },
     {
       enabled: isAuthenticated,
-      getNextPageParam: (lastPage, allPages) => {
-        // If last page has fewer items than limit, we've reached the end
-        if (lastPage.length < 30) return undefined;
-        // Otherwise, return offset for next page
-        return { limit: 30, offset: allPages.length * 30 };
-      },
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
       staleTime: 5000,
       refetchInterval: 10000,
       refetchOnMount: true,
@@ -171,7 +166,7 @@ export default function FaceSwap() {
   );
 
   // Flatten all pages into single array
-  const jobs = jobsData?.pages.flat() || [];
+  const jobs = jobsData?.pages.flatMap(page => page.items) || [];
   
   // Infinite scroll: detect when user scrolls near bottom
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -2828,14 +2823,14 @@ export default function FaceSwap() {
             : lightboxType === 'source'
               ? (() => {
                   // Get unique source images (remove duplicates)
-                  const uniqueSources = new Map<string, { url: string; id: number }>();
+                  const uniqueSources = new Map<string, { url: string; id: string }>();
                   completedJobs
                     .filter((job: any) => !job.sourceDeletedAt)
                     .forEach((job: any) => {
                       if (!uniqueSources.has(job.sourceImageUrl)) {
                         uniqueSources.set(job.sourceImageUrl, {
                           url: job.sourceImageUrl,
-                          id: job.id
+                          id: `source-${job.sourceImageUrl}` // Use URL-based ID to ensure uniqueness
                         });
                       }
                     });
@@ -2858,13 +2853,27 @@ export default function FaceSwap() {
           }}
           onDelete={async (jobId) => {
             try {
+              // For source/target with string IDs, find the actual job ID
+              if (typeof jobId === 'string') {
+                // Extract URL from string ID and find first matching job
+                const url = jobId.replace('source-', '').replace('target-', '');
+                const job = completedJobs.find((j: any) => 
+                  j.sourceImageUrl === url || j.targetMediaUrl === url
+                );
+                if (!job) {
+                  toast.error('Job not found');
+                  return;
+                }
+                jobId = job.id;
+              }
+              
               // For source type, use soft delete (hides from Before gallery, keeps job visible)
               if (lightboxType === 'source') {
-                await softDeleteSourceMutation.mutateAsync({ jobId });
+                await softDeleteSourceMutation.mutateAsync({ jobId: jobId as number });
                 toast.success('Source image hidden from Before gallery');
               } else {
                 // For result/target type, hard delete the entire job
-                await deleteJobMutation.mutateAsync({ jobId });
+                await deleteJobMutation.mutateAsync({ jobId: jobId as number });
                 toast.success('Job deleted successfully');
               }
               
@@ -2894,6 +2903,12 @@ export default function FaceSwap() {
           showCrop={lightboxType === 'source' || lightboxType === 'target'}
           onFavoriteToggle={async (jobId, shouldAdd) => {
             try {
+              // String IDs are for source/target, which don't support favorites
+              if (typeof jobId === 'string') {
+                toast.error('Favorites only available for results');
+                return;
+              }
+              
               if (shouldAdd) {
                 // Add to current favorite category
                 await addFavoriteMutation.mutateAsync({ 

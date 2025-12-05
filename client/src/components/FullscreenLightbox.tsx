@@ -5,20 +5,20 @@ import { Button } from "@/components/ui/button";
 interface FullscreenLightboxProps {
   images: Array<{
     url: string;
-    id: number;
+    id: number | string; // Support both number (job ID) and string (unique source/target ID)
     isFavorite?: boolean;
   }>;
   currentIndex: number;
   onClose: () => void;
   onNavigate: (index: number) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number | string) => void;
   onSave?: (imageUrl: string) => void;
   showSave?: boolean;
   onUpload?: () => void;
   showUpload?: boolean;
   onCrop?: (imageUrl: string) => void;
   showCrop?: boolean;
-  onFavoriteToggle?: (id: number, isFavorite: boolean) => void;
+  onFavoriteToggle?: (id: number | string, isFavorite: boolean) => void;
   showFavorite?: boolean;
 }
 

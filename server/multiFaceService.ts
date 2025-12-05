@@ -102,50 +102,13 @@ async function cropFaceWithMargin(
   console.log(`[MultiFace]   - Oval radius: ${radiusX}x${radiusY}px (55% of crop)`);
   console.log(`[MultiFace]   - Oval will show only ${(0.55 * 100).toFixed(0)}% of crop area`)
 
-  // Detect average skin tone from center of face region
-  const sampleSize = Math.min(50, Math.floor(radiusX / 2)); // Sample 50x50px or smaller
-  const sampleX = Math.floor(centerX - sampleSize / 2);
-  const sampleY = Math.floor(centerY - sampleSize / 2);
+  // Create blurred background from original crop
+  // This will look more natural than solid color and hide body details
+  const blurredBackground = await sharp(rectCrop)
+    .blur(50) // Heavy blur to hide body details
+    .toBuffer();
   
-  const skinSample = await sharp(rectCrop)
-    .extract({
-      left: Math.max(0, sampleX),
-      top: Math.max(0, sampleY),
-      width: Math.min(sampleSize, cropWidth - sampleX),
-      height: Math.min(sampleSize, cropHeight - sampleY),
-    })
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  
-  // Calculate average RGB from sample
-  const { data, info } = skinSample;
-  let totalR = 0, totalG = 0, totalB = 0;
-  const pixelCount = info.width * info.height;
-  
-  for (let i = 0; i < data.length; i += info.channels) {
-    totalR += data[i];
-    totalG += data[i + 1];
-    totalB += data[i + 2];
-  }
-  
-  const avgR = Math.round(totalR / pixelCount);
-  const avgG = Math.round(totalG / pixelCount);
-  const avgB = Math.round(totalB / pixelCount);
-  
-  console.log(`[MultiFace] 🎨 Detected skin tone: rgb(${avgR}, ${avgG}, ${avgB})`);
-
-  // Create skin-tone background layer
-  const skinBackground = await sharp({
-    create: {
-      width: cropWidth,
-      height: cropHeight,
-      channels: 3,
-      background: { r: avgR, g: avgG, b: avgB }
-    }
-  })
-  .png()
-  .toBuffer();
-  
+  console.log(`[MultiFace] 🌫️  Created blurred background from original image`); 
   // Create oval mask (white inside oval, black outside with feathered edges)
   const ovalMask = Buffer.from(
     `<svg width="${cropWidth}" height="${cropHeight}">
@@ -160,9 +123,9 @@ async function cropFaceWithMargin(
     </svg>`
   );
 
-  // Composite: skin background + original image (masked by oval)
-  // This keeps face visible inside oval, skin tone outside
-  const maskedBuffer = await sharp(skinBackground)
+  // Composite: blurred background + original image (masked by oval)
+  // This keeps face visible inside oval, blurred background outside
+  const maskedBuffer = await sharp(blurredBackground)
     .composite([
       {
         input: await sharp(rectCrop)
@@ -177,39 +140,16 @@ async function cropFaceWithMargin(
     .jpeg({ quality: 95 }) // Use JPEG - no transparency needed
     .toBuffer();
 
-  console.log(`[MultiFace] ✓ Applied oval mask - only face visible, body hidden with skin-tone fill`);
+  console.log(`[MultiFace] ✓ Applied oval mask - sharp face inside oval, blurred background outside`);
   
-  // Crop tightly around oval to remove skin-tone background
-  // Calculate bounding box of oval (smallest rectangle containing the ellipse)
-  const ovalLeft = Math.floor(centerX - radiusX);
-  const ovalTop = Math.floor(centerY - radiusY);
-  const ovalWidth = Math.ceil(radiusX * 2);
-  const ovalHeight = Math.ceil(radiusY * 2);
-  
-  console.log(`[MultiFace] 🔍 Cropping to oval bounding box: x=${ovalLeft}, y=${ovalTop}, w=${ovalWidth}, h=${ovalHeight}`);
-  
-  // Extract only the oval region (remove black background)
-  const finalCrop = await sharp(maskedBuffer)
-    .extract({
-      left: Math.max(0, ovalLeft),
-      top: Math.max(0, ovalTop),
-      width: Math.min(ovalWidth, cropWidth - ovalLeft),
-      height: Math.min(ovalHeight, cropHeight - ovalTop),
-    })
-    .toBuffer();
-  
-  console.log(`[MultiFace] ✓ Removed skin-tone background - sending only face cutout`);
-  
-  // DEBUG: Save final cropped image to disk for inspection
+  // DEBUG: Save final image to disk for inspection
   const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.jpg`;
-  await sharp(finalCrop).jpeg({ quality: 95 }).toFile(debugPath);
-  console.log(`[MultiFace] 🖼️  DEBUG: Saved final face cutout to ${debugPath}`);
+  await sharp(maskedBuffer).jpeg({ quality: 95 }).toFile(debugPath);
+  console.log(`[MultiFace] 🖼️  DEBUG: Saved final masked image to ${debugPath}`);
 
-  // Return final crop (tight cutout around oval) instead of full masked buffer
-  // Update crop coordinates to reflect the tight crop
-  const finalCropX = cropX + ovalLeft;
-  const finalCropY = cropY + ovalTop;
-  return { buffer: finalCrop, cropX: finalCropX, cropY: finalCropY, cropWidth: ovalWidth, cropHeight: ovalHeight };
+  // Return full masked buffer (no tight cropping)
+  // This sends the entire crop area with blurred background - no black borders
+  return { buffer: maskedBuffer, cropX, cropY, cropWidth, cropHeight };
 }
 
 /**
