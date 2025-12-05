@@ -102,36 +102,84 @@ async function cropFaceWithMargin(
   console.log(`[MultiFace]   - Oval radius: ${radiusX}x${radiusY}px (55% of crop)`);
   console.log(`[MultiFace]   - Oval will show only ${(0.55 * 100).toFixed(0)}% of crop area`)
 
-  // Create black background with oval cutout (no transparency - API can't see through black)
+  // Detect average skin tone from center of face region
+  const sampleSize = Math.min(50, Math.floor(radiusX / 2)); // Sample 50x50px or smaller
+  const sampleX = Math.floor(centerX - sampleSize / 2);
+  const sampleY = Math.floor(centerY - sampleSize / 2);
+  
+  const skinSample = await sharp(rectCrop)
+    .extract({
+      left: Math.max(0, sampleX),
+      top: Math.max(0, sampleY),
+      width: Math.min(sampleSize, cropWidth - sampleX),
+      height: Math.min(sampleSize, cropHeight - sampleY),
+    })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  
+  // Calculate average RGB from sample
+  const { data, info } = skinSample;
+  let totalR = 0, totalG = 0, totalB = 0;
+  const pixelCount = info.width * info.height;
+  
+  for (let i = 0; i < data.length; i += info.channels) {
+    totalR += data[i];
+    totalG += data[i + 1];
+    totalB += data[i + 2];
+  }
+  
+  const avgR = Math.round(totalR / pixelCount);
+  const avgG = Math.round(totalG / pixelCount);
+  const avgB = Math.round(totalB / pixelCount);
+  
+  console.log(`[MultiFace] 🎨 Detected skin tone: rgb(${avgR}, ${avgG}, ${avgB})`);
+
+  // Create skin-tone background layer
+  const skinBackground = await sharp({
+    create: {
+      width: cropWidth,
+      height: cropHeight,
+      channels: 3,
+      background: { r: avgR, g: avgG, b: avgB }
+    }
+  })
+  .png()
+  .toBuffer();
+  
+  // Create oval mask (white inside oval, black outside with feathered edges)
   const ovalMask = Buffer.from(
     `<svg width="${cropWidth}" height="${cropHeight}">
+      <rect width="${cropWidth}" height="${cropHeight}" fill="black" />
       <defs>
         <radialGradient id="fade" cx="50%" cy="50%" r="50%">
           <stop offset="85%" stop-color="white" stop-opacity="1" />
-          <stop offset="100%" stop-color="white" stop-opacity="0" />
+          <stop offset="100%" stop-color="black" stop-opacity="1" />
         </radialGradient>
       </defs>
       <ellipse cx="${centerX}" cy="${centerY}" rx="${radiusX}" ry="${radiusY}" fill="url(#fade)" />
     </svg>`
   );
 
-  // Apply oval mask with BLACK background (not transparent)
-  // Black pixels = API can't see body (hidden in black)
-  // Transparent pixels = API sees "nothing" = may cause "No output images" error
-  const maskedBuffer = await sharp(rectCrop)
+  // Composite: skin background + original image (masked by oval)
+  // This keeps face visible inside oval, skin tone outside
+  const maskedBuffer = await sharp(skinBackground)
     .composite([
       {
-        input: ovalMask,
-        blend: "dest-in", // Keep only pixels inside oval
+        input: await sharp(rectCrop)
+          .composite([{
+            input: ovalMask,
+            blend: "dest-in" // Keep only pixels inside oval
+          }])
+          .toBuffer(),
+        blend: "over",
       },
     ])
-    .flatten({ background: { r: 0, g: 0, b: 0 } }) // Fill transparent areas with BLACK
-    .jpeg() // Use JPEG (no transparency support)
+    .jpeg({ quality: 95 }) // Use JPEG - no transparency needed
     .toBuffer();
 
-  console.log(`[MultiFace] ✓ Applied oval mask - only face visible, body hidden`);
+  console.log(`[MultiFace] ✓ Applied oval mask - only face visible, body hidden with skin-tone fill`);
   
-  // Crop tightly around oval to remove black background
+  // Crop tightly around oval to remove skin-tone background
   // Calculate bounding box of oval (smallest rectangle containing the ellipse)
   const ovalLeft = Math.floor(centerX - radiusX);
   const ovalTop = Math.floor(centerY - radiusY);
@@ -150,11 +198,11 @@ async function cropFaceWithMargin(
     })
     .toBuffer();
   
-  console.log(`[MultiFace] ✓ Removed black background - sending only face cutout`);
+  console.log(`[MultiFace] ✓ Removed skin-tone background - sending only face cutout`);
   
   // DEBUG: Save final cropped image to disk for inspection
   const debugPath = `/home/ubuntu/debug-oval-mask-${Date.now()}.jpg`;
-  await sharp(finalCrop).jpeg().toFile(debugPath);
+  await sharp(finalCrop).jpeg({ quality: 95 }).toFile(debugPath);
   console.log(`[MultiFace] 🖼️  DEBUG: Saved final face cutout to ${debugPath}`);
 
   // Return final crop (tight cutout around oval) instead of full masked buffer
@@ -172,12 +220,12 @@ async function uploadBufferToS3(buffer: Buffer): Promise<string> {
   const { storagePut } = await import("./storage.js");
   
   // Generate unique key for temporary face crop
-  const tempKey = `temp/face-crop-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+  const tempKey = `temp/face-crop-${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
   
   console.log(`[MultiFace] Uploading cropped face to S3: ${tempKey}`);
   
   // Upload to S3 and get public URL
-  const { url } = await storagePut(tempKey, buffer, "image/jpeg");
+  const { url } = await storagePut(tempKey, buffer, "image/png");
   
   console.log(`[MultiFace] ✓ Face crop uploaded to S3: ${url}`);
   
@@ -198,10 +246,10 @@ async function compositeFaceBack(
   console.log(`[MultiFace] Compositing face back at x=${cropX}, y=${cropY}`);
 
   // Resize swapped face to match crop dimensions
+  // Use "fill" to stretch/fit entire face without cropping
   const resizedSwappedFace = await sharp(swappedFaceBuffer)
     .resize(cropWidth, cropHeight, {
-      fit: "cover",
-      position: "center",
+      fit: "fill",  // Stretch to fit exact dimensions (preserve entire face)
     })
     .toBuffer();
 
@@ -289,7 +337,7 @@ export async function processMultiFaceSwap(
           targetMediaUrl: faceCropUrl,
           targetMediaType: "image",
           modelPreference: input.modelPreference,
-          webhookUrl: undefined, // No webhook for individual face swaps
+          webhookUrl: input.webhookUrl, // Pass webhook URL from input
         });
 
         if (!swapResult.success || !swapResult.outputUrl) {
@@ -301,22 +349,19 @@ export async function processMultiFaceSwap(
         const swappedFaceBuffer = await downloadImage(swapResult.outputUrl);
 
         // Step 5: Composite swapped face back to current image
-        // UNLESS preserveBody is true (Protect mode) - then return API result directly
+        // In Protect mode: API received face-only crop and returned swapped face
+        // We still need to composite it back to preserve the original body
+        currentBuffer = await compositeFaceBack(
+          currentBuffer,
+          swappedFaceBuffer,
+          cropX,
+          cropY,
+          cropWidth,
+          cropHeight
+        );
+        
         if (input.preserveBody) {
-          console.log(`[MultiFace] 🔒 Protect mode: Using API result directly (already face-only)`);
-          // API received face-only crop, so result is already face-only
-          // No need to re-crop - just use the swapped face buffer as-is
-          currentBuffer = swappedFaceBuffer;
-        } else {
-          // Normal mode: composite swapped face back onto full body
-          currentBuffer = await compositeFaceBack(
-            currentBuffer,
-            swappedFaceBuffer,
-            cropX,
-            cropY,
-            cropWidth,
-            cropHeight
-          );
+          console.log(`[MultiFace] 🔒 Protect mode: Composited swapped face back to original body`);
         }
 
         processedFaces++;

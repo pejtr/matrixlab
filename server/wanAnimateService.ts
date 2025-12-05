@@ -44,16 +44,22 @@ export async function performWanAnimate(input: WanAnimateInput): Promise<WanAnim
     console.log("[WanAnimate] Mode:", input.mode);
 
     // Create prediction with Wan2.2-Animate model
-    const prediction = await replicate.predictions.create({
+    const wanPredictionInput: any = {
       model: "wan-video/wan-2.2-animate-animation",
       input: {
         character_image: input.characterImageUrl,
         reference_video: input.referenceVideoUrl,
         mode: input.mode, // "animation" or "replacement"
       },
-      webhook: input.webhookUrl,
-      webhook_events_filter: ["completed"],
-    });
+    };
+    
+    // Only add webhook fields if webhook URL is provided
+    if (input.webhookUrl) {
+      wanPredictionInput.webhook = input.webhookUrl;
+      wanPredictionInput.webhook_events_filter = ["completed"];
+    }
+    
+    const prediction = await replicate.predictions.create(wanPredictionInput);
 
     const predictionId = prediction.id;
     console.log("[WanAnimate] Prediction ID:", predictionId);

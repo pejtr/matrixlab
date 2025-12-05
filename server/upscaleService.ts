@@ -41,16 +41,22 @@ export async function upscaleImage(input: UpscaleInput): Promise<UpscaleResult> 
 
     // Use Real-ESRGAN model for image upscaling
     // Model: nightmareai/real-esrgan (high-quality 4x upscaling)
-    const prediction = await replicate.predictions.create({
+    const upscalePredictionInput: any = {
       model: "nightmareai/real-esrgan",
       input: {
         image: input.imageUrl,
         scale: input.scale || 4,
         face_enhance: false, // Set to true if upscaling faces specifically
       },
-      webhook: input.webhookUrl,
-      webhook_events_filter: ["completed"],
-    });
+    };
+    
+    // Only add webhook fields if webhook URL is provided
+    if (input.webhookUrl) {
+      upscalePredictionInput.webhook = input.webhookUrl;
+      upscalePredictionInput.webhook_events_filter = ["completed"];
+    }
+    
+    const prediction = await replicate.predictions.create(upscalePredictionInput);
 
     const predictionId = prediction.id;
     console.log("[Upscale] Prediction ID:", predictionId);

@@ -66,19 +66,25 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
     const modelPreference = input.modelPreference || "high_quality";
     
     if (input.targetMediaType === "video") {
-      // For videos, use xrunda/hello model (supports video face swap)
-      // Cost: $0.10 per run, ~103 seconds
+      // For videos, use xrunda/hello model (supports video face       // For videos, use xrunda/hello (only video-capable model)
       modelUsed = "xrunda/hello (video)";
       console.log("[Replicate] Using model: xrunda/hello for VIDEO (cost: $0.10, ~103s)");
-      const prediction = await replicate.predictions.create({
+      
+      const videoPredictionInput: any = {
         version: "xrunda/hello",
         input: {
           target_face: input.sourceImageUrl,
           input_video: input.targetMediaUrl,
         },
-        webhook: input.webhookUrl,
-        webhook_events_filter: ["completed"],
-      });
+      };
+      
+      // Only add webhook fields if webhook URL is provided
+      if (input.webhookUrl) {
+        videoPredictionInput.webhook = input.webhookUrl;
+        videoPredictionInput.webhook_events_filter = ["completed"];
+      }
+      
+      const prediction = await replicate.predictions.create(videoPredictionInput);
       predictionId = prediction.id;
       console.log("[Replicate] Prediction ID:", predictionId);
       
@@ -91,15 +97,22 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         // Use easel/advanced-face-swap (NSFW-friendly, higher quality, slower)
         modelUsed = "easel/advanced-face-swap (permissive)";
         console.log("[Replicate] Using model: easel/advanced-face-swap for IMAGE (NSFW-friendly, higher quality)");
-        const prediction = await replicate.predictions.create({
+        
+        const permissivePredictionInput: any = {
           model: "easel/advanced-face-swap",
           input: {
             target_image: input.targetMediaUrl,
             swap_image: input.sourceImageUrl,
           },
-          webhook: input.webhookUrl,
-          webhook_events_filter: ["completed"],
-        });
+        };
+        
+        // Only add webhook fields if webhook URL is provided
+        if (input.webhookUrl) {
+          permissivePredictionInput.webhook = input.webhookUrl;
+          permissivePredictionInput.webhook_events_filter = ["completed"];
+        }
+        
+        const prediction = await replicate.predictions.create(permissivePredictionInput);
         predictionId = prediction.id;
         console.log("[Replicate] Prediction ID:", predictionId);
         
@@ -112,15 +125,21 @@ export async function performFaceSwap(input: FaceSwapInput): Promise<FaceSwapRes
         console.log("[Replicate] Using model: fofr/face-swap-with-ideogram for IMAGE (faster, NSFW filter)");
         
         try {
-          const prediction = await replicate.predictions.create({
+          const predictionInput: any = {
             model: "fofr/face-swap-with-ideogram",
             input: {
               character_image: input.sourceImageUrl,
               target_image: input.targetMediaUrl,
             },
-            webhook: input.webhookUrl,
-            webhook_events_filter: ["completed"],
-          });
+          };
+          
+          // Only add webhook fields if webhook URL is provided
+          if (input.webhookUrl) {
+            predictionInput.webhook = input.webhookUrl;
+            predictionInput.webhook_events_filter = ["completed"];
+          }
+          
+          const prediction = await replicate.predictions.create(predictionInput);
           predictionId = prediction.id;
           console.log("[Replicate] Prediction ID:", predictionId);
           
@@ -217,7 +236,7 @@ export async function generateVideoFromImage(input: ImageToVideoInput): Promise<
 
     // Use Stable Video Diffusion for I2V
     // Model: stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438
-    const prediction = await replicate.predictions.create({
+    const i2vPredictionInput: any = {
       version: "stability-ai/stable-video-diffusion:3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438",
       input: {
         input_image: input.imageUrl,
@@ -225,9 +244,15 @@ export async function generateVideoFromImage(input: ImageToVideoInput): Promise<
         frames_per_second: 6,
         motion_bucket_id: 127,
       },
-      webhook: input.webhookUrl,
-      webhook_events_filter: ["completed"],
-    });
+    };
+    
+    // Only add webhook fields if webhook URL is provided
+    if (input.webhookUrl) {
+      i2vPredictionInput.webhook = input.webhookUrl;
+      i2vPredictionInput.webhook_events_filter = ["completed"];
+    }
+    
+    const prediction = await replicate.predictions.create(i2vPredictionInput);
 
     const predictionId = prediction.id;
     console.log("[Replicate I2V] Prediction ID:", predictionId);

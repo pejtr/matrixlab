@@ -1186,6 +1186,7 @@ export default function FaceSwap() {
                                   <input
                                     type="checkbox"
                                     checked={preserveBody}
+                                    onClick={(e) => e.stopPropagation()}
                                     onChange={(e) => {
                                       e.stopPropagation();
                                       setPreserveBody(e.target.checked);

@@ -85,10 +85,16 @@ async function processJob(jobId: number) {
     console.log(`[Worker] [Job #${jobId}] [Step 2/7] Updating status to processing...`);
     await updateFaceSwapJobStatus(jobId, "processing", { progress: 5 });
     console.log(`[Worker] [Job #${jobId}] ✓ Status updated (5%)`);
+    
+    // Early progress indicators
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 10 });
+    console.log(`[Worker] [Job #${jobId}] ✓ Preparing job (10%)`);
 
     // Step 3: Prepare for API call
     console.log(`[Worker] [Job #${jobId}] [Step 3/7] Preparing API call...`);
     await updateFaceSwapJobStatus(jobId, "processing", { progress: 15 });
+    await updateFaceSwapJobStatus(jobId, "processing", { progress: 20 });
+    console.log(`[Worker] [Job #${jobId}] ✓ Loading images (20%)`);
     console.log(`[Worker] [Job #${jobId}] Source: ${job.sourceImageUrl}`);
     console.log(`[Worker] [Job #${jobId}] Target: ${job.targetMediaUrl}`);
     console.log(`[Worker] [Job #${jobId}] Type: ${job.targetMediaType}`);
