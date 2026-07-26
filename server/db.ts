@@ -1,6 +1,49 @@
 import { eq, desc, and, or, lt, inArray, sql, isNull } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, faceSwapJobs, InsertFaceSwapJob, FaceSwapJob, wanAnimateJobs, InsertWanAnimateJob, WanAnimateJob, favorites } from "../drizzle/schema";
+import {
+  InsertUser,
+  users,
+  faceSwapJobs,
+  InsertFaceSwapJob,
+  FaceSwapJob,
+  wanAnimateJobs,
+  InsertWanAnimateJob,
+  WanAnimateJob,
+  favorites,
+  aiJobs,
+  InsertAIJob,
+  AIJob,
+  savedFaces,
+  InsertSavedFace,
+  SavedFace,
+  customTemplates,
+  InsertCustomTemplate,
+  CustomTemplate,
+  InsertFavorite,
+  Favorite,
+  favoriteCategories,
+  subscriptionPlans,
+  SubscriptionPlan,
+  InsertSubscriptionPlan,
+  userCredits,
+  UserCredit,
+  InsertUserCredit,
+  creditTransactions,
+  CreditTransaction,
+  InsertCreditTransaction,
+  userSubscriptions,
+  UserSubscription,
+  InsertUserSubscription,
+  creditPacks,
+  CreditPack,
+  InsertCreditPack,
+  bonusRules,
+  BonusRule,
+  InsertBonusRule,
+  userBonuses,
+  UserBonus,
+  InsertUserBonus,
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -316,7 +359,6 @@ export async function updateFaceSwapJobResult(
 }
 
 // AI job queries
-import { aiJobs, InsertAIJob, AIJob } from "../drizzle/schema";
 
 export async function createAIJob(job: InsertAIJob): Promise<AIJob> {
   const db = await getDb();
@@ -356,7 +398,6 @@ export async function getUserAIJobs(userId: number): Promise<AIJob[]> {
 }
 
 // Saved faces queries
-import { savedFaces, InsertSavedFace, SavedFace } from "../drizzle/schema";
 
 export async function createSavedFace(face: InsertSavedFace): Promise<SavedFace> {
   const db = await getDb();
@@ -406,7 +447,6 @@ export async function softDeleteSourceImage(jobId: number): Promise<void> {
 }
 
 // Custom templates queries
-import { customTemplates, InsertCustomTemplate, CustomTemplate } from "../drizzle/schema";
 
 export async function createCustomTemplate(template: InsertCustomTemplate): Promise<CustomTemplate> {
   const db = await getDb();
@@ -469,7 +509,6 @@ export async function retryAllFailedJobs(userId: number): Promise<number> {
 }
 
 // Favorites queries
-import { InsertFavorite, Favorite } from "../drizzle/schema";
 
 export async function addFavorite(userId: number, jobId: number, category: number): Promise<Favorite> {
   const db = await getDb();
@@ -621,7 +660,6 @@ export async function getCategoryNames(userId: number): Promise<Record<number, s
     throw new Error("Database not available");
   }
 
-  const { favoriteCategories } = await import("../drizzle/schema");
   const categories = await db.select().from(favoriteCategories).where(eq(favoriteCategories.userId, userId));
   
   const defaults: Record<number, string> = {
@@ -645,8 +683,6 @@ export async function updateCategoryName(userId: number, category: number, name:
     throw new Error("Database not available");
   }
 
-  const { favoriteCategories } = await import("../drizzle/schema");
-  
   // Check if category name already exists
   const existing = await db.select().from(favoriteCategories)
     .where(and(eq(favoriteCategories.userId, userId), eq(favoriteCategories.category, category)))
@@ -810,4 +846,415 @@ export async function cleanupOldJobs(): Promise<{ deletedCount: number }> {
     console.error("[Cleanup] Error cleaning up old jobs:", error);
     return { deletedCount: 0 };
   }
+}
+
+// ========================================
+// MONETIZATION QUERIES
+// ========================================
+
+// --- Subscription Plans ---
+
+export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(subscriptionPlans)
+    .where(eq(subscriptionPlans.isActive, 1))
+    .orderBy(subscriptionPlans.sortOrder);
+}
+
+export async function getSubscriptionPlanById(planId: number): Promise<SubscriptionPlan | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.id, planId)).limit(1);
+  return result[0];
+}
+
+export async function getSubscriptionPlanByName(name: string): Promise<SubscriptionPlan | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.name, name)).limit(1);
+  return result[0];
+}
+
+// --- User Credits ---
+
+export async function getUserCredits(userId: number): Promise<UserCredit> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
+  
+  if (result.length > 0) {
+    return result[0];
+  }
+
+  // Create default credits for new user
+  const newCredits: InsertUserCredit = {
+    userId,
+    balance: 50,
+    totalPurchased: 0,
+    totalEarned: 0,
+    totalSpent: 0,
+  };
+
+  await db.insert(userCredits).values(newCredits);
+  const inserted = await db.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
+  
+  if (!inserted[0]) {
+    throw new Error("Failed to create user credits");
+  }
+
+  return inserted[0];
+}
+
+export async function updateUserCredits(
+  userId: number,
+  amount: number,
+  type: "purchase" | "earn" | "spend" | "bonus" | "expire" | "refund",
+  description: string,
+  referenceType?: string,
+  referenceId?: number
+): Promise<UserCredit> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Get current credits
+  const currentCredits = await getUserCredits(userId);
+  
+  // Calculate new balance
+  const newBalance = currentCredits.balance + amount;
+  
+  if (newBalance < 0) {
+    throw new Error("Insufficient credits");
+  }
+
+  // Update credits
+  const updateData: Record<string, number> = { balance: newBalance };
+  
+  if (type === "purchase") {
+    updateData.totalPurchased = currentCredits.totalPurchased + Math.abs(amount);
+  } else if (type === "earn" || type === "bonus") {
+    updateData.totalEarned = currentCredits.totalEarned + Math.abs(amount);
+  } else if (type === "spend") {
+    updateData.totalSpent = currentCredits.totalSpent + Math.abs(amount);
+  }
+
+  await db.update(userCredits).set(updateData).where(eq(userCredits.userId, userId));
+
+  // Record transaction
+  const transaction: InsertCreditTransaction = {
+    userId,
+    amount,
+    type,
+    description,
+    referenceType: referenceType || null,
+    referenceId: referenceId || null,
+    balanceAfter: newBalance,
+  };
+
+  await db.insert(creditTransactions).values(transaction);
+
+  // Return updated credits
+  const updated = await db.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
+  return updated[0];
+}
+
+export async function spendCredits(
+  userId: number,
+  amount: number,
+  description: string,
+  referenceType?: string,
+  referenceId?: number
+): Promise<UserCredit> {
+  return updateUserCredits(userId, -amount, "spend", description, referenceType, referenceId);
+}
+
+export async function addCredits(
+  userId: number,
+  amount: number,
+  type: "purchase" | "earn" | "bonus",
+  description: string,
+  referenceType?: string,
+  referenceId?: number
+): Promise<UserCredit> {
+  return updateUserCredits(userId, amount, type, description, referenceType, referenceId);
+}
+
+// --- Credit Transactions ---
+
+export async function getCreditTransactions(
+  userId: number,
+  options?: { limit?: number; offset?: number }
+): Promise<CreditTransaction[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const limit = options?.limit || 50;
+  const offset = options?.offset || 0;
+
+  return db.select().from(creditTransactions)
+    .where(eq(creditTransactions.userId, userId))
+    .orderBy(desc(creditTransactions.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+// --- User Subscriptions ---
+
+export async function getUserSubscription(userId: number): Promise<UserSubscription | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(userSubscriptions)
+    .where(eq(userSubscriptions.userId, userId))
+    .limit(1);
+
+  return result[0];
+}
+
+export async function createOrUpdateSubscription(
+  userId: number,
+  planId: number,
+  billingCycle: "monthly" | "yearly",
+  stripeSubscriptionId?: string,
+  stripeCustomerId?: string
+): Promise<UserSubscription> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const now = new Date();
+  const periodEnd = new Date(now);
+  
+  if (billingCycle === "monthly") {
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+  } else {
+    periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+  }
+
+  const existing = await getUserSubscription(userId);
+
+  if (existing) {
+    // Update existing subscription
+    await db.update(userSubscriptions).set({
+      planId,
+      billingCycle,
+      stripeSubscriptionId: stripeSubscriptionId || existing.stripeSubscriptionId,
+      stripeCustomerId: stripeCustomerId || existing.stripeCustomerId,
+      currentPeriodStart: now,
+      currentPeriodEnd: periodEnd,
+      status: "active",
+      updatedAt: now,
+    }).where(eq(userSubscriptions.userId, userId));
+
+    const updated = await db.select().from(userSubscriptions).where(eq(userSubscriptions.userId, userId)).limit(1);
+    return updated[0];
+  } else {
+    // Create new subscription
+    const newSubscription: InsertUserSubscription = {
+      userId,
+      planId,
+      billingCycle,
+      stripeSubscriptionId: stripeSubscriptionId || null,
+      stripeCustomerId: stripeCustomerId || null,
+      currentPeriodStart: now,
+      currentPeriodEnd: periodEnd,
+      cancelAtPeriodEnd: 0,
+    };
+
+    await db.insert(userSubscriptions).values(newSubscription);
+    const inserted = await db.select().from(userSubscriptions).where(eq(userSubscriptions.userId, userId)).limit(1);
+    return inserted[0];
+  }
+}
+
+// --- Credit Packs ---
+
+export async function getCreditPacks(): Promise<CreditPack[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(creditPacks)
+    .where(eq(creditPacks.isActive, 1))
+    .orderBy(creditPacks.sortOrder);
+}
+
+export async function getCreditPackById(packId: number): Promise<CreditPack | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(creditPacks).where(eq(creditPacks.id, packId)).limit(1);
+  return result[0];
+}
+
+// --- Bonus Rules ---
+
+export async function getBonusRules(): Promise<BonusRule[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(bonusRules).where(eq(bonusRules.isActive, 1));
+}
+
+export async function getBonusRuleById(ruleId: number): Promise<BonusRule | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(bonusRules).where(eq(bonusRules.id, ruleId)).limit(1);
+  return result[0];
+}
+
+export async function getBonusRuleByType(type: string): Promise<BonusRule | undefined> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const result = await db.select().from(bonusRules).where(eq(bonusRules.type, type as any)).limit(1);
+  return result[0];
+}
+
+// --- User Bonuses ---
+
+export async function claimBonus(
+  userId: number,
+  bonusRuleId: number
+): Promise<{ success: boolean; creditsEarned: number; message: string }> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Get bonus rule
+  const rule = await getBonusRuleById(bonusRuleId);
+  if (!rule) {
+    return { success: false, creditsEarned: 0, message: "Bonus rule not found" };
+  }
+
+  // Check if user has already claimed max times
+  if (rule.maxClaims !== -1) {
+    const existingClaims = await db.select().from(userBonuses)
+      .where(and(eq(userBonuses.userId, userId), eq(userBonuses.bonusRuleId, bonusRuleId)));
+    
+    if (existingClaims.length >= rule.maxClaims) {
+      return { success: false, creditsEarned: 0, message: "Maximum claims reached" };
+    }
+  }
+
+  // Check cooldown
+  if (rule.cooldownHours > 0) {
+    const lastClaim = await db.select().from(userBonuses)
+      .where(and(eq(userBonuses.userId, userId), eq(userBonuses.bonusRuleId, bonusRuleId)))
+      .orderBy(desc(userBonuses.claimedAt))
+      .limit(1);
+
+    if (lastClaim.length > 0) {
+      const lastClaimTime = new Date(lastClaim[0].claimedAt).getTime();
+      const cooldownMs = rule.cooldownHours * 60 * 60 * 1000;
+      const now = Date.now();
+
+      if (now - lastClaimTime < cooldownMs) {
+        const hoursLeft = Math.ceil((cooldownMs - (now - lastClaimTime)) / (60 * 60 * 1000));
+        return { success: false, creditsEarned: 0, message: `Cooldown active. Try again in ${hoursLeft} hours` };
+      }
+    }
+  }
+
+  // Claim the bonus
+  const bonusClaim: InsertUserBonus = {
+    userId,
+    bonusRuleId,
+    creditsEarned: rule.credits,
+  };
+
+  await db.insert(userBonuses).values(bonusClaim);
+
+  // Add credits to user
+  await addCredits(userId, rule.credits, "bonus", `${rule.name} bonus`);
+
+  return {
+    success: true,
+    creditsEarned: rule.credits,
+    message: `Successfully claimed ${rule.name} bonus!`,
+  };
+}
+
+export async function getUserBonusHistory(userId: number): Promise<UserBonus[]> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  return db.select().from(userBonuses)
+    .where(eq(userBonuses.userId, userId))
+    .orderBy(desc(userBonuses.claimedAt));
+}
+
+export async function canClaimBonus(userId: number, bonusRuleId: number): Promise<{ canClaim: boolean; reason?: string }> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const rule = await getBonusRuleById(bonusRuleId);
+  if (!rule) {
+    return { canClaim: false, reason: "Bonus rule not found" };
+  }
+
+  // Check max claims
+  if (rule.maxClaims !== -1) {
+    const existingClaims = await db.select().from(userBonuses)
+      .where(and(eq(userBonuses.userId, userId), eq(userBonuses.bonusRuleId, bonusRuleId)));
+    
+    if (existingClaims.length >= rule.maxClaims) {
+      return { canClaim: false, reason: "Maximum claims reached" };
+    }
+  }
+
+  // Check cooldown
+  if (rule.cooldownHours > 0) {
+    const lastClaim = await db.select().from(userBonuses)
+      .where(and(eq(userBonuses.userId, userId), eq(userBonuses.bonusRuleId, bonusRuleId)))
+      .orderBy(desc(userBonuses.claimedAt))
+      .limit(1);
+
+    if (lastClaim.length > 0) {
+      const lastClaimTime = new Date(lastClaim[0].claimedAt).getTime();
+      const cooldownMs = rule.cooldownHours * 60 * 60 * 1000;
+      const now = Date.now();
+
+      if (now - lastClaimTime < cooldownMs) {
+        const hoursLeft = Math.ceil((cooldownMs - (now - lastClaimTime)) / (60 * 60 * 1000));
+        return { canClaim: false, reason: `Cooldown active. Try again in ${hoursLeft} hours` };
+      }
+    }
+  }
+
+  return { canClaim: true };
 }

@@ -112,7 +112,7 @@ export function Navigation() {
               className="flex items-center gap-2 text-white font-bold hover:opacity-80 transition-opacity md:absolute md:left-4"
             >
               <Sparkles className="h-5 w-5 text-yellow-400" />
-              <span className="text-sm md:text-lg">AI FaceSwap</span>
+              <span className="text-sm md:text-lg">AI IMAGE GENERATOR</span>
             </button>
 
             {/* Desktop Navigation - Icon Only */}

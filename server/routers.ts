@@ -1097,6 +1097,147 @@ export const appRouter = router({
         return result;
       }),
   }),
+
+  // Credits & Monetization
+  credits: router({
+    // Get user's credit balance
+    getBalance: publicProcedure.query(async ({ ctx }) => {
+      if (!ctx.user) {
+        return { balance: 0, totalPurchased: 0, totalEarned: 0, totalSpent: 0 };
+      }
+      const { getUserCredits } = await import("./db");
+      return getUserCredits(ctx.user.id);
+    }),
+
+    // Get credit transaction history
+    getTransactions: protectedProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ ctx, input }) => {
+        const { getCreditTransactions } = await import("./db");
+        return getCreditTransactions(ctx.user.id, input);
+      }),
+
+    // Get all subscription plans
+    getPlans: publicProcedure.query(async () => {
+      const { getSubscriptionPlans } = await import("./db");
+      return getSubscriptionPlans();
+    }),
+
+    // Get user's current subscription
+    getSubscription: protectedProcedure.query(async ({ ctx }) => {
+      const { getUserSubscription } = await import("./db");
+      return getUserSubscription(ctx.user.id);
+    }),
+
+    // Get all credit packs
+    getCreditPacks: publicProcedure.query(async () => {
+      const { getCreditPacks } = await import("./db");
+      return getCreditPacks();
+    }),
+
+    // Purchase credit pack (simulated - in real app would integrate Stripe)
+    purchaseCredits: protectedProcedure
+      .input(z.object({
+        packId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getCreditPackById, addCredits } = await import("./db");
+        
+        const pack = await getCreditPackById(input.packId);
+        if (!pack) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Credit pack not found",
+          });
+        }
+
+        // In real app, this would verify payment with Stripe first
+        // For now, we just add the credits
+        const totalCredits = pack.credits + pack.bonusCredits;
+        
+        const updatedCredits = await addCredits(
+          ctx.user.id,
+          totalCredits,
+          "purchase",
+          `Purchased ${pack.name}`,
+          "credit_pack",
+          pack.id
+        );
+
+        return {
+          success: true,
+          creditsAdded: totalCredits,
+          newBalance: updatedCredits.balance,
+        };
+      }),
+
+    // Spend credits (internal use - for AI generation)
+    spend: protectedProcedure
+      .input(z.object({
+        amount: z.number().positive(),
+        description: z.string(),
+        referenceType: z.string().optional(),
+        referenceId: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { spendCredits } = await import("./db");
+        
+        try {
+          const updatedCredits = await spendCredits(
+            ctx.user.id,
+            input.amount,
+            input.description,
+            input.referenceType,
+            input.referenceId
+          );
+
+          return {
+            success: true,
+            newBalance: updatedCredits.balance,
+          };
+        } catch (error) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: error instanceof Error ? error.message : "Insufficient credits",
+          });
+        }
+      }),
+
+    // Get bonus rules
+    getBonusRules: publicProcedure.query(async () => {
+      const { getBonusRules } = await import("./db");
+      return getBonusRules();
+    }),
+
+    // Claim a bonus
+    claimBonus: protectedProcedure
+      .input(z.object({
+        bonusRuleId: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { claimBonus } = await import("./db");
+        return claimBonus(ctx.user.id, input.bonusRuleId);
+      }),
+
+    // Check if user can claim a bonus
+    canClaimBonus: protectedProcedure
+      .input(z.object({
+        bonusRuleId: z.number(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const { canClaimBonus } = await import("./db");
+        return canClaimBonus(ctx.user.id, input.bonusRuleId);
+      }),
+
+    // Get user's bonus history
+    getBonusHistory: protectedProcedure.query(async ({ ctx }) => {
+      const { getUserBonusHistory } = await import("./db");
+      return getUserBonusHistory(ctx.user.id);
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

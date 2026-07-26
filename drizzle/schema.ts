@@ -264,3 +264,140 @@ export const imageToVideoJobs = mysqlTable("imageToVideoJobs", {
 
 export type ImageToVideoJob = typeof imageToVideoJobs.$inferSelect;
 export type InsertImageToVideoJob = typeof imageToVideoJobs.$inferInsert;
+
+// ========================================
+// MONETIZATION TABLES
+// ========================================
+
+/**
+ * Subscription Plans table - Defines available subscription tiers
+ */
+export const subscriptionPlans = mysqlTable("subscriptionPlans", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 50 }).notNull().unique(),
+  displayName: varchar("displayName", { length: 100 }).notNull(),
+  priceMonthly: int("priceMonthly").notNull(), // Price in cents (e.g., 900 = $9.00)
+  priceYearly: int("priceYearly").notNull(), // Price in cents for yearly billing
+  creditsMonthly: int("creditsMonthly").notNull(),
+  features: text("features"), // JSON array of features
+  isActive: int("isActive").default(1).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
+export type InsertSubscriptionPlan = typeof subscriptionPlans.$inferInsert;
+
+/**
+ * User Credits table - Tracks credit balance for each user
+ */
+export const userCredits = mysqlTable("userCredits", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  balance: int("balance").default(50).notNull(), // Starting balance for new users
+  totalPurchased: int("totalPurchased").default(0).notNull(),
+  totalEarned: int("totalEarned").default(0).notNull(),
+  totalSpent: int("totalSpent").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserCredit = typeof userCredits.$inferSelect;
+export type InsertUserCredit = typeof userCredits.$inferInsert;
+
+/**
+ * Credit Transactions table - History of all credit movements
+ */
+export const creditTransactions = mysqlTable("creditTransactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  amount: int("amount").notNull(), // Positive = add, Negative = subtract
+  type: mysqlEnum("type", ["purchase", "earn", "spend", "bonus", "expire", "refund"]).notNull(),
+  description: varchar("description", { length: 255 }).notNull(),
+  referenceType: varchar("referenceType", { length: 50 }), // e.g., "subscription", "pack", "generation", "bonus_rule"
+  referenceId: int("referenceId"), // ID of related record
+  balanceAfter: int("balanceAfter").notNull(), // Balance after this transaction
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CreditTransaction = typeof creditTransactions.$inferSelect;
+export type InsertCreditTransaction = typeof creditTransactions.$inferInsert;
+
+/**
+ * User Subscriptions table - Active subscriptions for users
+ */
+export const userSubscriptions = mysqlTable("userSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  planId: int("planId").notNull(),
+  status: mysqlEnum("status", ["active", "cancelled", "expired", "past_due"]).default("active").notNull(),
+  billingCycle: mysqlEnum("billingCycle", ["monthly", "yearly"]).default("monthly").notNull(),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
+  currentPeriodStart: timestamp("currentPeriodStart").notNull(),
+  currentPeriodEnd: timestamp("currentPeriodEnd").notNull(),
+  cancelAtPeriodEnd: int("cancelAtPeriodEnd").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserSubscription = typeof userSubscriptions.$inferSelect;
+export type InsertUserSubscription = typeof userSubscriptions.$inferInsert;
+
+/**
+ * Credit Packs table - One-time credit purchase packages
+ */
+export const creditPacks = mysqlTable("creditPacks", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  credits: int("credits").notNull(),
+  price: int("price").notNull(), // Price in cents
+  bonusCredits: int("bonusCredits").default(0).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CreditPack = typeof creditPacks.$inferSelect;
+export type InsertCreditPack = typeof creditPacks.$inferInsert;
+
+/**
+ * Bonus Rules table - Defines rules for earning bonus credits
+ */
+export const bonusRules = mysqlTable("bonusRules", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  type: mysqlEnum("type", [
+    "daily_login",
+    "first_generation",
+    "share",
+    "referral",
+    "streak_7",
+    "streak_30",
+    "review",
+    "profile_complete"
+  ]).notNull(),
+  credits: int("credits").notNull(),
+  maxClaims: int("maxClaims").default(-1).notNull(), // -1 = unlimited
+  cooldownHours: int("cooldownHours").default(0).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BonusRule = typeof bonusRules.$inferSelect;
+export type InsertBonusRule = typeof bonusRules.$inferInsert;
+
+/**
+ * User Bonuses table - History of claimed bonuses
+ */
+export const userBonuses = mysqlTable("userBonuses", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  bonusRuleId: int("bonusRuleId").notNull(),
+  creditsEarned: int("creditsEarned").notNull(),
+  claimedAt: timestamp("claimedAt").defaultNow().notNull(),
+});
+
+export type UserBonus = typeof userBonuses.$inferSelect;
+export type InsertUserBonus = typeof userBonuses.$inferInsert;

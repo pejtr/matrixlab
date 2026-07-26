@@ -8,6 +8,7 @@ import App from "./App";
 import { getLoginUrl } from "./const";
 import "./index.css";
 import { ColorThemeProvider } from "./contexts/ColorThemeContext";
+import { CreditsProvider } from "./contexts/CreditsContext";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,9 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
 
   if (!isUnauthorized) return;
+
+  const queryKey = (error as any)?.data?.path;
+  if (queryKey && queryKey.includes("credits")) return;
 
   window.location.href = getLoginUrl();
 };
@@ -57,7 +61,9 @@ createRoot(document.getElementById("root")!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
       <ColorThemeProvider>
-        <App />
+        <CreditsProvider>
+          <App />
+        </CreditsProvider>
       </ColorThemeProvider>
     </QueryClientProvider>
   </trpc.Provider>

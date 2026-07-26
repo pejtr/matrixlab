@@ -1,15 +1,20 @@
-# FaceSwap AI - AI-Powered Face Swap Application
+# AI Image Generator - Free AI Art Generator | Create AI Images from Text
 
-Modern web application for face swapping in videos and photos, powered by FaceFusion.
+Best AI image generator - create stunning AI images, art, and photos from text. Free AI art generator with no signup. Generate AI pictures, illustrations, and artwork instantly.
 
 ## 🚀 Features
 
-- **Video Face Swap** - Swap faces in MP4, MOV, and WEBM videos
-- **Photo Face Swap** - Transform faces in JPG, PNG, and WEBP images
-- **Real-time Progress Tracking** - Monitor job status with live updates
-- **Job History** - View and download all your previous face swaps
+- **AI Image Generator** - Create stunning AI images from text prompts
+- **AI Art Generator** - Generate beautiful AI artwork and illustrations
+- **AI Photo Generator** - Transform text into realistic AI photos
+- **Free AI Image Generator** - No signup required, start creating immediately
+- **Text to Image AI** - Convert your ideas into visual content
+- **AI Picture Generator** - Generate AI pictures in various styles
+- **AI Upscale** - Enhance and upscale your AI images
+- **Real-time Progress Tracking** - Monitor generation status with live updates
+- **Job History** - View and download all your previous AI generations
 - **Modern UI** - Beautiful gradient design with glassmorphism effects
-- **User Authentication** - Secure login with Manus OAuth
+- **User Authentication** - Secure login with OAuth
 - **Cloud Storage** - Files stored securely in S3
 
 ## 🛠️ Tech Stack
@@ -18,7 +23,7 @@ Modern web application for face swapping in videos and photos, powered by FaceFu
 - **Backend:** Express + tRPC
 - **Database:** MySQL (via Drizzle ORM)
 - **Storage:** AWS S3
-- **Face Swap Engine:** FaceFusion (open-source)
+- **AI Engine:** Stable Diffusion / DALL-E / Midjourney (configurable)
 
 ## 📦 Installation
 
@@ -34,7 +39,7 @@ Modern web application for face swapping in videos and photos, powered by FaceFu
 1. Clone the repository:
 ```bash
 git clone <your-repo>
-cd faceswap-web
+cd ai-image-generator
 ```
 
 2. Install dependencies:
@@ -63,7 +68,7 @@ The app will be available at `http://localhost:3000`
 
 ## 🎮 Demo Mode
 
-The application includes a demo worker that simulates face swap processing without requiring FaceFusion installation. This is perfect for:
+The application includes a demo worker that simulates AI image generation without requiring external API keys. This is perfect for:
 
 - Development and testing
 - UI/UX demonstrations
@@ -72,32 +77,32 @@ The application includes a demo worker that simulates face swap processing witho
 **Demo worker features:**
 - Processes jobs every 3 seconds
 - Simulates 5-second processing time
-- Returns the target media as the result (no actual face swapping)
+- Returns sample AI-generated images
 
 ## 🔧 Production Setup
 
-For production use with actual face swapping:
+For production use with actual AI image generation:
 
-1. Install FaceFusion following the guide in `FACEFUSION_SETUP.md`
+1. Configure your AI provider API keys (Stable Diffusion, DALL-E, or Midjourney)
 
-2. Create a production worker that calls FaceFusion CLI:
-   - See example in `FACEFUSION_SETUP.md`
-   - Replace demo logic with actual FaceFusion execution
+2. Create a production worker that calls the AI API:
+   - See example in the worker configuration
+   - Replace demo logic with actual AI generation
    - Handle file downloads, processing, and result uploads
 
 3. Run the worker as a system service:
 ```bash
 # Using PM2
-pm2 start server/productionWorker.ts --name faceswap-worker
+pm2 start server/productionWorker.ts --name ai-image-worker
 
 # Or using systemd
-sudo systemctl start faceswap-worker
+sudo systemctl start ai-image-worker
 ```
 
 ## 📁 Project Structure
 
 ```
-faceswap-web/
+ai-image-generator/
 ├── client/                 # Frontend React application
 │   ├── src/
 │   │   ├── pages/         # Page components
@@ -123,18 +128,18 @@ faceswap-web/
 - `auth.me` - Get current user
 - `auth.logout` - Logout user
 
-**Face Swap:**
-- `faceSwap.uploadSource` - Get upload URL for source image
-- `faceSwap.uploadTarget` - Get upload URL for target media
-- `faceSwap.confirmUpload` - Confirm file upload to S3
-- `faceSwap.createJob` - Create new face swap job
-- `faceSwap.getJob` - Get job status and result
-- `faceSwap.getMyJobs` - Get user's job history
-- `faceSwap.updateJobStatus` - Update job status (worker only)
+**AI Image Generation:**
+- `aiImage.uploadSource` - Get upload URL for source image
+- `aiImage.uploadTarget` - Get upload URL for target media
+- `aiImage.confirmUpload` - Confirm file upload to S3
+- `aiImage.createJob` - Create new AI image generation job
+- `aiImage.getJob` - Get job status and result
+- `aiImage.getMyJobs` - Get user's generation history
+- `aiImage.updateJobStatus` - Update job status (worker only)
 
 ### REST Endpoints
 
-- `POST /api/faceswap/upload/:fileKey` - Direct file upload
+- `POST /api/image/upload/:fileKey` - Direct file upload
 
 ## 🔐 Security
 
@@ -146,14 +151,19 @@ faceswap-web/
 
 ## 🎨 Branding
 
-For optimal SEO and viral impact, consider these naming options:
+**Target Keywords:**
+- ai image generator (5M monthly searches)
+- ai art generator (500K monthly searches)
+- ai photo generator (500K monthly searches)
+- free ai image generator (500K monthly searches)
+- text to image ai (50K monthly searches)
+- ai generated images (500K monthly searches)
 
-**Recommended:** SwapAI (swapai.io)
-- Leverages the +900% growth in "AI face swap" searches
-- Short, memorable, modern
-- International appeal
-
-See `branding_analysis.md` for detailed keyword research and recommendations.
+**SEO Optimization:**
+- Optimized meta tags for all major AI image generation keywords
+- Structured data for better search engine understanding
+- Mobile-responsive design for better user experience
+- Fast loading times for improved Core Web Vitals
 
 ## 📝 Scripts
 
@@ -189,16 +199,18 @@ MIT
 
 ## 🙏 Credits
 
-- **FaceFusion** - Open-source face swap engine
-- **Manus Platform** - Hosting and infrastructure
+- **Stable Diffusion** - Open-source AI image generation
+- **DALL-E** - OpenAI's image generation model
+- **Midjourney** - AI image generation platform
 - **shadcn/ui** - UI component library
 
 ## 🔗 Links
 
-- [FaceFusion GitHub](https://github.com/facefusion/facefusion)
-- [FaceFusion Website](https://facefusion.io/)
-- [Manus Platform](https://manus.im/)
+- [Stable Diffusion](https://stability.ai/)
+- [DALL-E](https://openai.com/dall-e-3)
+- [Midjourney](https://www.midjourney.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
 
 ---
 
-**Note:** This application is designed for private use only. Always obtain consent before using someone's face and respect privacy laws.
+**Note:** This AI image generator is designed for creating stunning AI artwork and images. Use responsibly and respect copyright laws when generating and sharing AI-created content.

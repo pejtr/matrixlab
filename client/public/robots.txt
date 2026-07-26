@@ -1,0 +1,23 @@
+# AI Image Generator - Robots.txt
+# https://ai-image-generator.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://ai-image-generator.com/sitemap.xml
+
+# Crawl-delay for polite bots
+Crawl-delay: 1
+
+# Disallow private routes
+Disallow: /api/
+Disallow: /auth/
+Disallow: /admin/
+
+# Allow all main pages
+Allow: /
+Allow: /generate
+Allow: /gallery
+Allow: /pricing
+Allow: /about
