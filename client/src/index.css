@@ -119,20 +119,30 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
   
+  h1, h2, h3, .font-display {
+    font-family: 'Syne', sans-serif;
+    letter-spacing: -0.03em;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
   /* Theme-specific backgrounds */
   [data-color-theme="purple"] body {
-    background: linear-gradient(to bottom, rgb(88, 28, 135), rgb(49, 46, 129), rgb(17, 24, 39));
+    background: #06050b;
   }
   [data-color-theme="blue"] body {
-    background: linear-gradient(to bottom, rgb(12, 74, 110), rgb(21, 94, 117), rgb(17, 94, 89));
+    background: #040914;
   }
   [data-color-theme="green"] body {
-    background: linear-gradient(to bottom, rgb(20, 83, 45), rgb(6, 78, 59), rgb(17, 94, 89));
+    background: #030d0a;
   }
   [data-color-theme="orange"] body {
-    background: linear-gradient(to bottom, rgb(124, 45, 18), rgb(153, 27, 27), rgb(131, 24, 67));
+    background: #0f0704;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -203,8 +213,33 @@
     body {
       transform: scale(2);
       transform-origin: top left;
-      width: 50%; /* 100% / 2 */
+      width: 50%;
       height: 50%;
     }
+  }
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-scroll-left {
+  animation: scroll-left 30s linear infinite;
+}
+
+.animate-scroll-right {
+  animation: scroll-right 30s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-left,
+  .animate-scroll-right {
+    animation-play-state: paused;
   }
 }

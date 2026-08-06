@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Heart, Download, ExternalLink } from "lucide-react";
 
@@ -22,14 +23,14 @@ const GALLERY_IMAGES: GalleryImage[] = [
   { id: "10", prompt: "Vintage space exploration poster", style: "Retro", aspectRatio: "16:9", gradient: "from-red-500 to-orange-600" },
   { id: "11", prompt: "Neon lion portrait in rain", style: "Neon", aspectRatio: "1:1", gradient: "from-purple-600 to-blue-600" },
   { id: "12", prompt: "Watercolor coastal village", style: "Watercolor", aspectRatio: "3:4", gradient: "from-sky-500 to-blue-600" },
-];
+] as const;
 
-function GalleryCard({ image, className }: { image: GalleryImage; className?: string }) {
+const GalleryCard = memo(function GalleryCard({ image }: { image: GalleryImage }) {
   const [, setLocation] = useLocation();
 
   return (
     <div
-      className={`relative flex-shrink-0 w-72 aspect-video rounded-xl overflow-hidden group cursor-pointer ${className}`}
+      className="relative flex-shrink-0 w-72 aspect-video rounded-xl overflow-hidden group cursor-pointer"
       onClick={() => setLocation("/ai/image-generator")}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLocation("/ai/image-generator"); } }}
       tabIndex={0}
@@ -58,40 +59,17 @@ function GalleryCard({ image, className }: { image: GalleryImage; className?: st
       </div>
     </div>
   );
-}
-
-const SCROLL_KEYFRAMES = `
-@keyframes scroll-left {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-@keyframes scroll-right {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
-}
-.animate-scroll-left {
-  animation: scroll-left 30s linear infinite;
-}
-.animate-scroll-right {
-  animation: scroll-right 30s linear infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-scroll-left, .animate-scroll-right {
-    animation-play-state: paused;
-  }
-}
-`;
+});
 
 export function ScrollingGallery() {
+  const row1Images = useMemo(() => [...GALLERY_IMAGES.slice(0, 6), ...GALLERY_IMAGES.slice(0, 6)], []);
+  const row2Images = useMemo(() => [...GALLERY_IMAGES.slice(6), ...GALLERY_IMAGES.slice(6)], []);
+
   return (
     <section className="py-16 md:py-24 bg-[#090a0a] overflow-hidden">
-      <style dangerouslySetInnerHTML={{ __html: SCROLL_KEYFRAMES }} />
-
       <div className="container mx-auto px-4 mb-12">
         <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Community Gallery
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Community Gallery</h2>
           <p className="text-lg text-white/60 max-w-2xl mx-auto">
             See what others are creating with our AI tools. Get inspired and start
             generating your own masterpieces.
@@ -104,13 +82,13 @@ export function ScrollingGallery() {
         <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#090a0a] to-transparent z-10 pointer-events-none" />
 
         <div className="flex gap-4 mb-4 animate-scroll-left">
-          {[...GALLERY_IMAGES.slice(0, 6), ...GALLERY_IMAGES.slice(0, 6)].map((image, idx) => (
+          {row1Images.map((image, idx) => (
             <GalleryCard key={`row1-${idx}`} image={image} />
           ))}
         </div>
 
         <div className="flex gap-4 animate-scroll-right">
-          {[...GALLERY_IMAGES.slice(6), ...GALLERY_IMAGES.slice(6)].map((image, idx) => (
+          {row2Images.map((image, idx) => (
             <GalleryCard key={`row2-${idx}`} image={image} />
           ))}
         </div>

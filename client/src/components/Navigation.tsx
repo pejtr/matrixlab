@@ -102,17 +102,18 @@ export function Navigation() {
 
   return (
     <>
-      {/* Desktop & Mobile Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 bg-gradient-to-r ${themeConfig.gradient} bg-opacity-80 backdrop-blur-lg border-b border-white/10`}>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between md:justify-center h-6 relative">
-            {/* Logo - Absolute Left on Desktop */}
+          <div className="flex items-center justify-between h-16 relative">
+            {/* Logo */}
             <button
               onClick={() => handleNavClick("/")}
-              className="flex items-center gap-2 text-white font-bold hover:opacity-80 transition-opacity md:absolute md:left-4"
+              className="flex items-center gap-2.5 text-white font-bold hover:opacity-90 transition-opacity"
             >
-              <Sparkles className="h-5 w-5 text-yellow-400" />
-              <span className="text-sm md:text-lg">AI IMAGE GENERATOR</span>
+              <div className="p-1.5 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-300">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <span className="font-display text-lg tracking-tight font-extrabold">AI-IMAGE<span className="text-cyan-400 font-mono text-xs ml-1 font-normal">.IO</span></span>
             </button>
 
             {/* Desktop Navigation - Icon Only */}

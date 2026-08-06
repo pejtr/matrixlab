@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 
 interface CreditsContextType {
@@ -55,11 +55,7 @@ export function CreditsProvider({ children }: CreditsProviderProps) {
   const spendCredits = useCallback(async (amount: number, description: string): Promise<boolean> => {
     try {
       setError(null);
-      const result = await trpc.credits.spend.mutate({
-        amount,
-        description,
-      });
-      
+      const result = await trpc.credits.spend.mutate({ amount, description });
       if (result.success) {
         setBalance(result.newBalance);
         setTotalSpent(prev => prev + amount);
@@ -76,10 +72,7 @@ export function CreditsProvider({ children }: CreditsProviderProps) {
   const purchaseCredits = useCallback(async (packId: number): Promise<boolean> => {
     try {
       setError(null);
-      const result = await trpc.credits.purchaseCredits.mutate({
-        packId,
-      });
-      
+      const result = await trpc.credits.purchaseCredits.mutate({ packId });
       if (result.success) {
         setBalance(result.newBalance);
         setTotalPurchased(prev => prev + result.creditsAdded);
@@ -93,25 +86,24 @@ export function CreditsProvider({ children }: CreditsProviderProps) {
     }
   }, []);
 
-  // Load credits on mount
   useEffect(() => {
     refreshCredits();
   }, [refreshCredits]);
 
+  const value = useMemo(() => ({
+    balance,
+    totalPurchased,
+    totalEarned,
+    totalSpent,
+    isLoading,
+    error,
+    refreshCredits,
+    spendCredits,
+    purchaseCredits,
+  }), [balance, totalPurchased, totalEarned, totalSpent, isLoading, error, refreshCredits, spendCredits, purchaseCredits]);
+
   return (
-    <CreditsContext.Provider
-      value={{
-        balance,
-        totalPurchased,
-        totalEarned,
-        totalSpent,
-        isLoading,
-        error,
-        refreshCredits,
-        spendCredits,
-        purchaseCredits,
-      }}
-    >
+    <CreditsContext.Provider value={value}>
       {children}
     </CreditsContext.Provider>
   );
