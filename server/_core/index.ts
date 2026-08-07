@@ -39,6 +39,11 @@ async function startServer() {
   registerOAuthRoutes(app);
   // File upload handler
   app.use(uploadHandler);
+  // Health check endpoint for Railway & status monitoring
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ status: "ok", timestamp: new Date().toISOString(), env: process.env.NODE_ENV });
+  });
+
   // Replicate webhook endpoint
   app.post("/api/replicate-webhook", handleReplicateWebhook);
   

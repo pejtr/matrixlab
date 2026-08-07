@@ -10,8 +10,9 @@ import {
   Sparkles,
   Video,
   Music,
+  ArrowRight,
+  Layers,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface Tool {
   id: string;
@@ -20,19 +21,20 @@ interface Tool {
   icon: React.ReactNode;
   credits: number | string;
   path: string;
-  color: string;
+  accentColor: string;
+  badge: string;
 }
 
 const TOOLS: Tool[] = [
-  { id: "text-to-image", name: "Text to Image", description: "Generate images from text descriptions", icon: <Wand2 className="h-6 w-6" />, credits: 1, path: "/ai/image-generator", color: "from-purple-500 to-pink-500" },
-  { id: "image-to-image", name: "Image to Image", description: "Transform existing images with AI", icon: <ImagePlus className="h-6 w-6" />, credits: 2, path: "/ai/image-generator?mode=img2img", color: "from-blue-500 to-cyan-500" },
-  { id: "style-transfer", name: "Style Transfer", description: "Apply artistic styles to your photos", icon: <Paintbrush className="h-6 w-6" />, credits: 3, path: "/ai/image-generator?mode=style", color: "from-orange-500 to-yellow-500" },
-  { id: "ai-upscale", name: "AI Upscale", description: "Increase image resolution up to 4x", icon: <ArrowUpCircle className="h-6 w-6" />, credits: "2-4", path: "/ai/image-generator?mode=upscale", color: "from-green-500 to-emerald-500" },
-  { id: "bg-removal", name: "Background Removal", description: "Remove or replace image backgrounds", icon: <Eraser className="h-6 w-6" />, credits: 1, path: "/ai/image-generator?mode=bgremove", color: "from-red-500 to-rose-500" },
-  { id: "face-swap", name: "Face Swap", description: "Swap faces in photos and videos", icon: <RefreshCcw className="h-6 w-6" />, credits: 5, path: "/faceswap", color: "from-indigo-500 to-violet-500" },
-  { id: "inpainting", name: "Inpainting", description: "Edit specific parts of an image", icon: <Sparkles className="h-6 w-6" />, credits: 3, path: "/ai/image-generator?mode=inpaint", color: "from-pink-500 to-fuchsia-500" },
-  { id: "video-gen", name: "Video Generation", description: "Create videos from text or images", icon: <Video className="h-6 w-6" />, credits: 10, path: "/ai/video-generator", color: "from-teal-500 to-cyan-500" },
-  { id: "music-gen", name: "Music Generation", description: "Generate music with AI", icon: <Music className="h-6 w-6" />, credits: 8, path: "/ai/music-generator", color: "from-amber-500 to-orange-500" },
+  { id: "text-to-image", name: "Text to 8K Image", description: "Generate photorealistic art from descriptive text prompts", icon: <Wand2 className="h-5 w-5" />, credits: 1, path: "/ai/image-generator", accentColor: "from-cyan-500/20 via-blue-500/10 to-transparent border-cyan-400/40 text-cyan-300", badge: "Core Engine" },
+  { id: "face-swap", name: "Single & Multi Face Swap", description: "Seamless AI face replacement in high-res photos and video", icon: <RefreshCcw className="h-5 w-5" />, credits: 5, path: "/faceswap", accentColor: "from-violet-500/20 via-purple-500/10 to-transparent border-violet-400/40 text-violet-300", badge: "Popular" },
+  { id: "image-to-image", name: "Image-to-Image Remix", description: "Transform image composition, lighting, and style preserving structure", icon: <ImagePlus className="h-5 w-5" />, credits: 2, path: "/ai/image-generator?mode=img2img", accentColor: "from-emerald-500/20 via-teal-500/10 to-transparent border-emerald-400/40 text-emerald-300", badge: "Pro Tool" },
+  { id: "style-transfer", name: "Neural Style Transfer", description: "Apply master painter & 3D render styles to existing photos", icon: <Paintbrush className="h-5 w-5" />, credits: 3, path: "/ai/image-generator?mode=style", accentColor: "from-amber-500/20 via-orange-500/10 to-transparent border-amber-400/40 text-amber-300", badge: "Creative" },
+  { id: "ai-upscale", name: "4K/8K Super Resolution", description: "Upscale pixel resolution up to 400% with texture synthesis", icon: <ArrowUpCircle className="h-5 w-5" />, credits: "2-4", path: "/ai/image-generator?mode=upscale", accentColor: "from-cyan-500/20 via-teal-500/10 to-transparent border-cyan-400/40 text-cyan-300", badge: "Ultra HD" },
+  { id: "bg-removal", name: "AI Background Eraser", description: "Isolate subjects with sub-pixel hair and glass transparency matte", icon: <Eraser className="h-5 w-5" />, credits: 1, path: "/ai/image-generator?mode=bgremove", accentColor: "from-rose-500/20 via-pink-500/10 to-transparent border-rose-400/40 text-rose-300", badge: "Instant" },
+  { id: "inpainting", name: "Generative Inpainting", description: "Selectively edit, add, or remove objects inside any photo", icon: <Sparkles className="h-5 w-5" />, credits: 3, path: "/ai/image-generator?mode=inpaint", accentColor: "from-fuchsia-500/20 via-purple-500/10 to-transparent border-fuchsia-400/40 text-fuchsia-300", badge: "Studio" },
+  { id: "video-gen", name: "Animate & Video Gen", description: "Bring static images to life with cinematic motion paths", icon: <Video className="h-5 w-5" />, credits: 10, path: "/ai/video-generator", accentColor: "from-indigo-500/20 via-blue-500/10 to-transparent border-indigo-400/40 text-indigo-300", badge: "Cinema AI" },
+  { id: "music-gen", name: "AI Soundtrack & Audio", description: "Compose royalty-free background scores matched to visuals", icon: <Music className="h-5 w-5" />, credits: 8, path: "/ai/music-generator", accentColor: "from-yellow-500/20 via-amber-500/10 to-transparent border-yellow-400/40 text-yellow-300", badge: "Audio Synth" },
 ] as const;
 
 function ToolCard({ tool }: { tool: Tool }) {
@@ -44,28 +46,33 @@ function ToolCard({ tool }: { tool: Tool }) {
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setLocation(tool.path); } }}
       tabIndex={0}
       role="button"
-      className="group relative p-6 bg-white/5 border border-white/10 rounded-xl hover:bg-white/[0.08] hover:border-white/20 transition-all cursor-pointer"
+      className={`group relative p-7 rounded-2xl border transition-all cursor-pointer bg-gradient-to-br ${tool.accentColor} bg-black/60 backdrop-blur-md hover:scale-[1.02] shadow-[0_0_20px_rgba(0,0,0,0.4)] flex flex-col justify-between`}
     >
-      <div className="flex items-start gap-4">
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center text-white flex-shrink-0`}>
-          {tool.icon}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-white mb-1">{tool.name}</h3>
-          <p className="text-sm text-white/60 mb-3">{tool.description}</p>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-white/40 bg-white/10 px-2 py-1 rounded">
-              {tool.credits} {typeof tool.credits === 'number' && tool.credits === 1 ? 'credit' : 'credits'}
-            </span>
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div className="p-3 rounded-xl bg-white/[0.06] border border-white/10 text-white group-hover:scale-110 transition-transform">
+            {tool.icon}
           </div>
+          <span className="font-mono text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md bg-white/10 text-white/70 border border-white/10 font-bold">
+            {tool.badge}
+          </span>
         </div>
+
+        <h3 className="font-display text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+          {tool.name}
+        </h3>
+        <p className="text-sm text-white/60 font-light leading-relaxed mb-6">
+          {tool.description}
+        </p>
       </div>
 
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+      <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-2">
+        <span className="font-mono text-xs text-white/50 bg-white/[0.04] px-2.5 py-1 rounded-md border border-white/5">
+          {tool.credits} {typeof tool.credits === 'number' && tool.credits === 1 ? 'credit' : 'credits'}
+        </span>
+        <div className="flex items-center gap-1 text-xs font-bold text-white/70 group-hover:text-cyan-400 transition-colors">
+          <span>Launch Tool</span>
+          <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
     </div>
@@ -73,32 +80,34 @@ function ToolCard({ tool }: { tool: Tool }) {
 }
 
 export function ToolsGrid() {
-  const [, setLocation] = useLocation();
-
   const toolCards = useMemo(() => (
     TOOLS.map((tool) => <ToolCard key={tool.id} tool={tool} />)
   ), []);
 
   return (
-    <section className="py-16 md:py-24 bg-[#090a0a]">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">AI-Powered Tools</h2>
-          <p className="text-lg text-white/60 max-w-2xl mx-auto">
-            Everything you need to create, edit, and enhance your visual content.
-            All tools are powered by the latest AI models.
+    <section className="py-24 relative overflow-hidden bg-black/90">
+      <div className="container mx-auto px-4 relative z-10">
+        
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-white/10 pb-8">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">
+              <Layers className="h-3.5 w-3.5" /> Full Generative Suite
+            </div>
+            <h2 className="font-display text-4xl md:text-5xl font-extrabold text-white">
+              AI CREATIVE <span className="text-cyan-400 italic">TOOLKIT</span>
+            </h2>
+          </div>
+          <p className="text-white/60 text-sm max-w-md font-light">
+            Professional AI image, video, and audio synthesis tools designed for artists, designers, and creators.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        {/* Tools Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {toolCards}
         </div>
 
-        <div className="text-center mt-12">
-          <Button onClick={() => setLocation("/ai")} size="lg" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-            Explore All Tools
-          </Button>
-        </div>
       </div>
     </section>
   );
