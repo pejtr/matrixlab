@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { useLocation } from "wouter";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, Zap, ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Plan {
@@ -11,6 +11,8 @@ interface Plan {
   credits: number;
   features: string[];
   popular?: boolean;
+  gradient: string;
+  accentBorder: string;
 }
 
 const PLANS: Plan[] = [
@@ -20,91 +22,100 @@ const PLANS: Plan[] = [
     priceMonthly: 0,
     priceYearly: 0,
     credits: 50,
-    features: ["50 credits per day", "Basic AI models", "Watermark on exports", "Standard generation speed", "Community support"],
+    features: ["50 free daily credits", "Basic AI image models", "Standard generation queue", "Personal usage license", "Community Discord access"],
+    gradient: "from-white/[0.04] to-transparent",
+    accentBorder: "border-white/10 hover:border-white/20",
   },
   {
     id: "starter",
-    name: "Starter",
+    name: "Creator",
     priceMonthly: 9,
     priceYearly: 7,
     credits: 1000,
-    features: ["1,000 credits per month", "All AI models", "No watermark", "Priority generation", "Email support", "Commercial license"],
+    features: ["1,000 credits / month", "Access to Flux 2 Pro & GPT Image 2", "Zero watermarks on 8K exports", "Priority fast queue", "Commercial rights included", "Email support"],
+    gradient: "from-cyan-500/10 via-blue-500/5 to-transparent",
+    accentBorder: "border-cyan-400/30 hover:border-cyan-400/60",
   },
   {
     id: "pro",
-    name: "Pro",
+    name: "Pro Studio",
     priceMonthly: 29,
     priceYearly: 24,
     credits: 5000,
     popular: true,
-    features: ["5,000 credits per month", "All AI models", "No watermark", "Fastest generation", "API access", "Priority support", "Commercial license", "Batch generation"],
+    features: ["5,000 credits / month", "All models (Midjourney V7, SD 3.5)", "Single & Multi-Face Swap engine", "Sub-second turbo generation", "REST API & Webhook access", "Priority VIP support", "Commercial license"],
+    gradient: "from-cyan-500/20 via-emerald-500/10 to-indigo-500/20",
+    accentBorder: "border-cyan-400/80 shadow-[0_0_35px_rgba(6,182,212,0.3)] ring-1 ring-cyan-400/50",
   },
   {
     id: "ultra",
-    name: "Ultra",
+    name: "Agency Ultra",
     priceMonthly: 79,
     priceYearly: 65,
     credits: 20000,
-    features: ["20,000 credits per month", "All AI models", "No watermark", "Fastest generation", "API access", "4K generation", "Dedicated support", "Commercial license", "Custom model training", "Team collaboration"],
+    features: ["20,000 credits / month", "Unrestricted 8K super resolution", "Unlimited Face Swap jobs", "Dedicated GPU infrastructure", "Full API & Custom LoRA training", "Dedicated Account Manager", "Team seat sharing"],
+    gradient: "from-violet-500/20 via-purple-500/10 to-transparent",
+    accentBorder: "border-violet-400/40 hover:border-violet-400/70",
   },
 ] as const;
 
 function PlanCard({ plan, isYearly, onSelect }: { plan: Plan; isYearly: boolean; onSelect: (plan: Plan) => void }) {
-  const features = useMemo(() => (
-    plan.features.map((feature, idx) => (
-      <li key={idx} className="flex items-start gap-3 text-sm">
-        <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
-        <span className="text-white/70">{feature}</span>
-      </li>
-    ))
-  ), [plan.features]);
-
   return (
     <div
-      className={`relative p-6 rounded-2xl border transition-all ${
-        plan.popular
-          ? "bg-gradient-to-b from-purple-500/20 to-pink-500/20 border-purple-500/50"
-          : "bg-white/5 border-white/10 hover:bg-white/8"
+      className={`relative p-7 rounded-2xl border transition-all bg-black/60 backdrop-blur-xl flex flex-col justify-between ${plan.gradient} ${plan.accentBorder} ${
+        plan.popular ? "scale-[1.02]" : ""
       }`}
     >
       {plan.popular && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-xs font-semibold text-white">
-          Most Popular
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-cyan-400 to-emerald-400 text-black text-[11px] font-mono font-extrabold rounded-full uppercase tracking-wider shadow-lg">
+          ★ MOST POPULAR
         </div>
       )}
 
-      <div className="text-center mb-6">
-        <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
-        <div className="flex items-baseline justify-center gap-1">
-          <span className="text-4xl font-bold text-white">
-            ${isYearly ? plan.priceYearly : plan.priceMonthly}
+      <div>
+        <div className="text-center mb-6">
+          <span className="font-mono text-xs text-white/50 uppercase tracking-widest block mb-1">
+            {plan.name}
           </span>
-          <span className="text-white/50">/mo</span>
+          <div className="flex items-baseline justify-center gap-1">
+            <span className="font-mono text-4xl font-extrabold text-white">
+              ${isYearly ? plan.priceYearly : plan.priceMonthly}
+            </span>
+            <span className="font-mono text-xs text-white/50">/mo</span>
+          </div>
+          <div className="mt-3 p-2 rounded-xl bg-white/[0.04] border border-white/5 font-mono text-xs text-cyan-300 font-semibold">
+            {plan.credits.toLocaleString()} Credits / Mo
+          </div>
         </div>
-        <p className="text-sm text-white/50 mt-2">
-          {plan.credits.toLocaleString()} credits per month
-        </p>
-      </div>
 
-      <ul className="space-y-3 mb-6">{features}</ul>
+        <ul className="space-y-3 mb-8">
+          {plan.features.map((feature, idx) => (
+            <li key={idx} className="flex items-start gap-2.5 text-xs text-white/70">
+              <Check className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <Button
         onClick={() => onSelect(plan)}
-        variant={plan.popular ? "default" : "outline"}
-        className={`w-full ${
+        size="lg"
+        className={`w-full h-12 text-xs font-mono font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
           plan.popular
-            ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-            : "border-white/20 text-white hover:bg-white/10"
+            ? "bg-cyan-400 hover:bg-cyan-300 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+            : "bg-white/10 hover:bg-white/20 text-white border border-white/10"
         }`}
       >
-        {plan.id === "free" ? "Get Started" : "Choose Plan"}
+        <span>{plan.id === "free" ? "GET STARTED FREE" : `SELECT ${plan.name.toUpperCase()}`}</span>
+        <ArrowRight className="h-3.5 w-3.5" />
       </Button>
     </div>
   );
 }
 
 export function PricingSection() {
-  const [isYearly, setIsYearly] = useState(false);
+  const [isYearly, setIsYearly] = useState(true);
   const [, setLocation] = useLocation();
 
   const handleSelectPlan = useCallback((plan: Plan) => {
@@ -112,7 +123,7 @@ export function PricingSection() {
       setLocation("/ai/image-generator");
       return;
     }
-    alert(`In production, this would open Stripe checkout for ${plan.name} plan at $${isYearly ? plan.priceYearly : plan.priceMonthly}/mo`);
+    alert(`Stripe Checkout simulator: Plan ${plan.name} at $${isYearly ? plan.priceYearly : plan.priceMonthly}/mo selected.`);
   }, [isYearly, setLocation]);
 
   const toggleBilling = useCallback(() => setIsYearly(prev => !prev), []);
@@ -124,56 +135,62 @@ export function PricingSection() {
   ), [isYearly, handleSelectPlan]);
 
   return (
-    <section className="py-16 md:py-24 bg-[#090a0a]">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-            <Sparkles className="h-4 w-4 text-yellow-400" />
-            <span className="text-sm text-white/80">Simple Pricing</span>
+    <section className="py-24 relative overflow-hidden bg-black/95">
+      <div className="container mx-auto px-4 relative z-10">
+        
+        {/* Section Header */}
+        <div className="text-center mb-16 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">
+            <Sparkles className="h-3.5 w-3.5" /> Transparent Pricing
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Choose Your Plan
+          <h2 className="font-display text-4xl md:text-5xl font-extrabold text-white mb-4">
+            CHOOSE YOUR <span className="text-cyan-400 italic">CREATIVE POWER</span>
           </h2>
-          <p className="text-lg text-white/60 max-w-2xl mx-auto">
-            Start for free, upgrade when you need more. All plans include
-            access to our full suite of AI tools.
+          <p className="text-white/60 text-base font-light">
+            Flexible monthly plans or yearly billing with instant savings. Cancel or upgrade anytime.
           </p>
+
+          {/* Billing Switcher */}
+          <div className="inline-flex items-center gap-4 mt-8 p-1.5 rounded-full bg-white/[0.05] border border-white/10 backdrop-blur-md">
+            <span className={`text-xs font-mono font-semibold px-3 py-1 rounded-full ${!isYearly ? "bg-white/20 text-white" : "text-white/50"}`}>
+              Monthly
+            </span>
+            <button
+              onClick={toggleBilling}
+              role="switch"
+              aria-checked={isYearly}
+              className={`relative w-12 h-6 rounded-full transition-colors ${isYearly ? "bg-cyan-400" : "bg-white/20"}`}
+            >
+              <div className={`absolute top-0.5 w-5 h-5 bg-black rounded-full transition-transform ${isYearly ? "left-6" : "left-0.5"}`} />
+            </button>
+            <span className={`text-xs font-mono font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 ${isYearly ? "bg-cyan-400/20 text-cyan-300" : "text-white/50"}`}>
+              <span>Yearly</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-400 text-black font-bold">SAVE 20%</span>
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center justify-center gap-4 mb-12">
-          <span className={`text-sm ${!isYearly ? "text-white" : "text-white/50"}`}>Monthly</span>
-          <button
-            onClick={toggleBilling}
-            role="switch"
-            aria-checked={isYearly}
-            className={`relative w-14 h-7 rounded-full transition-colors ${isYearly ? "bg-purple-500" : "bg-white/20"}`}
-          >
-            <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${isYearly ? "left-8" : "left-1"}`} />
-          </button>
-          <span className={`text-sm ${isYearly ? "text-white" : "text-white/50"}`}>
-            Yearly
-            <span className="ml-2 text-xs text-green-400 font-medium">Save 20%</span>
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        {/* Pricing Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-16">
           {planCards}
         </div>
 
-        <div className="flex flex-wrap justify-center gap-6 mt-12 text-sm text-white/50">
+        {/* Trust Badges */}
+        <div className="flex flex-wrap justify-center gap-8 text-xs font-mono text-white/50 tracking-wider uppercase border-t border-white/10 pt-8 max-w-3xl mx-auto">
           <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-400" />
-            <span>Cancel anytime</span>
+            <ShieldCheck className="h-4 w-4 text-emerald-400" />
+            <span>Instant Activation</span>
           </div>
           <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-400" />
-            <span>Secure payment via Stripe</span>
+            <Zap className="h-4 w-4 text-cyan-400" />
+            <span>No Unused Credit Expiry</span>
           </div>
           <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-green-400" />
-            <span>No hidden fees</span>
+            <Sparkles className="h-4 w-4 text-amber-400" />
+            <span>Cancel Anytime</span>
           </div>
         </div>
+
       </div>
     </section>
   );
