@@ -46,30 +46,74 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     
-    <!-- Structured Data for SEO -->
+    <!-- NotFair GEO & SEO Structured Data Graph -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "AI Image Generator",
-      "description": "Best AI image generator - create stunning AI images, art, and photos from text. Free AI art generator with no signup.",
-      "url": "%VITE_APP_URL%",
-      "applicationCategory": "MultimediaApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "featureList": [
-        "AI Image Generation",
-        "Text to Image",
-        "AI Art Generator",
-        "AI Photo Generator",
-        "Free AI Image Generator",
-        "AI Picture Generator",
-        "AI Illustration Generator",
-        "AI Upscale"
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "@id": "https://www.ai-image.io/#webapp",
+          "name": "AI-IMAGE.IO",
+          "alternateName": "AI Image & Face Swap Generator",
+          "description": "Best free AI image generator and face swap platform. Create stunning 8K AI art, photos, and deepfake-free face swaps from text prompts using Flux 2 Pro, GPT Image 2, Midjourney V7, and SD 3.5.",
+          "url": "https://www.ai-image.io",
+          "applicationCategory": "MultimediaApplication",
+          "operatingSystem": "Web",
+          "browserRequirements": "Requires JavaScript. Requires HTML5.",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "featureList": [
+            "Flux 2 Pro Photorealistic Image Generation",
+            "GPT Image 2 Text & Typography Generation",
+            "Midjourney V7 Artistic Style Synthesis",
+            "Single & Multi-Face Swap Online",
+            "4K & 8K Super Resolution AI Upscaling",
+            "AI Background Eraser & Inpainting",
+            "Commercial Rights Included"
+          ]
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://www.ai-image.io/#organization",
+          "name": "AI-IMAGE.IO",
+          "url": "https://www.ai-image.io",
+          "logo": "https://www.ai-image.io/logo.png",
+          "sameAs": []
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://www.ai-image.io/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Which AI models are supported on AI-IMAGE.IO?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "AI-IMAGE.IO supports Flux 2 Pro by Black Forest Labs, GPT Image 2 by OpenAI, Midjourney V7, Imagen 4 by Google, Ideogram V3, and Stable Diffusion 3.5 Turbo."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is AI-IMAGE.IO free to use?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, AI-IMAGE.IO offers free daily credits to generate AI images and perform face swaps with no mandatory subscription."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I use generated AI images for commercial purposes?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, all images generated on AI-IMAGE.IO include full commercial rights for personal and business use."
+              }
+            }
+          ]
+        }
       ]
     }
     </script>
