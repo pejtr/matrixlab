@@ -214,3 +214,8 @@ MIT
 ---
 
 **Note:** This AI image generator is designed for creating stunning AI artwork and images. Use responsibly and respect copyright laws when generating and sharing AI-created content.
+
+
+## Agent handoff
+
+This repository is public. Read `AGENTS.md` and `docs/PUBLIC_REPO_NO_TRUST.md` before non-trivial changes. Public documentation must contain only public-safe information and must not imply production state without verification.
